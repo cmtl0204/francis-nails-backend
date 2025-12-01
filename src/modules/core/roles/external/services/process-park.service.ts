@@ -17,7 +17,7 @@ import {
 } from '@modules/core/entities';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 import { EmailService } from '@modules/core/shared-core/services/email.service';
-import { addDays, endOfDay, set } from 'date-fns';
+import { addDays, endOfDay } from 'date-fns';
 import { ProcessService } from '@modules/core/shared-core/services/process.service';
 
 @Injectable()
