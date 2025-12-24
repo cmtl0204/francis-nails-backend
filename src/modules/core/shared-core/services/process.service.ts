@@ -120,7 +120,7 @@ export class ProcessService {
       throw new NotFoundException('Estado inspección no encontrado');
     }
 
-    const inspectionAt = endOfDay((payload.inspectionAt));
+    const inspectionAt = endOfDay(payload.inspectionAt);
 
     // review aumentar el igual porque no debe dejar agenar el mismo dia
     if (differenceInDays(startOfDay(inspectionAt), startOfDay(new Date())) < 0) {

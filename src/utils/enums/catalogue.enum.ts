@@ -86,7 +86,7 @@ export enum CatalogueActivitiesCodeEnum {
   park_continent = 'park_continent',
   park_galapagos = 'park_galapagos',
   transport_continent = 'transport_continent',
-  transport_galapagos = 'transport_galapagos'
+  transport_galapagos = 'transport_galapagos',
 }
 
 export enum CatalogueCadastresStateEnum {

@@ -1,7 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { In, Repository } from 'typeorm';
 import { AuthRepositoryEnum, CoreRepositoryEnum } from '@utils/enums';
-import { AssignmentEntity, CadastreEntity, InactivationCauseEntity, ProcessEntity, RucEntity } from '@modules/core/entities';
+import {
+  AssignmentEntity,
+  CadastreEntity,
+  InactivationCauseEntity,
+  ProcessEntity,
+  RucEntity,
+} from '@modules/core/entities';
 import { UserEntity } from '@auth/entities';
 
 @Injectable()
@@ -19,7 +25,7 @@ export class InternalPdfSql {
     private readonly assignmentRepositoryRepository: Repository<AssignmentEntity>,
     @Inject(CoreRepositoryEnum.INACTIVATION_CAUSE_REPOSITORY)
     private readonly inactivationCauseRepository: Repository<InactivationCauseEntity>,
-  ) { }
+  ) {}
 
   async findUsers(): Promise<any> {
     const users = await this.userRepository.createQueryBuilder('users').getRawMany();
@@ -37,31 +43,29 @@ export class InternalPdfSql {
           classification: true,
           category: true,
           inactivationCauseType: true,
-          establishmentAddress: { province: { zone: true }, canton: true, parish: true, },
+          establishmentAddress: { province: { zone: true }, canton: true, parish: true },
           establishment: { ruc: { type: true } },
-          establishmentContactPerson: true,//suspencion, update
+          establishmentContactPerson: true, //suspencion, update
           inactivationCauses: true,
-          assignment: { internalUser: {user: true} },
+          assignment: { internalUser: { user: true } },
         },
         cadastreState: true,
-
       },
 
       where: { id: cadastreId },
       order: {
         cadastreState: { isCurrent: 'desc' },
-        process: { establishmentAddress: { isCurrent: 'desc' }, establishmentContactPerson: { isCurrent: 'desc' } },
-
+        process: {
+          establishmentAddress: { isCurrent: 'desc' },
+          establishmentContactPerson: { isCurrent: 'desc' },
+        },
       },
     });
 
-   
-
-    
     return {
       cadastre,
-      inactivationCauses:cadastre?.process.inactivationCauses,//inactivacion
-      internalUser:cadastre?.process.assignment.internalUser.user,//suspension, update
+      inactivationCauses: cadastre?.process.inactivationCauses, //inactivacion
+      internalUser: cadastre?.process.assignment.internalUser.user, //suspension, update
       activity: cadastre?.process.activity,
       classification: cadastre?.process.classification,
       category: cadastre?.process.category,
@@ -76,7 +80,6 @@ export class InternalPdfSql {
       establishmentContactPerson: cadastre?.process.establishmentContactPerson,
       registeredAt: cadastre?.process.registeredAt,
       //
-
     };
   }
   async findRegisterInactivation(cadastreId: string): Promise<any> {
@@ -87,26 +90,27 @@ export class InternalPdfSql {
           classification: true,
           category: true,
           inactivationCauseType: true,
-          establishmentAddress: { province: { zone: true }, canton: true, parish: true, },
+          establishmentAddress: { province: { zone: true }, canton: true, parish: true },
           establishment: { ruc: { type: true } },
-          establishmentContactPerson: true,//suspencion, update
+          establishmentContactPerson: true, //suspencion, update
           inactivationCauses: true,
         },
         cadastreState: true,
-
       },
 
       where: { id: cadastreId },
       order: {
         cadastreState: { isCurrent: 'desc' },
-        process: { establishmentAddress: { isCurrent: 'desc' }, establishmentContactPerson: { isCurrent: 'desc' } },
-
+        process: {
+          establishmentAddress: { isCurrent: 'desc' },
+          establishmentContactPerson: { isCurrent: 'desc' },
+        },
       },
     });
 
     return {
       cadastre,
-      inactivationCauses:cadastre?.process.inactivationCauses,//inactivacion
+      inactivationCauses: cadastre?.process.inactivationCauses, //inactivacion
       activity: cadastre?.process.activity,
       classification: cadastre?.process.classification,
       category: cadastre?.process.category,
@@ -121,7 +125,6 @@ export class InternalPdfSql {
       establishmentContactPerson: cadastre?.process.establishmentContactPerson,
       registeredAt: cadastre?.process.registeredAt,
       //
-
     };
   }
 
@@ -133,26 +136,27 @@ export class InternalPdfSql {
           classification: true,
           category: true,
           inactivationCauseType: true,
-          establishmentAddress: { province: { zone: true }, canton: true, parish: true, },
+          establishmentAddress: { province: { zone: true }, canton: true, parish: true },
           establishment: { ruc: { type: true } },
-          establishmentContactPerson: true,//suspencion, update
-          assignment: { internalUser: {user: true} },
+          establishmentContactPerson: true, //suspencion, update
+          assignment: { internalUser: { user: true } },
         },
         cadastreState: true,
-
       },
 
       where: { id: cadastreId },
       order: {
         cadastreState: { isCurrent: 'desc' },
-        process: { establishmentAddress: { isCurrent: 'desc' }, establishmentContactPerson: { isCurrent: 'desc' } },
-
+        process: {
+          establishmentAddress: { isCurrent: 'desc' },
+          establishmentContactPerson: { isCurrent: 'desc' },
+        },
       },
     });
-    
+
     return {
       cadastre,
-      internalUser:cadastre?.process.assignment.internalUser.user,//suspension, update
+      internalUser: cadastre?.process.assignment.internalUser.user, //suspension, update
       activity: cadastre?.process.activity,
       classification: cadastre?.process.classification,
       category: cadastre?.process.category,
@@ -167,7 +171,6 @@ export class InternalPdfSql {
       establishmentContactPerson: cadastre?.process.establishmentContactPerson,
       registeredAt: cadastre?.process.registeredAt,
       //
-
     };
   }
   async findRegisterSuspension(cadastreId: string): Promise<any> {
@@ -178,25 +181,27 @@ export class InternalPdfSql {
           classification: true,
           category: true,
           inactivationCauseType: true,
-          establishmentAddress: { province: { zone: true }, canton: true, parish: true, },
+          establishmentAddress: { province: { zone: true }, canton: true, parish: true },
           establishment: { ruc: { type: true } },
-          establishmentContactPerson: true,//suspencion, update
-          assignment: { internalUser: {user: true} },
+          establishmentContactPerson: true, //suspencion, update
+          assignment: { internalUser: { user: true } },
         },
         cadastreState: true,
-
       },
 
       where: { id: cadastreId },
       order: {
         cadastreState: { isCurrent: 'desc' },
-        process: { establishmentAddress: { isCurrent: 'desc' }, establishmentContactPerson: { isCurrent: 'desc' } },
+        process: {
+          establishmentAddress: { isCurrent: 'desc' },
+          establishmentContactPerson: { isCurrent: 'desc' },
+        },
       },
     });
 
     return {
       cadastre,
-      internalUser:cadastre?.process.assignment.internalUser.user,//suspension, update
+      internalUser: cadastre?.process.assignment.internalUser.user, //suspension, update
       activity: cadastre?.process.activity,
       classification: cadastre?.process.classification,
       category: cadastre?.process.category,

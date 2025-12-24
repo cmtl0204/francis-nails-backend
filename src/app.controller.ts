@@ -1,11 +1,9 @@
 import { Controller, Get, Inject, Post } from '@nestjs/common';
-import { ResponseHttpInterface } from './utils/interfaces';
+import { ResponseHttpInterface } from '@utils/interfaces';
 import { DatabaseSeeder } from '@database/seeders';
 import { PublicRoute } from '@auth/decorators';
 import { config } from '@config';
 import { ConfigType } from '@nestjs/config';
-
-// import { RucsMigrate } from '@database/migrations/rucs.migration';
 
 @Controller()
 export class AppController {
@@ -36,11 +34,20 @@ export class AppController {
 
   @PublicRoute()
   @Get('greet')
-  greet() {
+  greetPublic() {
     return {
       data: 'Hello World',
       message: 'Hello World',
       title: 'Hello World',
+    };
+  }
+
+  @Get('greet-private')
+  greetPrivate() {
+    return {
+      data: 'Hello World Private',
+      message: 'Hello World Private',
+      title: 'Hello World Private',
     };
   }
 }

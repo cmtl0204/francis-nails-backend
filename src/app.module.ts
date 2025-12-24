@@ -8,7 +8,6 @@ import { AppService } from './app.service';
 import { MulterModule } from '@nestjs/platform-express';
 import { config } from '@config';
 import { AuthModule } from '@modules/auth/auth.module';
-import { MigrationModule } from '@modules/migration/migration.module';
 import { CommonModule } from '@modules/common/common.module';
 import { AuditModule } from '@modules/audit/audit.module';
 import { ReportsModule } from '@modules/reports/reports.module';
@@ -56,7 +55,6 @@ import { APP_GUARD } from '@nestjs/core';
     CoreModule,
     ReportsModule,
     ImportsModule,
-    MigrationModule,
   ],
   controllers: [AppController],
   providers: [

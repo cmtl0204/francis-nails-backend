@@ -4,8 +4,10 @@ import { format } from 'date-fns';
 export const customLayout = {
   hLineWidth: () => 0.5,
   vLineWidth: () => 0.5,
-  hLineColor: (i: number, node: any) => (i === 0 || i === node.table.body.length ? 'black' : '#D9D9D9'),
-  vLineColor: (i: number, node: any) => (i === 0 || i === node.table.widths?.length ? 'black' : '#D9D9D9')
+  hLineColor: (i: number, node: any) =>
+    i === 0 || i === node.table.body.length ? 'black' : '#D9D9D9',
+  vLineColor: (i: number, node: any) =>
+    i === 0 || i === node.table.widths?.length ? 'black' : '#D9D9D9',
 };
 
 export const defaultHeader = (qrText: string): Content => {

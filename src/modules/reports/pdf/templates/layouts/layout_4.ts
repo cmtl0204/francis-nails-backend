@@ -15,7 +15,7 @@ export const defaultHeader = (qrText: string): Content => {
         qr: qrText,
         fit: 70,
         alignment: 'right',
-        margin: [0, 10, 5, 0], 
+        margin: [0, 10, 5, 0],
       },
     ],
   };
@@ -28,8 +28,10 @@ export const defaultDate = (): string => {
 export const customLayout = {
   hLineWidth: () => 0.5,
   vLineWidth: () => 0.5,
-  hLineColor: (i: number, node: any) => (i === 0 || i === node.table.body.length ? 'black' : '#D9D9D9'),
-  vLineColor: (i: number, node: any) => (i === 0 || i === node.table.widths?.length ? 'black' : '#D9D9D9')
+  hLineColor: (i: number, node: any) =>
+    i === 0 || i === node.table.body.length ? 'black' : '#D9D9D9',
+  vLineColor: (i: number, node: any) =>
+    i === 0 || i === node.table.widths?.length ? 'black' : '#D9D9D9',
 };
 
 export const defaultFooter = (): Content => {
