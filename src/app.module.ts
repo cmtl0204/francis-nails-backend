@@ -14,6 +14,8 @@ import { ReportsModule } from '@modules/reports/reports.module';
 import { ImportsModule } from '@modules/imports/imports.module';
 import { CoreModule } from '@modules/core/core.module';
 import { APP_GUARD } from '@nestjs/core';
+import { AdminModule } from '@modules/core/roles/admin';
+
 
 @Module({
   imports: [
@@ -55,6 +57,7 @@ import { APP_GUARD } from '@nestjs/core';
     CoreModule,
     ReportsModule,
     ImportsModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [
