@@ -12,8 +12,8 @@ import {
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 import { ClassificationEntity } from '@modules/core/entities/classification.entity';
 
-@Entity('branches', { schema: 'core' })
-export class BranchEntity {
+@Entity('customers', { schema: 'core' })
+export class CustomerEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -50,35 +50,23 @@ export class BranchEntity {
   enabled: boolean;
 
   /** Inverse Relationship **/
-  @OneToMany(() => ClassificationEntity, (entity) => entity.activity)
-  classifications: ClassificationEntity[];
 
   /** Foreign Keys **/
-  @ManyToOne(() => CatalogueEntity, { nullable: true })
-  @JoinColumn({ name: 'geographic_area_id' })
-  geographicArea: CatalogueEntity;
-  @Column({
-    type: 'uuid',
-    name: 'geographic_area_id',
-    nullable: true,
-    comment: 'Continente y Galapagos',
-  })
-  geographicAreaId: string;
 
   /** Columns **/
   @Column({
-    name: 'name',
+    name: 'identification',
     type: 'varchar',
-    comment: 'Codigo',
+    comment: 'Identificacion del cliente',
   })
-  code: string;
+  identification: string;
 
   @Column({
-    name: 'name',
+    name: 'full_name',
     type: 'varchar',
-    comment: 'Nombre',
+    comment: 'Nombre completo del cliente',
   })
-  name: string;
+  fullName: string;
 
   @Column({
     name: 'sort',
