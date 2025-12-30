@@ -9,8 +9,11 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
-import { ClassificationEntity } from '@modules/core/entities/classification.entity';
+import { BranchEntity } from './branch.entity';
+//import { ProductCategoryEntity } from './product-categorie.entity';
+import { StockBalanceEntity } from './stock-balance.entity';
+import { PurchaseItemEntity } from './purchase-item.entity';
+import { InventoryMovementEntity } from './inventory-movement.entity';
 
 @Entity('products', { schema: 'core' })
 export class ProductEntity {
@@ -50,30 +53,42 @@ export class ProductEntity {
   enabled: boolean;
 
   /** Inverse Relationship **/
-  
-  /** Foreign Keys **/
+  @OneToMany(() => StockBalanceEntity, (stockBalance) => stockBalance.productId)
+  stockBalances: StockBalanceEntity[];
 
-  /** Columns **/
+  @OneToMany(() => PurchaseItemEntity, (purchaseItem) => purchaseItem.productId)
+  purchaseItems: PurchaseItemEntity[];
+
+  @OneToMany(() => InventoryMovementEntity, (movement) => movement.productId)
+  inventoryMovements: InventoryMovementEntity[];
+
+  /** Foreign Keys **/
+  @ManyToOne(() => BranchEntity, (branch) => branch.products)
+  @JoinColumn({ name: 'branch_id' })
+  branch: BranchEntity;
   @Column({
-    name: 'branch_id',
     type: 'uuid',
-    comment: 'ID de la sucursal',
+    name: 'branch_id',
+    comment: 'Referencia a la sucursal'
   })
   branchId: string;
 
+  //@ManyToOne(() => ProductCategoryEntity, (category) => category.products)
+  //@JoinColumn({ name: 'category_id' })
+  //category: ProductCategoryEntity;
+
   @Column({
-    name: 'category_id',
     type: 'uuid',
-    nullable: true,
-    comment: 'ID de la categoria del producto',
+    name: 'category_id',
+    comment: 'Referencia a la categoría de producto'
   })
   categoryId: string;
 
+  /** Columns **/
   @Column({
     name: 'sku',
     type: 'varchar',
-    nullable: true,
-    comment: 'Codigo SKU del producto',
+    comment: 'Código SKU del producto',
   })
   sku: string;
 
@@ -88,14 +103,14 @@ export class ProductEntity {
     name: 'description',
     type: 'text',
     nullable: true,
-    comment: 'Descripcion del producto',
+    comment: 'Descripción del producto',
   })
   description: string;
 
   @Column({
     name: 'unit',
     type: 'varchar',
-    comment: 'Unidad de medida (ml, g, pieza, etc.)',
+    comment: 'Unidad de medida (unidad, ml, g...)',
   })
   unit: string;
 
@@ -124,4 +139,12 @@ export class ProductEntity {
     comment: 'true=controla stock, false=no controla stock',
   })
   trackStock: boolean;
+
+  @Column({
+    name: 'is_enabled',
+    type: 'boolean',
+    default: true,
+    comment: 'Indica si el producto está habilitado',
+  })
+  isEnabled: boolean;
 }

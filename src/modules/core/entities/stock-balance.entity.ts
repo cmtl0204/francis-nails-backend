@@ -5,12 +5,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
-import { ClassificationEntity } from '@modules/core/entities/classification.entity';
+import { ProductEntity } from './product.entity';
+//import { StockLocationEntity } from './stock-location.entity';
 
 @Entity('stock_balances', { schema: 'core' })
 export class StockBalanceEntity {
@@ -50,30 +49,39 @@ export class StockBalanceEntity {
   enabled: boolean;
 
   /** Inverse Relationship **/
-  
-  /** Foreign Keys **/
+  // Esta entidad no es referenciada por otras
 
-  /** Columns **/
+  /** Foreign Keys **/
+  @ManyToOne(() => ProductEntity, (product) => product.stockBalances)
+  @JoinColumn({ name: 'product_id' })
+  product: ProductEntity;
+
   @Column({
-    name: 'product_id',
     type: 'uuid',
-    comment: 'ID del producto',
+    name: 'product_id',
+    comment: 'Referencia al producto'
   })
   productId: string;
 
+  //@ManyToOne(() => StockLocationEntity, (location) => location.stockBalances)
+  //@JoinColumn({ name: 'location_id' })
+  //location: StockLocationEntity;
+
   @Column({
-    name: 'location_id',
     type: 'uuid',
-    comment: 'ID de la ubicacion de stock',
+    name: 'location_id',
+    comment: 'Referencia a la ubicación de stock'
   })
   locationId: string;
 
+  /** Columns **/
   @Column({
     name: 'quantity',
     type: 'decimal',
     precision: 10,
     scale: 2,
-    comment: 'Cantidad disponible',
+    default: 0,
+    comment: 'Cantidad disponible en stock',
   })
   quantity: number;
 }

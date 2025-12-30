@@ -9,8 +9,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
-import { ClassificationEntity } from '@modules/core/entities/classification.entity';
+import { BranchEntity } from './branch.entity';
+import { ProductEntity } from './product.entity';
+//import { StockLocationEntity } from './stock_location.entity';
+import { PurchaseEntity } from './purchase.entity';
 
 @Entity('inventory_movements', { schema: 'core' })
 export class InventoryMovementEntity {
@@ -50,41 +52,65 @@ export class InventoryMovementEntity {
   enabled: boolean;
 
   /** Inverse Relationship **/
-  
-  /** Foreign Keys **/
+  // Esta entidad no es referenciada por otras
 
-  /** Columns **/
+  /** Foreign Keys **/
+  @ManyToOne(() => BranchEntity, (branch) => branch.inventoryMovements)
+  @JoinColumn({ name: 'branch_id' })
+  branch: BranchEntity;
   @Column({
-    name: 'branch_id',
     type: 'uuid',
-    comment: 'ID de la sucursal',
+    name: 'branch_id',
+    comment: 'Referencia a la sucursal'
   })
   branchId: string;
 
+  @ManyToOne(() => ProductEntity, (product) => product.inventoryMovements)
+  @JoinColumn({ name: 'product_id' })
+  product: ProductEntity;
+
   @Column({
-    name: 'product_id',
     type: 'uuid',
-    comment: 'ID del producto',
+    name: 'product_id',
+    comment: 'Referencia al producto'
   })
   productId: string;
 
+  //@ManyToOne(() => StockLocationEntity, (location) => location.inventoryMovements)
+  //@JoinColumn({ name: 'location_id' })
+  //location: StockLocationEntity;
+
   @Column({
-    name: 'location_id',
     type: 'uuid',
-    comment: 'ID de la ubicacion de stock',
+    name: 'location_id',
+    comment: 'Referencia a la ubicación de stock'
   })
   locationId: string;
 
+  @ManyToOne(() => PurchaseEntity, (purchase) => purchase.inventoryMovements, { nullable: true })
+  @JoinColumn({ name: 'purchase_id' })
+  purchase: PurchaseEntity;
+
+  @Column({
+    type: 'uuid',
+    name: 'purchase_id',
+    nullable: true,
+    comment: 'Referencia a la compra (si aplica)'
+  })
+  purchaseId: string;
+
+  /** Columns **/
   @Column({
     name: 'model_type',
     type: 'varchar',
-    comment: 'Tipo de modelo relacionado (invoices, appointments, purchases, etc.)',
+    comment: 'Tipo de modelo relacionado (invoices, appointments, purchases...)',
   })
   modelType: string;
 
   @Column({
     name: 'model_id',
     type: 'uuid',
+    nullable: true,
     comment: 'ID del modelo relacionado',
   })
   modelId: string;
@@ -99,7 +125,7 @@ export class InventoryMovementEntity {
   @Column({
     name: 'reason',
     type: 'varchar',
-    comment: 'Razon del movimiento (purchase, sale, service_use, shrinkage, adjustment)',
+    comment: 'Razón del movimiento (purchase, sale, service_use, shrinkage, adjustment)',
   })
   reason: string;
 
@@ -108,7 +134,7 @@ export class InventoryMovementEntity {
     type: 'decimal',
     precision: 10,
     scale: 2,
-    comment: 'Cantidad movida',
+    comment: 'Cantidad del movimiento',
   })
   quantity: number;
 }

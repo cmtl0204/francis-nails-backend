@@ -5,12 +5,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
-import { ClassificationEntity } from '@modules/core/entities/classification.entity';
+import { AppointmentEntity } from './appointment.entity';
+import { ServiceEntity } from './service.entity';
 
 @Entity('appointment_services', { schema: 'core' })
 export class AppointmentServiceEntity {
@@ -50,28 +49,36 @@ export class AppointmentServiceEntity {
   enabled: boolean;
 
   /** Inverse Relationship **/
-  
-  /** Foreign Keys **/
+  // Esta entidad no es referenciada por otras
 
-  /** Columns **/
+  /** Foreign Keys **/
+  @ManyToOne(() => AppointmentEntity, (appointment) => appointment.appointmentServices)
+  @JoinColumn({ name: 'appointment_id' })
+  appointment: AppointmentEntity;
+
   @Column({
-    name: 'appointment_id',
     type: 'uuid',
-    comment: 'ID de la cita',
+    name: 'appointment_id',
+    comment: 'Referencia a la cita'
   })
   appointmentId: string;
 
+  @ManyToOne(() => ServiceEntity, (service) => service.appointmentServices)
+  @JoinColumn({ name: 'service_id' })
+  service: ServiceEntity;
+
   @Column({
-    name: 'service_id',
     type: 'uuid',
-    comment: 'ID del servicio',
+    name: 'service_id',
+    comment: 'Referencia al servicio'
   })
   serviceId: string;
 
+  /** Columns **/
   @Column({
     name: 'duration_min',
     type: 'int',
-    comment: 'Duracion en minutos',
+    comment: 'Duración del servicio en minutos (puede diferir del estándar)',
   })
   durationMin: number;
 
@@ -80,7 +87,7 @@ export class AppointmentServiceEntity {
     type: 'decimal',
     precision: 10,
     scale: 2,
-    comment: 'Precio del servicio',
+    comment: 'Precio del servicio en esta cita',
   })
   price: number;
 }

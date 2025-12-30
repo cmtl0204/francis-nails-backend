@@ -5,15 +5,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
-import { ClassificationEntity } from '@modules/core/entities/classification.entity';
+import { StaffProfileEntity } from './staff_profile.entity';
 
-@Entity('stock_locations', { schema: 'core' })
-export class StockLocationEntity {
+@Entity('staff_time_off', { schema: 'core' })
+export class StaffTimeOffEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -50,28 +48,39 @@ export class StockLocationEntity {
   enabled: boolean;
 
   /** Inverse Relationship **/
-  
+  // Esta entidad no es referenciada por otras
+
   /** Foreign Keys **/
+  @ManyToOne(() => StaffProfileEntity, (staffProfile) => staffProfile.staffTimeOffs)
+  @JoinColumn({ name: 'staff_profile_id' })
+  staffProfile: StaffProfileEntity;
+
+  @Column({
+    type: 'uuid',
+    name: 'staff_profile_id',
+    comment: 'Referencia al perfil del personal'
+  })
+  staffProfileId: string;
 
   /** Columns **/
   @Column({
-    name: 'branch_id',
-    type: 'uuid',
-    comment: 'ID de la sucursal',
+    name: 'start_at',
+    type: 'timestamp',
+    comment: 'Fecha y hora de inicio del tiempo libre',
   })
-  branchId: string;
+  startAt: Date;
 
   @Column({
-    name: 'code',
-    type: 'varchar',
-    comment: 'Codigo de la ubicacion',
+    name: 'end_at',
+    type: 'timestamp',
+    comment: 'Fecha y hora de fin del tiempo libre',
   })
-  code: string;
+  endAt: Date;
 
   @Column({
-    name: 'name',
+    name: 'reason',
     type: 'varchar',
-    comment: 'Nombre de la ubicacion (bodega, vitrina, caja, etc.)',
+    comment: 'Razón del tiempo libre',
   })
-  name: string;
+  reason: string;
 }

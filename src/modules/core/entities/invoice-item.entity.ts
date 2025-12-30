@@ -5,12 +5,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
-import { ClassificationEntity } from '@modules/core/entities/classification.entity';
+import { InvoiceEntity } from './invoice.entity';
+import { StaffProfileEntity } from './staff_profile.entity';
+import { ServiceEntity } from './service.entity';
 
 @Entity('invoice_items', { schema: 'core' })
 export class InvoiceItemEntity {
@@ -50,29 +50,48 @@ export class InvoiceItemEntity {
   enabled: boolean;
 
   /** Inverse Relationship **/
-  
-  /** Foreign Keys **/
+  // Esta entidad no es referenciada por otras
 
-  /** Columns **/
+  /** Foreign Keys **/
+  @ManyToOne(() => InvoiceEntity, (invoice) => invoice.invoiceItems)
+  @JoinColumn({ name: 'invoice_id' })
+  invoice: InvoiceEntity;
+
   @Column({
-    name: 'invoice_id',
     type: 'uuid',
-    comment: 'ID de la factura',
+    name: 'invoice_id',
+    comment: 'Referencia a la factura'
   })
   invoiceId: string;
 
+  @ManyToOne(() => StaffProfileEntity, (staff) => staff.invoiceItems)
+  @JoinColumn({ name: 'staff_id' })
+  staff: StaffProfileEntity;
+
   @Column({
-    name: 'staff_id',
     type: 'uuid',
-    nullable: true,
-    comment: 'ID del empleado que realizo el servicio',
+    name: 'staff_id',
+    comment: 'Referencia al staff que realizó el servicio'
   })
   staffId: string;
 
+  @ManyToOne(() => ServiceEntity, { nullable: true })
+  @JoinColumn({ name: 'service_id' })
+  service: ServiceEntity;
+
+  @Column({
+    type: 'uuid',
+    name: 'service_id',
+    nullable: true,
+    comment: 'Referencia al servicio (si model_type es service)'
+  })
+  serviceId: string;
+
+  /** Columns **/
   @Column({
     name: 'model_type',
     type: 'varchar',
-    comment: 'Tipo de modelo (service, product, other)',
+    comment: 'Tipo de modelo: service|product|other',
   })
   modelType: string;
 
@@ -80,14 +99,14 @@ export class InvoiceItemEntity {
     name: 'model_id',
     type: 'uuid',
     nullable: true,
-    comment: 'ID del modelo relacionado',
+    comment: 'ID del modelo (si aplica)',
   })
   modelId: string;
 
   @Column({
     name: 'description',
     type: 'varchar',
-    comment: 'Descripcion del item',
+    comment: 'Descripción del ítem',
   })
   description: string;
 
@@ -96,7 +115,7 @@ export class InvoiceItemEntity {
     type: 'decimal',
     precision: 10,
     scale: 2,
-    comment: 'Cantidad del item',
+    comment: 'Cantidad',
   })
   quantity: number;
 
@@ -105,7 +124,7 @@ export class InvoiceItemEntity {
     type: 'decimal',
     precision: 10,
     scale: 2,
-    comment: 'Precio unitario del item',
+    comment: 'Precio unitario',
   })
   unitPrice: number;
 
@@ -115,7 +134,7 @@ export class InvoiceItemEntity {
     precision: 10,
     scale: 2,
     default: 0,
-    comment: 'Descuento aplicado al item',
+    comment: 'Descuento aplicado al ítem',
   })
   discount: number;
 
@@ -124,7 +143,8 @@ export class InvoiceItemEntity {
     type: 'decimal',
     precision: 10,
     scale: 2,
-    comment: 'Impuesto del item',
+    default: 0,
+    comment: 'Impuestos del ítem',
   })
   tax: number;
 
@@ -133,7 +153,7 @@ export class InvoiceItemEntity {
     type: 'decimal',
     precision: 10,
     scale: 2,
-    comment: 'Total del item',
+    comment: 'Total del ítem',
   })
   total: number;
 }

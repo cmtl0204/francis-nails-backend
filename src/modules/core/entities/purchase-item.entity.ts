@@ -5,12 +5,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
-import { ClassificationEntity } from '@modules/core/entities/classification.entity';
+import { PurchaseEntity } from './purchase.entity';
+import { ProductEntity } from './product.entity';
 
 @Entity('purchase_items', { schema: 'core' })
 export class PurchaseItemEntity {
@@ -50,24 +49,32 @@ export class PurchaseItemEntity {
   enabled: boolean;
 
   /** Inverse Relationship **/
-  
-  /** Foreign Keys **/
+  // Esta entidad no es referenciada por otras
 
-  /** Columns **/
+  /** Foreign Keys **/
+  @ManyToOne(() => PurchaseEntity, (purchase) => purchase.purchaseItems)
+  @JoinColumn({ name: 'purchase_id' })
+  purchase: PurchaseEntity;
+
   @Column({
-    name: 'purchase_id',
     type: 'uuid',
-    comment: 'ID de la compra',
+    name: 'purchase_id',
+    comment: 'Referencia a la compra'
   })
   purchaseId: string;
 
+  @ManyToOne(() => ProductEntity, (product) => product.purchaseItems)
+  @JoinColumn({ name: 'product_id' })
+  product: ProductEntity;
+
   @Column({
-    name: 'product_id',
     type: 'uuid',
-    comment: 'ID del producto',
+    name: 'product_id',
+    comment: 'Referencia al producto'
   })
   productId: string;
 
+  /** Columns **/
   @Column({
     name: 'quantity',
     type: 'decimal',
@@ -91,7 +98,7 @@ export class PurchaseItemEntity {
     type: 'decimal',
     precision: 10,
     scale: 2,
-    comment: 'Total del item',
+    comment: 'Total del ítem (quantity * unit_cost)',
   })
   total: number;
 }

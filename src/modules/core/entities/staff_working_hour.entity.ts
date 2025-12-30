@@ -5,15 +5,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { BranchEntity } from './branch.entity';
-import { PurchaseEntity } from './purchase.entity';
+import { StaffProfileEntity } from './staff_profile.entity';
 
-@Entity('suppliers', { schema: 'core' })
-export class SupplierEntity {
+@Entity('staff_working_hours', { schema: 'core' })
+export class StaffWorkingHourEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -50,58 +48,63 @@ export class SupplierEntity {
   enabled: boolean;
 
   /** Inverse Relationship **/
-  @OneToMany(() => PurchaseEntity, (purchase) => purchase.supplierId)
-  purchases: PurchaseEntity[];
+  // Esta entidad no es referenciada por otras
 
   /** Foreign Keys **/
-  @ManyToOne(() => BranchEntity, (branch) => branch.suppliers)
-  @JoinColumn({ name: 'branch_id' })
-  branch: BranchEntity;
+  @ManyToOne(() => StaffProfileEntity, (staffProfile) => staffProfile.staffWorkingHours)
+  @JoinColumn({ name: 'staff_profile_id' })
+  staffProfile: StaffProfileEntity;
 
   @Column({
     type: 'uuid',
-    name: 'branch_id',
-    comment: 'Referencia a la sucursal'
+    name: 'staff_profile_id',
+    comment: 'Referencia al perfil del personal'
   })
-  branchId: string;
+  staffProfileId: string;
 
   /** Columns **/
   @Column({
-    name: 'name',
-    type: 'varchar',
-    comment: 'Nombre del proveedor',
+    name: 'weekday',
+    type: 'int',
+    comment: 'Día de la semana: 1=Lunes ... 7=Domingo',
   })
-  name: string;
+  weekday: number;
 
   @Column({
-    name: 'phone',
-    type: 'varchar',
-    nullable: true,
-    comment: 'Teléfono del proveedor',
+    name: 'start_time',
+    type: 'time',
+    comment: 'Hora de inicio de la jornada',
   })
-  phone: string;
+  startTime: string;
 
   @Column({
-    name: 'email',
-    type: 'varchar',
-    nullable: true,
-    comment: 'Email del proveedor',
+    name: 'end_time',
+    type: 'time',
+    comment: 'Hora de fin de la jornada',
   })
-  email: string;
+  endTime: string;
 
   @Column({
-    name: 'identification',
-    type: 'varchar',
+    name: 'break_start',
+    type: 'time',
     nullable: true,
-    comment: 'Identificación (RUC, cédula)',
+    comment: 'Hora de inicio del descanso',
   })
-  identification: string;
+  breakStart: string;
 
   @Column({
-    name: 'address',
-    type: 'text',
+    name: 'break_end',
+    type: 'time',
     nullable: true,
-    comment: 'Dirección del proveedor',
+    comment: 'Hora de fin del descanso',
   })
-  address: string;
+  breakEnd: string;
+
+  @Column({
+    name: 'is_day_off',
+    type: 'boolean',
+    default: false,
+    comment: 'Indica si es día libre',
+  })
+  isDayOff: boolean;
 }

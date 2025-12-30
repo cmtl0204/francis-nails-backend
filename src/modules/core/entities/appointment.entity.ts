@@ -12,11 +12,11 @@ import {
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 import { BranchEntity } from './branch.entity';
 import { CustomerEntity } from './customer.entity';
-import { UserEntity } from '@auth/entities';
-import { InvoiceItemEntity } from './invoice-item.entity';
+import { StaffProfileEntity } from './staff_profile.entity';
+import { AppointmentServiceEntity } from './appointment-service.entity';
 
-@Entity('invoices', { schema: 'core' })
-export class InvoiceEntity {
+@Entity('appointments', { schema: 'core' })
+export class AppointmentEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -53,11 +53,11 @@ export class InvoiceEntity {
   enabled: boolean;
 
   /** Inverse Relationship **/
-  @OneToMany(() => InvoiceItemEntity, (invoiceItem) => invoiceItem.invoice)
-  invoiceItems: InvoiceItemEntity[];
+  @OneToMany(() => AppointmentServiceEntity, (appointmentService) => appointmentService.appointmentId)
+  appointmentServices: AppointmentServiceEntity[];
 
   /** Foreign Keys **/
-  @ManyToOne(() => BranchEntity, (branch) => branch.invoices)
+  @ManyToOne(() => BranchEntity, (branch) => branch.appointments)
   @JoinColumn({ name: 'branch_id' })
   branch: BranchEntity;
 
@@ -68,7 +68,7 @@ export class InvoiceEntity {
   })
   branchId: string;
 
-  @ManyToOne(() => CustomerEntity, (customer) => customer.invoices)
+  @ManyToOne(() => CustomerEntity, (customer) => customer.appointments)
   @JoinColumn({ name: 'customer_id' })
   customer: CustomerEntity;
 
@@ -79,6 +79,17 @@ export class InvoiceEntity {
   })
   customerId: string;
 
+  @ManyToOne(() => StaffProfileEntity, (staff) => staff.appointments)
+  @JoinColumn({ name: 'staff_profile_id' })
+  staffProfile: StaffProfileEntity;
+  
+  @Column({
+    type: 'uuid',
+    name: 'staff_profile_id',
+    comment: 'Referencia al personal'
+  })
+  staffProfileId: string;
+
   @ManyToOne(() => CatalogueEntity)
   @JoinColumn({ name: 'status_id' })
   status: CatalogueEntity;
@@ -86,83 +97,41 @@ export class InvoiceEntity {
   @Column({
     type: 'int',
     name: 'status_id',
-    comment: 'Referencia al catálogo de estados de factura'
+    comment: 'Referencia al catálogo de estados de cita'
   })
   statusId: number;
 
-  @ManyToOne(() => UserEntity)
-  @JoinColumn({ name: 'created_by' })
-  createdBy: UserEntity;
+  @ManyToOne(() => CatalogueEntity)
+  @JoinColumn({ name: 'source_id' })
+  source: CatalogueEntity;
 
   @Column({
-    type: 'uuid',
-    name: 'created_by',
-    comment: 'Usuario que creó la factura'
+    type: 'int',
+    name: 'source_id',
+    comment: 'Referencia al catálogo de fuentes de cita'
   })
-  createdById: string;
+  sourceId: number;
 
   /** Columns **/
   @Column({
-    name: 'invoice_number',
-    type: 'varchar',
-    unique: true,
-    comment: 'Número de factura (serie + secuencial)',
-  })
-  invoiceNumber: string;
-
-  @Column({
-    name: 'issued_at',
+    name: 'start_at',
     type: 'timestamp',
-    default: () => 'CURRENT_timestampP',
-    comment: 'Fecha de emisión de la factura',
+    comment: 'Fecha y hora de inicio',
   })
-  issuedAt: Date;
+  startAt: Date;
 
   @Column({
-    name: 'subtotal',
-    type: 'decimal',
-    precision: 10,
-    scale: 2,
-    default: 0,
-    comment: 'Subtotal de la factura',
+    name: 'end_at',
+    type: 'timestamp',
+    comment: 'Fecha y hora de fin',
   })
-  subtotal: number;
-
-  @Column({
-    name: 'discount',
-    type: 'decimal',
-    precision: 10,
-    scale: 2,
-    default: 0,
-    comment: 'Descuento total de la factura',
-  })
-  discount: number;
-
-  @Column({
-    name: 'tax',
-    type: 'decimal',
-    precision: 10,
-    scale: 2,
-    default: 0,
-    comment: 'Impuestos de la factura',
-  })
-  tax: number;
-
-  @Column({
-    name: 'total',
-    type: 'decimal',
-    precision: 10,
-    scale: 2,
-    default: 0,
-    comment: 'Total de la factura',
-  })
-  total: number;
+  endAt: Date;
 
   @Column({
     name: 'notes',
     type: 'text',
     nullable: true,
-    comment: 'Notas adicionales de la factura',
+    comment: 'Notas adicionales',
   })
   notes: string;
 }

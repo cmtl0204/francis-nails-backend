@@ -9,13 +9,13 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 import { BranchEntity } from './branch.entity';
-import { SupplierEntity } from './supplier.entity';
-import { PurchaseItemEntity } from './purchase-item.entity';
-import { InventoryMovementEntity } from './inventory-movement.entity';
+import { AppointmentServiceEntity } from './appointment-service.entity';
+import { InvoiceItemEntity } from './invoice-item.entity';
 
-@Entity('purchases', { schema: 'core' })
-export class PurchaseEntity {
+@Entity('services', { schema: 'core' })
+export class ServiceEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -52,14 +52,14 @@ export class PurchaseEntity {
   enabled: boolean;
 
   /** Inverse Relationship **/
-  @OneToMany(() => PurchaseItemEntity, (purchaseItem) => purchaseItem.purchaseId)
-  purchaseItems: PurchaseItemEntity[];
+  @OneToMany(() => AppointmentServiceEntity, (appointmentService) => appointmentService.serviceId)
+  appointmentServices: AppointmentServiceEntity[];
 
-  @OneToMany(() => InventoryMovementEntity, (movement) => movement.purchase)
-  inventoryMovements: InventoryMovementEntity[];
+  @OneToMany(() => InvoiceItemEntity, (invoiceItem) => invoiceItem.service)
+  invoiceItems: InvoiceItemEntity[];
 
   /** Foreign Keys **/
-  @ManyToOne(() => BranchEntity, (branch) => branch.purchases)
+  @ManyToOne(() => BranchEntity, (branch) => branch.services)
   @JoinColumn({ name: 'branch_id' })
   branch: BranchEntity;
 
@@ -70,60 +70,54 @@ export class PurchaseEntity {
   })
   branchId: string;
 
-  @ManyToOne(() => SupplierEntity, (supplier) => supplier.purchases)
-  @JoinColumn({ name: 'supplier_id' })
-  supplier: SupplierEntity;
+  @ManyToOne(() => CatalogueEntity)
+  @JoinColumn({ name: 'category_id' })
+  category: CatalogueEntity;
 
   @Column({
     type: 'uuid',
-    name: 'supplier_id',
-    comment: 'Referencia al proveedor'
+    name: 'category_id',
+    comment: 'Referencia al catálogo de categorías de servicio'
   })
-  supplierId: string;
+  categoryId: string;
 
   /** Columns **/
   @Column({
-    name: 'document_number',
+    name: 'name',
     type: 'varchar',
+    comment: 'Nombre del servicio',
+  })
+  name: string;
+
+  @Column({
+    name: 'description',
+    type: 'text',
     nullable: true,
-    comment: 'Número de documento (factura)',
+    comment: 'Descripción del servicio',
   })
-  documentNumber: string;
+  description: string;
 
   @Column({
-    name: 'purchased_at',
-    type: 'date',
-    comment: 'Fecha de la compra',
+    name: 'duration_min',
+    type: 'int',
+    comment: 'Duración estándar del servicio en minutos',
   })
-  purchasedAt: Date;
+  durationMin: number;
 
   @Column({
-    name: 'subtotal',
+    name: 'base_price',
     type: 'decimal',
     precision: 10,
     scale: 2,
-    default: 0,
-    comment: 'Subtotal de la compra',
+    comment: 'Precio base del servicio',
   })
-  subtotal: number;
+  basePrice: number;
 
   @Column({
-    name: 'tax',
-    type: 'decimal',
-    precision: 10,
-    scale: 2,
-    default: 0,
-    comment: 'Impuestos de la compra',
+    name: 'is_enabled',
+    type: 'boolean',
+    default: true,
+    comment: 'Indica si el servicio está habilitado',
   })
-  tax: number;
-
-  @Column({
-    name: 'total',
-    type: 'decimal',
-    precision: 10,
-    scale: 2,
-    default: 0,
-    comment: 'Total de la compra',
-  })
-  total: number;
+  isEnabled: boolean;
 }
