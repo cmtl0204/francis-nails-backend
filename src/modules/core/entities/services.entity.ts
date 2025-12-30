@@ -11,9 +11,10 @@ import {
 } from 'typeorm';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 import { ClassificationEntity } from '@modules/core/entities/classification.entity';
+import { BranchEntity } from './branch.entity';
 
 @Entity('services', { schema: 'core' })
-export class serviceEntity {
+export class ServiceEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -52,6 +53,28 @@ export class serviceEntity {
   /** Inverse Relationship **/
   
   /** Foreign Keys **/
+
+  @ManyToOne(()=>BranchEntity)
+  @JoinColumn({name: 'branch_id'})
+  branch: BranchEntity;
+
+  @Column({
+    type: 'uuid',
+    name: 'branch_id',
+    comment: ''
+  })
+  branchId: string
+
+  @ManyToOne(() => CatalogueEntity)
+  @JoinColumn({ name: 'category_id' })
+  category: CatalogueEntity;
+  @Column({
+    type: 'uuid',
+    name: 'category_id',
+    comment: ''
+  })
+  categoryId: string;
+
 
   /** Columns **/
 @Column({

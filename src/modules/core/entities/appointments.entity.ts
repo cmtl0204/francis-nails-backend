@@ -11,6 +11,9 @@ import {
 } from 'typeorm';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 import { ClassificationEntity } from '@modules/core/entities/classification.entity';
+import { BranchEntity } from './branch.entity';
+import { CustomerEntity } from './customers.entity';
+import { StaffProfileEntity } from './staff_profiles.entity';
 
 @Entity('appointments', { schema: 'core' })
 export class AppointmentEntity {
@@ -52,6 +55,65 @@ export class AppointmentEntity {
   /** Inverse Relationship **/
   
   /** Foreign Keys **/
+
+  @ManyToOne(()=>BranchEntity, )
+  @JoinColumn({name: 'branch_id'})
+  branch: BranchEntity;
+
+  @Column({
+    type: 'uuid',
+    name: 'branch_id',
+    comment: ''
+  })
+  branchId: string
+
+  @ManyToOne(()=>CustomerEntity)
+  @JoinColumn({name: 'custom_id'})
+  custom: CustomerEntity;
+
+  @Column({
+    type: 'uuid',
+    name: 'custom_id',
+    comment: ''
+  })
+  customId: string
+
+
+  @ManyToOne(()=>StaffProfileEntity)
+  @JoinColumn({name: 'staff_profile_id'})
+  staff_profile: StaffProfileEntity;
+  
+  @Column({
+    type: 'uuid',
+    name: 'staff_profile_id',
+    comment: ''
+    })
+  staffProfileId: string
+
+  
+  @ManyToOne(() => CatalogueEntity)
+  @JoinColumn({ name: 'statuses_id' })
+  statuses: CatalogueEntity;
+  @Column({
+    type: 'uuid',
+    name: 'statuses_id',
+    comment: ''
+  })
+  statusesId: string;
+
+  @ManyToOne(() => CatalogueEntity)
+  @JoinColumn({ name: 'sources_id' })
+  sources: CatalogueEntity;
+  @Column({
+    type: 'uuid',
+    name: 'sources_id',
+    comment: ''
+  })
+  sourcesID: string;
+
+
+
+
 
   /** Columns **/
 @Column({

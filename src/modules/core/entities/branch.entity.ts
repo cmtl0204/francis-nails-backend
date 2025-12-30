@@ -11,6 +11,9 @@ import {
 } from 'typeorm';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 import { ClassificationEntity } from '@modules/core/entities/classification.entity';
+import { ServiceEntity} from './services.entity';
+import { AppointmentEntity } from './appointments.entity';
+import { UserEntity } from '@auth/entities';
 
 @Entity('branches', { schema: 'core' })
 export class BranchEntity {
@@ -50,8 +53,21 @@ export class BranchEntity {
   enabled: boolean;
 
   /** Inverse Relationship **/
+
+
+  @OneToMany(() => ServiceEntity, (service)=> service.branch  )
+  services: ServiceEntity[];
+
+  @OneToMany(() => UserEntity, (user)=> user.branch  )
+  users: UserEntity[];
+
+
+  @OneToMany(() => AppointmentEntity, (appointment)=> appointment.branch  )
+  appointments: AppointmentEntity[];
+
   
   /** Foreign Keys **/
+
 
   /** Columns **/
  @Column({

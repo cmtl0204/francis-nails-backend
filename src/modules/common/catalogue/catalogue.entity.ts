@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { CatalogueInspectionsStateEnum, CatalogueProcessesTypeEnum } from '@utils/enums';
+import { ServiceEntity } from '@modules/core/entities/services.entity';
 
 @Entity('catalogues', { schema: 'common' })
 export class CatalogueEntity {
@@ -51,6 +52,10 @@ export class CatalogueEntity {
   /** Inverse Relationship **/
   @OneToMany(() => CatalogueEntity, (category) => category.parent)
   children: CatalogueEntity[];
+
+
+
+
 
   /** Foreign Keys **/
   @ManyToOne(() => CatalogueEntity, (category) => category.children, {

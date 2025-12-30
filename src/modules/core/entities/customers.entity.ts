@@ -6,14 +6,17 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 import { ClassificationEntity } from '@modules/core/entities/classification.entity';
+import { AppointmentEntity } from './appointments.entity';
+import { UserEntity } from '@auth/entities';
 
 @Entity('customers', { schema: 'core' })
-export class CustomEntity {
+export class CustomerEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -50,8 +53,41 @@ export class CustomEntity {
   enabled: boolean;
 
   /** Inverse Relationship **/
+
+
+  @OneToMany(()=> CustomerEntity, (custom)=> custom.referral)
+  referrals: CustomerEntity[]
+
+  @OneToMany(()=> AppointmentEntity, (appointment)=> appointment.custom)
+  appointments: AppointmentEntity[]
+
+
+
   
   /** Foreign Keys **/
+
+  @ManyToOne(()=> CustomerEntity,(custom)=> custom.referrals)
+  @JoinColumn({name: 'referral_id'})
+  referral: CustomerEntity;
+  @Column({
+    type: 'uuid',
+    name: 'referral_id',
+    comment: ''
+  })
+  referralId: string
+
+  @ManyToOne(()=> UserEntity)
+  @JoinColumn({name: 'user_id'})
+  user: UserEntity;
+  @Column({
+    type: 'uuid',
+    name: 'user_id',
+    comment: ''
+  })
+  userId: string
+
+
+
 
   /** Columns **/
 @Column({

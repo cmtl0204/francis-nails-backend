@@ -8,6 +8,7 @@ import {
   JoinColumn,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -16,6 +17,9 @@ import * as Bcrypt from 'bcrypt';
 import { RoleEntity } from '@auth/entities';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 import { PaymentEntity } from '@modules/core/entities';
+import { StaffProfileEntity } from '@modules/core/entities/staff_profiles.entity';
+import { BranchEntity } from '@modules/core/entities/branch.entity';
+import { CustomerEntity } from '@modules/core/entities/customers.entity';
 
 @Entity('users', { schema: 'auth' })
 export class UserEntity {
@@ -49,6 +53,13 @@ export class UserEntity {
 
   @OneToOne(() => PaymentEntity, (entity) => entity.user)
   payment: PaymentEntity;
+
+  @OneToOne(() => StaffProfileEntity, (profile) => profile.user)
+  staff_profile: StaffProfileEntity;
+
+   @OneToMany(() => CustomerEntity, (custome) => custome.user)
+  custome: CustomerEntity;
+
 
   /** Foreign Keys **/
   @ManyToOne(() => CatalogueEntity, { nullable: true })
@@ -127,6 +138,19 @@ export class UserEntity {
     comment: 'Hombre o Mujer',
   })
   sexId: string;
+
+  @ManyToOne(()=>BranchEntity)
+  @JoinColumn({name: 'branch_id'})
+  branch: BranchEntity;
+
+  @Column({
+    type: 'uuid',
+    name: 'branch_id',
+    comment: ''
+  })
+  branchId: string
+
+
 
   /** Fields **/
   @Column({

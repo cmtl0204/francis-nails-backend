@@ -9,6 +9,7 @@ import {
   BeforeUpdate,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import { MenuEntity, PermissionEntity, UserEntity } from '@auth/entities';
 
@@ -70,6 +71,8 @@ export class RoleEntity {
     inverseJoinColumn: { name: 'permission_id' },
   })
   permissions: PermissionEntity[];
+
+  
 
   /** Columns **/
   @Column({

@@ -6,14 +6,20 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 import { ClassificationEntity } from '@modules/core/entities/classification.entity';
+import { StaffWorkingHourEntity, } from './staff_working_hours.entity';
+import { StaffTimeOffEntity } from './staff_time_off.entity';
+import { AppointmentEntity } from './appointments.entity';
+import { UserEntity } from '@auth/entities';
+
 
 @Entity('staff_profiles', { schema: 'core' })
-export class staffProfileEntity {
+export class StaffProfileEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -50,8 +56,33 @@ export class staffProfileEntity {
   enabled: boolean;
 
   /** Inverse Relationship **/
+
+  @OneToMany(()=> StaffWorkingHourEntity, (working)=> working.staff_profile)
+  staff_workings: StaffWorkingHourEntity[];
+
+  @OneToMany(()=> StaffTimeOffEntity, (time)=> time.staff_profile)
+  staff_times: StaffTimeOffEntity[];
+
+  @OneToMany(()=> AppointmentEntity, (appointment)=> appointment.staff_profile)
+  appointments: AppointmentEntity[]
+
+
+
+
   
   /** Foreign Keys **/
+
+
+    @OneToOne (()=>UserEntity,(user)=> user.staff_profile)
+    @JoinColumn({ name: 'staff_profile_id'})
+    user: UserEntity;
+    @Column({
+      type: 'uuid',
+      name: 'staff_profile_id',
+      comment: ''
+    })
+    staffProfileId: string
+
 
   /** Columns **/
 @Column({

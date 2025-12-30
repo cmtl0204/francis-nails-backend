@@ -11,9 +11,10 @@ import {
 } from 'typeorm';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 import { ClassificationEntity } from '@modules/core/entities/classification.entity';
+import { StaffProfileEntity,  } from './staff_profiles.entity';
 
 @Entity('staff_working_hours', { schema: 'core' })
-export class staffWorkingHourEntity {
+export class StaffWorkingHourEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -52,6 +53,18 @@ export class staffWorkingHourEntity {
   /** Inverse Relationship **/
   
   /** Foreign Keys **/
+
+    @ManyToOne(()=>StaffProfileEntity)
+    @JoinColumn({name: 'staff_profile_id'})
+    staff_profile: StaffProfileEntity;
+  
+    @Column({
+      type: 'uuid',
+      name: 'staff_profile_id',
+      comment: ''
+    })
+    branchId: string
+  
 
   /** Columns **/
 @Column({
