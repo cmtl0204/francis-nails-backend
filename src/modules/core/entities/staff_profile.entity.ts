@@ -11,7 +11,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
-import { StaffWorkingHourEntity } from './staff_working_hours.entity';
+import { StaffWorkingHourEntity } from './staff_working_hour.entity';
 import { StaffTimeOffEntity } from './staff_time_off.entity';
 import { AppointmentEntity } from './appointment.entity';
 import { UserEntity } from '@auth/entities';
