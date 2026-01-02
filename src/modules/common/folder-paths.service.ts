@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { join } from 'path';
-import { config } from '@config';
+import { envConfig } from '@config';
 import { ConfigType } from '@nestjs/config';
 
 @Injectable()
 export class FolderPathsService {
-  constructor(@Inject(config.KEY) private configService: ConfigType<typeof config>) {}
+  constructor(@Inject(envConfig.KEY) private configService: ConfigType<typeof envConfig>) {}
 
   get mailTemporaryFiles(): string {
     if (this.configService.env !== 'production') {

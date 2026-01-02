@@ -1,14 +1,14 @@
 import {
-  PrimaryGeneratedColumn,
-  Column,
-  Entity,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
   BeforeInsert,
   BeforeUpdate,
-  ManyToMany,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
   JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { MenuEntity, PermissionEntity, UserEntity } from '@auth/entities';
 

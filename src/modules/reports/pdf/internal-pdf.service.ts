@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PrinterService } from './printer.service';
 import { ConfigType } from '@nestjs/config';
-import { config } from '@config';
+import { envConfig } from '@config';
 import { InternalPdfSql } from '@modules/reports/pdf/internal-pdf.sql';
 import { registerCertificateReport } from '@modules/reports/pdf/templates/internals/register-certificate.report';
 import { registerInactivation } from './templates/internals/inactivation.report';
@@ -13,7 +13,7 @@ export class InternalPdfService {
   constructor(
     private readonly internalPdfSql: InternalPdfSql,
     private readonly printerService: PrinterService,
-    @Inject(config.KEY) private configService: ConfigType<typeof config>,
+    @Inject(envConfig.KEY) private configService: ConfigType<typeof envConfig>,
   ) {}
 
   async generateUsersReportBuffer() {

@@ -12,8 +12,8 @@ import {
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 import { ClassificationEntity } from '@modules/core/entities/classification.entity';
 
-@Entity('branches', { schema: 'core' })
-export class BranchEntity {
+@Entity('activities', { schema: 'core' })
+export class ActivityEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

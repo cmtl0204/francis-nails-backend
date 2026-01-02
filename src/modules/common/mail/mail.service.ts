@@ -2,7 +2,7 @@ import { Inject, Injectable, InternalServerErrorException, OnModuleInit } from '
 import * as nodemailer from 'nodemailer';
 import { SentMessageInfo } from 'nodemailer';
 import { ConfigType } from '@nestjs/config';
-import { config } from '@config';
+import { envConfig } from '@config';
 import { MailDataInterface } from './interfaces/mail-data.interface';
 import { join } from 'path';
 import { FolderPathsService } from '../folder-paths.service';
@@ -14,7 +14,7 @@ export class MailService implements OnModuleInit {
   private transporter: nodemailer.Transporter;
 
   constructor(
-    @Inject(config.KEY) private configService: ConfigType<typeof config>,
+    @Inject(envConfig.KEY) private configService: ConfigType<typeof envConfig>,
     private readonly folderPathsService: FolderPathsService,
   ) {
     this.transporter = nodemailer.createTransport({

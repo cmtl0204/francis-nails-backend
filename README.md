@@ -103,7 +103,7 @@ Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 npm i --save @faker-js/faker
 npm i --save @nestjs/axios
 npm i --save @nestjs/cache-manager
-npm i --save @nestjs/config
+npm i --save @nestjs/envConfig
 npm i --save @nestjs/jwt
 npm i --save @nestjs/passport
 npm i --save @nestjs/swagger

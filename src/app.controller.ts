@@ -2,14 +2,14 @@ import { Controller, Get, Inject, Post } from '@nestjs/common';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { DatabaseSeeder } from '@database/seeders';
 import { PublicRoute } from '@auth/decorators';
-import { config } from '@config';
+import { envConfig } from '@config';
 import { ConfigType } from '@nestjs/config';
 
 @Controller()
 export class AppController {
   constructor(
     private readonly databaseSeeder: DatabaseSeeder,
-    @Inject(config.KEY) private configService: ConfigType<typeof config>,
+    @Inject(envConfig.KEY) private configService: ConfigType<typeof envConfig>,
   ) {}
 
   @PublicRoute()

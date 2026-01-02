@@ -1,14 +1,14 @@
 import { DataSource } from 'typeorm';
 import { ConfigType } from '@nestjs/config';
 import { ConfigEnum } from '../utils/enums';
-import { config } from '@config';
+import { envConfig } from '@config';
 import { AuditSubscriber } from '@modules/audit/audit.subscriber';
 
 export const databaseProviders = [
   {
     provide: ConfigEnum.PG_DATA_SOURCE,
-    inject: [config.KEY],
-    useFactory: async (configService: ConfigType<typeof config>) => {
+    inject: [envConfig.KEY],
+    useFactory: async (configService: ConfigType<typeof envConfig>) => {
       const { username, host, database, password, port } = configService.database;
       const dataSource = new DataSource({
         type: 'postgres',

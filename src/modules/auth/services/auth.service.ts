@@ -26,7 +26,7 @@ import {
 } from '@auth/dto';
 import { ServiceResponseHttpInterface } from '@utils/interfaces';
 import { MailService } from '@modules/common/mail/mail.service';
-import { config } from '@config';
+import { envConfig } from '@config';
 import { ConfigType } from '@nestjs/config';
 import { MailDataInterface } from '@modules/common/mail/interfaces/mail-data.interface';
 import { UsersService } from './users.service';
@@ -45,7 +45,7 @@ export class AuthService {
     private transactionalCodeRepository: Repository<TransactionalCodeEntity>,
     @Inject(CoreRepositoryEnum.RUC_REPOSITORY)
     private rucRepository: Repository<RucEntity>,
-    @Inject(config.KEY) private configService: ConfigType<typeof config>,
+    @Inject(envConfig.KEY) private configService: ConfigType<typeof envConfig>,
     private readonly userService: UsersService,
     private jwtService: JwtService,
     private readonly mailService: MailService,

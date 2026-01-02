@@ -2,7 +2,7 @@ import { Global, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { config } from '@config';
+import { envConfig } from '@config';
 import { AuthController, RolesController, UsersController } from '@auth/controllers';
 import { authProviders } from '@auth/providers';
 import { DatabaseModule } from '@database/database.module';
@@ -27,8 +27,8 @@ import { HttpModule } from '@nestjs/axios';
     MailModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
-      inject: [config.KEY],
-      useFactory: (configService: ConfigType<typeof config>) => {
+      inject: [envConfig.KEY],
+      useFactory: (configService: ConfigType<typeof envConfig>) => {
         return {
           secret: configService.jwtSecret,
           signOptions: {
