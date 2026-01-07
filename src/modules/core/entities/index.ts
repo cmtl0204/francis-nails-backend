@@ -48,7 +48,16 @@ export { ZoneEntity} from './zone.entity';
 
 
 //Agregar desde aqui//
+export { BranchEntity} from './branch.entity';
+export { CustomerEntity} from './customer.entity';
+export { StaffProfileEntity} from './staff_profile.entity';
+export { StaffWorkingHourEntity} from './staff_working_hour.entity';
+export { StaffTimeOffEntity} from './staff_time_off.entity';
+export { ServiceEntity} from './service.entity';
 export { AppointmentEntity} from './appointment.entity';
+// Hasta aqui mis entidades Jorge
+
+
 
 
 
@@ -104,12 +113,28 @@ import { ZoneEntity } from './zone.entity';
 
 //
 //Agregar desde aqui//
-import { AppointmentEntity } from './appointment.entity';
-
+import { BranchEntity} from './branch.entity';
+import { CustomerEntity} from './customer.entity';
+import { StaffProfileEntity} from './staff_profile.entity';
+import { StaffWorkingHourEntity} from './staff_working_hour.entity';
+import { StaffTimeOffEntity} from './staff_time_off.entity';
+import { ServiceEntity} from './service.entity';
+import { AppointmentEntity} from './appointment.entity';
+//Hasta aqui mis entidades Jorge
 
 
 export const entities = [
-  AppointmentEntity, //Editar desde aqui
+  BranchEntity, //Editar desde aqui
+  CustomerEntity,
+  StaffProfileEntity,
+  StaffWorkingHourEntity,
+  StaffTimeOffEntity,
+  ServiceEntity,
+  AppointmentEntity,
+  //Hasta aqui mis entidades Jorge
+
+
+
 
 
 

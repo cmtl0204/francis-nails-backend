@@ -10,6 +10,8 @@ import {
 } from 'typeorm';
 import { UserEntity } from '@auth/entities';
 import { RucEntity } from '@modules/core/entities/ruc.entity';
+import { InvoiceEntity } from './invoice.entity';
+import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 
 @Entity('payments', { schema: 'core' })
 export class PaymentEntity {
@@ -62,16 +64,26 @@ export class PaymentEntity {
   })
   userId: string;
 
-  @ManyToOne(() => RucEntity, { nullable: true })
-  @JoinColumn({ name: 'invoice_id' })
-  ruc: RucEntity;
+  @ManyToOne(() => CatalogueEntity)
+  @JoinColumn({ name: 'payments_methods_id' })
+  payment_methods: CatalogueEntity;
   @Column({
     type: 'uuid',
-    name: 'ruc_id',
+    name: 'payments_methods_id',
+    comment: '',
+  })
+  paymentsMethodId: string;
+
+  @ManyToOne(() => InvoiceEntity, )
+  @JoinColumn({ name: 'invoice_id' })
+  invoice: InvoiceEntity;
+  @Column({
+    type: 'uuid',
+    name: 'invoice_id',
     nullable: true,
     comment: '',
   })
-  rucId: string;
+  invoiceId: string;
 
   /** Columns **/
   @Column({

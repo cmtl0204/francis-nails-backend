@@ -14,6 +14,7 @@ import { BranchEntity } from './branch.entity';
 import { CustomerEntity } from './customer.entity';
 import { UserEntity } from '@auth/entities';
 import { InvoiceItemEntity } from './invoice-item.entity';
+import { PaymentEntity } from './payment.entity';
 
 @Entity('invoices', { schema: 'core' })
 export class InvoiceEntity {
@@ -56,10 +57,15 @@ export class InvoiceEntity {
   @OneToMany(() => InvoiceItemEntity, (invoiceItem) => invoiceItem.invoice)
   invoiceItems: InvoiceItemEntity[];
 
+  @OneToMany(() => PaymentEntity, (payment) => payment.invoice)
+  payments: InvoiceItemEntity[];
+
   /** Foreign Keys **/
   @ManyToOne(() => BranchEntity, (branch) => branch.invoices)
   @JoinColumn({ name: 'branch_id' })
   branch: BranchEntity;
+
+
 
   @Column({
     type: 'uuid',

@@ -52,6 +52,12 @@ import {
 
   //Agregar desde aqui
   AppointmentEntity,
+  BranchEntity,
+  StaffProfileEntity,
+  StaffWorkingHourEntity,
+  StaffTimeOffEntity,
+  ServiceEntity,
+  CustomerEntity
 
   
 } from '@modules/core/entities';
@@ -60,9 +66,40 @@ import { ServiceTypeEntity } from '@modules/core/entities/service-type.entity';
 
 export const coreProviders = [
   //Editar desde aqui
+
   {
-    provide: CoreRepositoryEnum.APPOINTMENT_REPOSITORY,
-    useFactory: (dataSource: DataSource) => dataSource.getRepository(AppointmentEntity),
+    provide: CoreRepositoryEnum.BRANCH_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(BranchEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+
+   {
+    provide: CoreRepositoryEnum.CUSTOMER_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(CustomerEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+
+  {
+    provide: CoreRepositoryEnum.STAFFPROFILE_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(StaffProfileEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+
+  {
+    provide: CoreRepositoryEnum.STAFFWORKINGHOUR_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(StaffWorkingHourEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+
+  {
+    provide: CoreRepositoryEnum.STAFFTIMEOFF_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(StaffTimeOffEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+
+  {
+    provide: CoreRepositoryEnum.SERVICE_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(ServiceEntity),
     inject: [ConfigEnum.PG_DATA_SOURCE],
   },
 
@@ -71,6 +108,10 @@ export const coreProviders = [
     useFactory: (dataSource: DataSource) => dataSource.getRepository(AppointmentEntity),
     inject: [ConfigEnum.PG_DATA_SOURCE],
   },
+  // Hasta aqui mis entidades Jorge
+
+
+
 
 
 
