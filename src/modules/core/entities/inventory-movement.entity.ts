@@ -11,8 +11,8 @@ import {
 } from 'typeorm';
 import { BranchEntity } from './branch.entity';
 import { ProductEntity } from './product.entity';
-//import { StockLocationEntity } from './stock_location.entity';
 import { PurchaseEntity } from './purchase.entity';
+import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 
 @Entity('inventory_movements', { schema: 'core' })
 export class InventoryMovementEntity {
@@ -76,9 +76,9 @@ export class InventoryMovementEntity {
   })
   productId: string;
 
-  //@ManyToOne(() => StockLocationEntity, (location) => location.inventoryMovements)
-  //@JoinColumn({ name: 'location_id' })
-  //location: StockLocationEntity;
+  @ManyToOne(() => CatalogueEntity)
+  @JoinColumn({ name: 'location_id' })
+  location: CatalogueEntity;
 
   @Column({
     type: 'uuid',

@@ -44,8 +44,16 @@ export { SalesRepresentativeEntity } from './sales-representative.entity';
 export { TouristGuideEntity } from './tourist-guide.entity';
 export { TouristLicenseEntity } from './tourist-license.entity';
 export { TouristTransportCompanyEntity } from './tourist-transport-company.entity';
-export { ZoneEntity } from './zone.entity';
+export { ZoneEntity} from './zone.entity';
 
+
+//Agregar desde aqui//
+export { AppointmentEntity} from './appointment.entity';
+
+
+
+
+//
 import { ActivityEntity } from './activity.entity';
 import { AdventureTourismModalityEntity } from './adventure-tourism-modality.entity';
 import { AssignmentEntity } from './assignment.entity';
@@ -94,7 +102,19 @@ import { TouristLicenseEntity } from './tourist-license.entity';
 import { TouristTransportCompanyEntity } from './tourist-transport-company.entity';
 import { ZoneEntity } from './zone.entity';
 
+//
+//Agregar desde aqui//
+import { AppointmentEntity } from './appointment.entity';
+
+
+
 export const entities = [
+  AppointmentEntity, //Editar desde aqui
+
+
+
+
+  //
   ActivityEntity,
   AdventureTourismModalityEntity,
   AssignmentEntity,

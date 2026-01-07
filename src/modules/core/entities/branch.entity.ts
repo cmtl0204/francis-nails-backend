@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -13,10 +14,10 @@ import { UserEntity } from '@auth/entities';
 import { ProductEntity } from './product.entity';
 import { PurchaseEntity } from './purchase.entity';
 import { InvoiceEntity } from './invoice.entity';
-//import { ProductCategoryEntity } from './product_categorie.entity';
 //import { StockLocationEntity } from './stock_locations.entity';
 import { SupplierEntity } from './supplier.entity';
 import { InventoryMovementEntity } from './inventory-movement.entity';
+import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 
 @Entity('branches', { schema: 'core' })
 export class BranchEntity {
@@ -67,12 +68,6 @@ export class BranchEntity {
 
   @OneToMany(() => ProductEntity, (product) => product.branch)
   products: ProductEntity[];
-
-  //@OneToMany(() => ProductCategoryEntity, (category) => category.branch)
-  //productCategories: ProductCategoryEntity[];
-
-  //@OneToMany(() => StockLocationEntity, (location) => location.branch)
-  //stockLocations: StockLocationEntity[];
 
   @OneToMany(() => SupplierEntity, (supplier) => supplier.branchId)
   suppliers: SupplierEntity[];

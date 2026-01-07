@@ -63,9 +63,9 @@ export class StockBalanceEntity {
   })
   productId: string;
 
-  //@ManyToOne(() => StockLocationEntity, (location) => location.stockBalances)
+  //@ManyToOne(() => LocationEntity)
   //@JoinColumn({ name: 'location_id' })
-  //location: StockLocationEntity;
+  //location: LocationEntity;
 
   @Column({
     type: 'uuid',

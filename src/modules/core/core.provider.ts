@@ -48,11 +48,34 @@ import {
   TouristLicenseEntity,
   TouristTransportCompanyEntity,
   ZoneEntity,
+
+
+  //Agregar desde aqui
+  AppointmentEntity,
+
+  
 } from '@modules/core/entities';
-import { KitchenTypeEntity } from '@modules/core/entities/kitchen-type.entity';
+import { KitchenTypeEntity } from '@modules/core/entities/kitchen-type.entity';//no deben agregarse imports aqui
 import { ServiceTypeEntity } from '@modules/core/entities/service-type.entity';
 
 export const coreProviders = [
+  //Editar desde aqui
+  {
+    provide: CoreRepositoryEnum.APPOINTMENT_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(AppointmentEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+
+  {
+    provide: CoreRepositoryEnum.APPOINTMENT_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(AppointmentEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+
+
+
+
+  //No topar
   {
     provide: CoreRepositoryEnum.ACTIVITY_REPOSITORY,
     useFactory: (dataSource: DataSource) => dataSource.getRepository(ActivityEntity),

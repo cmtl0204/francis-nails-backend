@@ -63,7 +63,7 @@ export class PaymentEntity {
   userId: string;
 
   @ManyToOne(() => RucEntity, { nullable: true })
-  @JoinColumn({ name: 'ruc_id' })
+  @JoinColumn({ name: 'invoice_id' })
   ruc: RucEntity;
   @Column({
     type: 'uuid',

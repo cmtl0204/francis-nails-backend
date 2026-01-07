@@ -71,7 +71,7 @@ export class ServiceEntity {
   branchId: string;
 
   @ManyToOne(() => CatalogueEntity)
-  @JoinColumn({ name: 'category_id' })
+  @JoinColumn({ name: 'services_categories_id' })
   category: CatalogueEntity;
 
   @Column({

@@ -10,10 +10,10 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { BranchEntity } from './branch.entity';
-//import { ProductCategoryEntity } from './product-categorie.entity';
 import { StockBalanceEntity } from './stock-balance.entity';
 import { PurchaseItemEntity } from './purchase-item.entity';
 import { InventoryMovementEntity } from './inventory-movement.entity';
+import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 
 @Entity('products', { schema: 'core' })
 export class ProductEntity {
@@ -73,9 +73,9 @@ export class ProductEntity {
   })
   branchId: string;
 
-  //@ManyToOne(() => ProductCategoryEntity, (category) => category.products)
-  //@JoinColumn({ name: 'category_id' })
-  //category: ProductCategoryEntity;
+  @ManyToOne(() => CatalogueEntity)
+  @JoinColumn({ name: 'product_categories_id' })
+  category: CatalogueEntity;
 
   @Column({
     type: 'uuid',
