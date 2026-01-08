@@ -14,7 +14,6 @@ import { UserEntity } from '@auth/entities';
 import { ProductEntity } from './product.entity';
 import { PurchaseEntity } from './purchase.entity';
 import { InvoiceEntity } from './invoice.entity';
-//import { StockLocationEntity } from './stock_locations.entity';
 import { SupplierEntity } from './supplier.entity';
 import { InventoryMovementEntity } from './inventory-movement.entity';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';

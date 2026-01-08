@@ -9,7 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { ProductEntity } from './product.entity';
-//import { StockLocationEntity } from './stock-location.entity';
+import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 
 @Entity('stock_balances', { schema: 'core' })
 export class StockBalanceEntity {
@@ -63,9 +63,9 @@ export class StockBalanceEntity {
   })
   productId: string;
 
-  //@ManyToOne(() => LocationEntity)
-  //@JoinColumn({ name: 'location_id' })
-  //location: LocationEntity;
+  @ManyToOne(() => CatalogueEntity)
+  @JoinColumn({ name: 'location_id' })
+  location: CatalogueEntity;
 
   @Column({
     type: 'uuid',

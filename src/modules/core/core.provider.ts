@@ -52,12 +52,21 @@ import {
 
   //Agregar desde aqui
   AppointmentEntity,
+  AppointmentServiceEntity,
   BranchEntity,
   StaffProfileEntity,
   StaffWorkingHourEntity,
   StaffTimeOffEntity,
   ServiceEntity,
-  CustomerEntity
+  CustomerEntity,
+  ProductEntity,
+  StockBalanceEntity,
+  SupplierEntity,
+  PurchaseEntity,
+  PurchaseItemEntity,
+  InventoryMovementEntity,
+  InvoiceEntity,
+  InvoiceItemEntity,
 
   
 } from '@modules/core/entities';
@@ -80,19 +89,19 @@ export const coreProviders = [
   },
 
   {
-    provide: CoreRepositoryEnum.STAFFPROFILE_REPOSITORY,
+    provide: CoreRepositoryEnum.STAFF_PROFILE_REPOSITORY,
     useFactory: (dataSource: DataSource) => dataSource.getRepository(StaffProfileEntity),
     inject: [ConfigEnum.PG_DATA_SOURCE],
   },
 
   {
-    provide: CoreRepositoryEnum.STAFFWORKINGHOUR_REPOSITORY,
+    provide: CoreRepositoryEnum.STAFF_WORKING_HOUR_REPOSITORY,
     useFactory: (dataSource: DataSource) => dataSource.getRepository(StaffWorkingHourEntity),
     inject: [ConfigEnum.PG_DATA_SOURCE],
   },
 
   {
-    provide: CoreRepositoryEnum.STAFFTIMEOFF_REPOSITORY,
+    provide: CoreRepositoryEnum.STAFF_TIME_OFF_REPOSITORY,
     useFactory: (dataSource: DataSource) => dataSource.getRepository(StaffTimeOffEntity),
     inject: [ConfigEnum.PG_DATA_SOURCE],
   },
@@ -109,13 +118,55 @@ export const coreProviders = [
     inject: [ConfigEnum.PG_DATA_SOURCE],
   },
   // Hasta aqui mis entidades Jorge
+  {
+    provide: CoreRepositoryEnum.APPOINTMENT_SERVICE_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(AppointmentServiceEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+  {
+    provide: CoreRepositoryEnum.PRODUCT_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(ProductEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+  {
+    provide: CoreRepositoryEnum.STOCK_BALANCE_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(StockBalanceEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+  {
+    provide: CoreRepositoryEnum.SUPLIER_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(SupplierEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+  {
+    provide: CoreRepositoryEnum.PURCHASE_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(PurchaseEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+  {
+    provide: CoreRepositoryEnum.PUCRCHASE_ITEM_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(PurchaseItemEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+  {
+    provide: CoreRepositoryEnum.INVENTORY_MOVEMENT_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(InventoryMovementEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+  {
+    provide: CoreRepositoryEnum.INVOICE_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(InvoiceEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+  {
+    provide: CoreRepositoryEnum.INVOICE__ITEM_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(InvoiceItemEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
 
 
 
-
-
-
-
+  
   //No topar
   {
     provide: CoreRepositoryEnum.ACTIVITY_REPOSITORY,
