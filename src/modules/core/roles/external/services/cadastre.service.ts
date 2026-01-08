@@ -1,11 +1,15 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { CoreRepositoryEnum } from '@utils/enums';
 import { ServiceResponseHttpInterface } from '@utils/interfaces';
 import { CadastreEntity } from '@modules/core/entities';
-import { CreateCadastreDto, UpdateCadastreDto } from '@modules/core/roles/external/dto/cadastre';
+import {
+  CreateCadastreDto,
+  ExampleDto,
+  UpdateCadastreDto,
+} from '@modules/core/roles/external/dto/cadastre';
 import { PaginationDto } from '@utils/dto';
 import { PaginateFilterService } from '@utils/pagination/paginate-filter.service';
+import { CoreRepositoryEnum } from '@utils/enums';
 
 @Injectable()
 export class CadastreService {
@@ -13,9 +17,36 @@ export class CadastreService {
 
   constructor(
     @Inject(CoreRepositoryEnum.CADASTRE_REPOSITORY)
-    private repository: Repository<CadastreEntity>,
+    private readonly repository: Repository<CadastreEntity>,
   ) {
     this.paginateFilterService = new PaginateFilterService(this.repository);
+  }
+
+  findRuta1() {
+    return {
+      data: [
+        {
+          name: 'juan',
+          phone: '0987654321',
+        },
+        {
+          name: 'maria',
+          phone: '0987654321',
+        },
+      ],
+    };
+  }
+
+  createdRuta(payload: ExampleDto) {
+    const entity = this.repository.create();
+
+    entity.enabled = false;
+    entity.observation = payload.name;
+    entity.systemOrigin = payload.phone;
+
+    return {
+      data: entity,
+    };
   }
 
   async create(payload: CreateCadastreDto): Promise<ServiceResponseHttpInterface> {

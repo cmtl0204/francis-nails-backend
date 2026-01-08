@@ -12,17 +12,42 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Auth } from '@auth/decorators';
+import { PublicRoute } from '@auth/decorators';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { CadastreService } from '@modules/core/roles/external/services/cadastre.service';
 import { CreateCadastreDto } from '@modules/core/roles/external/dto/cadastre';
 import { PaginationDto } from '@utils/dto';
 
-@ApiTags('External Cadastre')
-@Auth()
-@Controller('core/dac/cadastres')
+@ApiTags('External Cadastre Ruta1')
+@Controller('core/external/cadastres')
 export class CadastreController {
-  constructor(private service: CadastreService) {}
+  constructor(private readonly service: CadastreService) {}
+
+  @PublicRoute()
+  @ApiOperation({ summary: 'List all Ruta 1' })
+  @Get('rutas')
+  ruta1() {
+    const serviceResponse = this.service.findRuta1();
+
+    return {
+      data: serviceResponse.data,
+      message: `Registros Consultados`,
+      title: `Consultados`,
+    };
+  }
+
+  @PublicRoute()
+  @ApiOperation({ summary: 'List all Ruta 1' })
+  @Post('rutas')
+  createRuta1() {
+    const serviceResponse = this.service.createdRuta({ name: 'juan', phone: '123' });
+
+    return {
+      data: serviceResponse.data,
+      message: `Registros Consultados`,
+      title: `Consultados`,
+    };
+  }
 
   @ApiOperation({ summary: 'List all Cadastres' })
   @Get()
