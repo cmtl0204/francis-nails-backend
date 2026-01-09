@@ -104,7 +104,6 @@ export class CustomerEntity {
   @Column({
     name: 'allergies',
     type: 'text',
-    nullable: true,
     comment: 'Alergias o restricciones del usuario',
   })
   allergies: string;

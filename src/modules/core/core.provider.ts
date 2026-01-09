@@ -167,6 +167,8 @@ export const coreProviders = [
 
 
   
+
+  
   //No topar
   {
     provide: CoreRepositoryEnum.ACTIVITY_REPOSITORY,
