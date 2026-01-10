@@ -15,6 +15,15 @@ import { ProcessEventService } from '@modules/core/roles/external/services/proce
 import { ProcessFoodDrinkService } from '@modules/core/roles/external/services/process-food-drink.service';
 import { ProcessTransportService } from '@modules/core/roles/external/services/process-transport.service';
 import { BranchService } from '@modules/core/roles/external/services/branch.service';
+import { AppointmentServiceService } from './services/appointment-service.service';
+import { InventoryMovementService } from './services/inventory-movement.service';
+import { InvoiceItemService } from './services/invoice-item.service';
+import { InvoiceService } from './services/invoice.service';
+import { ProductService } from './services/product.service';
+import { PurchaseItemService } from './services/purchase-item.service';
+import { PurchaseService } from './services/purchase.service';
+import { StockBalanceService } from './services/stock-balance.service';
+import { SupplierService } from './services/supplier.service';
 
 @Global()
 @Module({
@@ -31,6 +40,15 @@ import { BranchService } from '@modules/core/roles/external/services/branch.serv
     ProcessFoodDrinkService,
     ProcessTransportService,
     BranchService,
+    AppointmentServiceService,
+    ProductService,
+    StockBalanceService,
+    SupplierService,
+    PurchaseService,
+    PurchaseItemService,
+    InventoryMovementService,
+    InvoiceService,
+    InvoiceItemService,
   ],
   exports: [],
 })
