@@ -24,6 +24,11 @@ import { PurchaseItemService } from './services/purchase-item.service';
 import { PurchaseService } from './services/purchase.service';
 import { StockBalanceService } from './services/stock-balance.service';
 import { SupplierService } from './services/supplier.service';
+import { CustomersService } from './services/customers.service';
+import { StaffProfilesService } from './services/staff-profiles.service';
+import { StaffWorkingHoursService } from './services/staff-working-hours.service';
+import { StaffTimeOffService } from './services/staff-time-off.service';
+import { AppointmentsService } from './services/appointments.service';
 
 @Global()
 @Module({
@@ -49,6 +54,11 @@ import { SupplierService } from './services/supplier.service';
     InventoryMovementService,
     InvoiceService,
     InvoiceItemService,
+    CustomersService,
+    StaffProfilesService,
+    StaffWorkingHoursService,
+    StaffTimeOffService,
+    AppointmentsService,
   ],
   exports: [],
 })

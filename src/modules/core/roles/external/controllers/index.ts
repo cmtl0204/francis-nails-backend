@@ -16,6 +16,12 @@ import { PurchaseItemController } from './purchase-item.controller';
 import { PurchaseController } from './purchase.controller';
 import { StockBalanceController } from './stock-balance.controller';
 import { SupplierController } from './supplier.controller';
+import { CustomersController } from './customers.controller';
+import { StaffProfilesController } from './staff-profiles.controller';
+import { StaffWorkingHourEntity } from '@modules/core/entities';
+import { StaffTimeOffController } from './staff-time-off.controller';
+import { StaffWorkingHoursController } from './staff-working-hours.controller';
+import { AppointmentsController } from './appointments.controller';
 
 export const controllers = [
   CadastreController,
@@ -36,4 +42,9 @@ export const controllers = [
   InventoryMovementController,
   InvoiceController,
   InvoiceItemController,
+  CustomersController,
+  StaffProfilesController,
+  StaffWorkingHoursController,
+  StaffTimeOffController,
+  AppointmentsController,
 ];
