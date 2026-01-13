@@ -3,8 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpCode,
-  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -13,23 +11,20 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Auth } from '@auth/decorators';
 import { CreateRoleDto, FilterRoleDto, UpdateRoleDto } from '@auth/dto';
 import { RoleEntity } from '@auth/entities';
-import { ResponseHttpInterface } from '../../../utils/interfaces';
+import { ResponseHttpInterface } from '@utils/interfaces';
 import { RolesService } from '@auth/services/roles.service';
 
 @ApiTags('Roles')
-@Auth()
-@Controller('roles')
+@Controller('auth/roles')
 export class RolesController {
-  constructor(private rolesService: RolesService) {}
+  constructor(private service: RolesService) {}
 
   @ApiOperation({ summary: 'Create One' })
   @Post()
-  @HttpCode(HttpStatus.CREATED)
   async create(@Body() payload: CreateRoleDto): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.rolesService.create(payload);
+    const serviceResponse = await this.service.create(payload);
 
     return {
       data: serviceResponse.data,
@@ -38,15 +33,13 @@ export class RolesController {
     };
   }
 
-  @ApiOperation({ summary: 'Catalogue' })
-  @Get('catalogue')
-  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Catalogues' })
+  @Get('catalogues')
   async catalogue(): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.rolesService.catalogue();
+    const serviceResponse = await this.service.catalogue();
 
     return {
-      data: serviceResponse.data,
-      pagination: serviceResponse.pagination,
+      data: serviceResponse,
       message: `catalogue`,
       title: `Catalogue`,
     };
@@ -54,9 +47,8 @@ export class RolesController {
 
   @ApiOperation({ summary: 'Find All' })
   @Get()
-  @HttpCode(HttpStatus.OK)
   async findAll(@Query() params: FilterRoleDto): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.rolesService.findAll(params);
+    const serviceResponse = await this.service.findAll(params);
 
     return {
       data: serviceResponse.data,
@@ -68,9 +60,8 @@ export class RolesController {
 
   @ApiOperation({ summary: 'Find One' })
   @Get(':id')
-  @HttpCode(HttpStatus.OK)
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.rolesService.findOne(id);
+    const serviceResponse = await this.service.findOne(id);
 
     return {
       data: serviceResponse.data,
@@ -81,12 +72,11 @@ export class RolesController {
 
   @ApiOperation({ summary: 'Update One' })
   @Put(':id')
-  @HttpCode(HttpStatus.CREATED)
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() payload: UpdateRoleDto,
   ): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.rolesService.update(id, payload);
+    const serviceResponse = await this.service.update(id, payload);
 
     return {
       data: serviceResponse.data,
@@ -97,9 +87,8 @@ export class RolesController {
 
   @ApiOperation({ summary: 'Remove One' })
   @Delete(':id')
-  @HttpCode(HttpStatus.CREATED)
   async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.rolesService.remove(id);
+    const serviceResponse = await this.service.remove(id);
 
     return {
       data: serviceResponse.data,
@@ -110,9 +99,8 @@ export class RolesController {
 
   @ApiOperation({ summary: 'Remove All' })
   @Patch('remove-all')
-  @HttpCode(HttpStatus.CREATED)
   async removeAll(@Body() payload: RoleEntity[]): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.rolesService.removeAll(payload);
+    const serviceResponse = await this.service.removeAll(payload);
 
     return {
       data: serviceResponse.data,

@@ -2,15 +2,12 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
-  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
   Post,
   Put,
-  UploadedFile,
-  UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Auth, PublicRoute, User } from '@auth/decorators';
@@ -19,17 +16,11 @@ import {
   PasswordChangeDto,
   SignInDto,
   SignUpExternalDto,
-  UpdateProfileDto,
   UpdateUserInformationDto,
 } from '@auth/dto';
 import { ResponseHttpInterface } from '@utils/interfaces';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { join } from 'path';
-import { getFileName, imageFilter } from '@utils/helpers';
 import { AuthService } from '@auth/services/auth.service';
 
-@Auth()
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -38,7 +29,6 @@ export class AuthController {
   @ApiOperation({ summary: 'SignIn' })
   @PublicRoute()
   @Post('sign-in')
-  @HttpCode(HttpStatus.CREATED)
   async signIn(@Body() payload: SignInDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.authService.signIn(payload);
 
@@ -52,7 +42,6 @@ export class AuthController {
   @ApiOperation({ summary: 'SignUpExternal' })
   @PublicRoute()
   @Post('sign-up-external')
-  @HttpCode(HttpStatus.CREATED)
   async signUpExternal(@Body() payload: SignUpExternalDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.authService.signUpExternal(payload);
 
@@ -65,7 +54,6 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Change Password' })
   @Put(':id/change-password')
-  @HttpCode(HttpStatus.CREATED)
   async changePassword(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() payload: PasswordChangeDto,
@@ -79,22 +67,8 @@ export class AuthController {
     };
   }
 
-  @ApiOperation({ summary: 'Find Profile' })
-  @Get('profile')
-  @HttpCode(HttpStatus.OK)
-  async findProfile(@User() user: UserEntity): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.authService.findProfile(user.id);
-
-    return {
-      data: serviceResponse.data,
-      message: `profile`,
-      title: `Success`,
-    };
-  }
-
   @ApiOperation({ summary: 'Find User Information' })
   @Get('user-information')
-  @HttpCode(HttpStatus.OK)
   async findUserInformation(@User() user: UserEntity): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.authService.findUserInformation(user.id);
 
@@ -105,25 +79,8 @@ export class AuthController {
     };
   }
 
-  @ApiOperation({ summary: 'Update Profile' })
-  @Put('profile')
-  @HttpCode(HttpStatus.CREATED)
-  async updateProfile(
-    @User() user: UserEntity,
-    @Body() payload: UpdateProfileDto,
-  ): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.authService.updateProfile(user.id, payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'El perfil fue actualizado',
-      title: 'Actualizado',
-    };
-  }
-
   @ApiOperation({ summary: 'Update User Information' })
   @Put('user-information')
-  @HttpCode(HttpStatus.CREATED)
   async updateUserInformation(
     @User('id', ParseUUIDPipe) id: string,
     @Body() payload: UpdateUserInformationDto,
@@ -138,9 +95,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Refresh Token' })
-  @Auth()
   @Get('refresh-token')
-  @HttpCode(HttpStatus.CREATED)
   async refreshToken(@User() user: UserEntity): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.authService.refreshToken(user);
 
@@ -153,7 +108,6 @@ export class AuthController {
 
   @PublicRoute()
   @Get('transactional-codes/:username/request')
-  @HttpCode(HttpStatus.OK)
   async requestTransactionalCode(
     @Param('username') username: string,
   ): Promise<ResponseHttpInterface> {
@@ -168,7 +122,6 @@ export class AuthController {
 
   @PublicRoute()
   @Patch('transactional-codes/:token/verify')
-  @HttpCode(HttpStatus.OK)
   async verifyTransactionalCode(
     @Param('token') token: string,
     @Body('username') username: string,
@@ -184,7 +137,6 @@ export class AuthController {
 
   @PublicRoute()
   @Patch('reset-passwords')
-  @HttpCode(HttpStatus.OK)
   async resetPassword(@Body() payload: any): Promise<ResponseHttpInterface> {
     await this.authService.resetPassword(payload);
 
@@ -195,55 +147,17 @@ export class AuthController {
     };
   }
 
-  @ApiOperation({ summary: 'Upload Avatar' })
-  @Post(':id/avatar')
-  @UseInterceptors(
-    FileInterceptor('avatar', {
-      storage: diskStorage({
-        destination: join(process.cwd(), 'public/assets/avatars'),
-        filename: getFileName,
-      }),
-      fileFilter: imageFilter,
-      limits: { fieldSize: 1 },
-    }),
-  )
-  async uploadAvatar(
-    @UploadedFile() avatar: Express.Multer.File,
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<ResponseHttpInterface> {
-    const response = await this.authService.uploadAvatar(avatar, id);
-
-    return {
-      data: response,
-      message: 'Imagen Subida Correctamente',
-      title: 'Imagen Subida',
-    };
-  }
-
   @PublicRoute()
-  @Get('verify-identification/:identification')
-  @HttpCode(HttpStatus.OK)
-  async verifyIdentification(
+  @Get('verify-user-exist/:identification')
+  async verifyUserExist(
     @Param('identification') identification: string,
+    @Query('userId') userId: string,
   ): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.authService.verifyIdentification(identification);
+    const serviceResponse = await this.authService.verifyUserExist(identification, userId);
 
     return {
-      data: serviceResponse.data,
+      data: serviceResponse,
       message: `Existe Identificacion`,
-      title: 'Existe',
-    };
-  }
-
-  @PublicRoute()
-  @Get('verify-ruc-pending-payment/:ruc')
-  @HttpCode(HttpStatus.OK)
-  async verifyRucPendingPayment(@Param('ruc') ruc: string): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.authService.verifyRucPendingPayment(ruc);
-
-    return {
-      data: serviceResponse.data,
-      message: `Existe RUC`,
       title: 'Existe',
     };
   }

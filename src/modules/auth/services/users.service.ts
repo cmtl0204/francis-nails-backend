@@ -1,27 +1,33 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
-import { FindOptionsWhere, ILike, LessThan, Repository } from 'typeorm';
-import { CreateUserDto, FilterUserDto, ReadUserDto, UpdateUserDto } from '@auth/dto';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Repository, UpdateResult } from 'typeorm';
+import { CreateUserDto, UpdateProfileDto, UpdateUserDto } from '@auth/dto';
 import { MAX_ATTEMPTS } from '@auth/constants';
 import { UserEntity } from '@auth/entities';
-import { PaginationDto } from '../../../utils/dto';
-import { ServiceResponseHttpInterface } from '../../../utils/interfaces';
-import { AuthRepositoryEnum } from '../../../utils/enums';
-import { RoleEnum } from '@auth/enums';
+import { ServiceResponseHttpInterface } from '@utils/interfaces';
+import { AuthRepositoryEnum } from '@utils/enums';
+import { PaginateFilterService, PaginationDto } from '@utils/pagination';
 
 @Injectable()
 export class UsersService {
+  private paginateFilterService: PaginateFilterService<UserEntity>;
+
   constructor(
     @Inject(AuthRepositoryEnum.USER_REPOSITORY)
     private repository: Repository<UserEntity>,
-  ) {}
+  ) {
+    this.paginateFilterService = new PaginateFilterService(this.repository);
+  }
 
   async create(payload: CreateUserDto): Promise<UserEntity> {
-    const newUser = this.repository.create(payload);
+    const userExist = await this.repository.findOne({
+      where: [{ identification: payload.email }, { username: payload.username }],
+    });
 
-    const userCreated = await this.repository.save(newUser);
+    if (userExist) throw new BadRequestException('El usuario ya existe');
 
-    return await this.repository.save(newUser);
+    const entity = this.repository.create(payload);
+
+    return await this.repository.save(entity);
   }
 
   async catalogue(): Promise<ServiceResponseHttpInterface> {
@@ -33,31 +39,16 @@ export class UsersService {
     };
   }
 
-  async findAll(params?: FilterUserDto): Promise<ServiceResponseHttpInterface> {
-    const relations = { roles: true, careers: true };
-    //Pagination & Filter by Search
-    if (params && params?.limit > 0 && params?.page >= 0) {
-      return await this.paginateAndFilter(params, relations);
-    }
-    //Other filters
-    if (params?.birthdate) {
-      return this.filterByBirthdate(params.birthdate);
-    }
-
-    //All
-    const response = await this.repository.findAndCount({
-      relations,
-      order: { updatedAt: 'DESC' },
+  async findAll(params: PaginationDto): Promise<ServiceResponseHttpInterface> {
+    return this.paginateFilterService.execute({
+      params,
+      searchFields: ['name', 'lastname', 'identification'],
+      relations: ['roles'],
     });
-
-    return {
-      data: response[0],
-      pagination: { totalItems: response[1], limit: 10 },
-    };
   }
 
   async findOne(id: string): Promise<UserEntity> {
-    const user = await this.repository.findOne({
+    const entity = await this.repository.findOne({
       where: { id },
       relations: {
         roles: true,
@@ -66,137 +57,132 @@ export class UsersService {
       select: { password: false },
     });
 
-    if (!user) {
+    if (!entity) {
       throw new NotFoundException('Usuario no encontrado (find one)');
     }
 
-    return user;
-  }
-
-  async findByUsername(username: string): Promise<UserEntity> {
-    const user = await this.repository.findOne({
-      where: { username },
-      select: { password: false },
-    });
-
-    if (!user) {
-      throw new NotFoundException('Nombre de usuario no existe');
-    }
-
-    return user;
+    return entity;
   }
 
   async update(id: string, payload: UpdateUserDto): Promise<UserEntity> {
-    const user = await this.repository.findOne({
-      relations: { roles: true },
+    const entity = await this.repository.findOne({
       where: { id },
     });
 
-    if (!user) {
+    if (!entity) {
       throw new NotFoundException('Usuario no encontrado para actualizar');
     }
 
-    this.repository.merge(user, payload);
+    this.repository.merge(entity, payload);
 
-    user.roles = payload.roles;
-
-    return await this.repository.save(user);
+    return await this.repository.save(entity);
   }
 
-  async reactivate(id: string): Promise<ReadUserDto> {
-    const user = await this.findOne(id);
+  async activate(id: string): Promise<UserEntity> {
+    const entity = await this.findOne(id);
 
-    if (!user) {
+    if (!entity) {
       throw new NotFoundException('Usuario no encontrado para reactivar');
     }
 
-    user.suspendedAt = null;
-    user.maxAttempts = MAX_ATTEMPTS;
+    entity.suspendedAt = null;
+    entity.maxAttempts = MAX_ATTEMPTS;
 
-    const userUpdated = await this.repository.save(user);
-
-    return plainToInstance(ReadUserDto, userUpdated);
+    return await this.repository.save(entity);
   }
 
-  async remove(id: string): Promise<ReadUserDto> {
-    const user = await this.repository.findOneBy({ id });
+  async remove(id: string): Promise<UserEntity> {
+    const entity = await this.repository.findOneBy({ id });
 
-    if (!user) {
+    if (!entity) {
       throw new NotFoundException('Usuario no encontrado para eliminar');
     }
 
-    const userDeleted = await this.repository.softRemove(user);
-
-    return plainToInstance(ReadUserDto, userDeleted);
+    return await this.repository.softRemove(entity);
   }
 
-  async removeAll(payload: UserEntity[]): Promise<UserEntity> {
-    const usersDeleted = await this.repository.softRemove(payload);
-    return usersDeleted[0];
+  async removeAll(payload: UserEntity[]): Promise<UserEntity[]> {
+    return await this.repository.softRemove(payload);
   }
 
-  private async paginateAndFilter(
-    params: FilterUserDto,
-    relations: any,
-  ): Promise<ServiceResponseHttpInterface> {
-    let where: FindOptionsWhere<UserEntity> | FindOptionsWhere<UserEntity>[];
-    where = {};
-    let { page, search } = params;
-    const { limit } = params;
+  async suspend(id: string): Promise<UserEntity> {
+    const entity = await this.findOne(id);
 
-    if (search) {
-      search = search.trim();
-      page = 0;
-      where = [];
-      where.push({ identification: ILike(`%${search}%`) });
-      where.push({ lastname: ILike(`%${search}%`) });
-      where.push({ name: ILike(`%${search}%`) });
-      where.push({ username: ILike(`%${search}%`) });
-      where.push({ roles: { name: ILike(`%${search}%`) } });
-    }
-
-    const response = await this.repository.findAndCount({
-      where,
-      relations,
-      take: limit,
-      skip: PaginationDto.getOffset(limit, page),
-      order: {
-        updatedAt: 'DESC',
-      },
-    });
-
-    return {
-      data: plainToInstance(ReadUserDto, response[0]),
-      pagination: { limit, totalItems: response[1] },
-    };
-  }
-
-  private async filterByBirthdate(birthdate: Date): Promise<ServiceResponseHttpInterface> {
-    const where: FindOptionsWhere<UserEntity> = {};
-
-    if (birthdate) {
-      where.birthdate = LessThan(birthdate);
-    }
-
-    const response = await this.repository.findAndCount({ where });
-
-    return {
-      data: plainToInstance(ReadUserDto, response[0]),
-      pagination: { limit: 10, totalItems: response[1] },
-    };
-  }
-
-  async suspend(id: string): Promise<ReadUserDto> {
-    const user = await this.findOne(id);
-
-    if (!user) {
+    if (!entity) {
       throw new NotFoundException('Usuario no encontrado para suspender');
     }
 
-    user.suspendedAt = new Date();
+    entity.suspendedAt = new Date();
 
-    const userUpdated = await this.repository.save(user);
+    return await this.repository.save(entity);
+  }
 
-    return plainToInstance(ReadUserDto, userUpdated);
+  async findProfile(id: string): Promise<UserEntity> {
+    const user = await this.repository.findOne({
+      select: {
+        id: true,
+        avatar: true,
+        birthdate: true,
+        identification: true,
+        name: true,
+        email: true,
+        emailVerifiedAt: true,
+        lastname: true,
+        personalEmail: true,
+        username: true,
+        cellPhone: true,
+        phone: true,
+      },
+      where: {
+        id,
+      },
+      relations: {
+        roles: true,
+        identificationType: true,
+        bloodType: true,
+        ethnicOrigin: true,
+        gender: true,
+        maritalStatus: true,
+        nationality: true,
+        sex: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('El perfil no existe');
+    }
+
+    return user;
+  }
+
+  async updateProfile(id: string, payload: UpdateProfileDto): Promise<UpdateResult> {
+    const user = await this.repository.findOneBy({ id });
+
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado para actualizar el perfil');
+    }
+
+    return await this.repository.update(id, payload);
+  }
+
+  async uploadAvatar(file: Express.Multer.File, id: string): Promise<UserEntity> {
+    console.log('emtro');
+    const entity = await this.repository.findOne({
+      select: {
+        id: true,
+        avatar: true,
+      },
+      where: { id },
+    });
+
+    if (!entity) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    entity.avatar = `avatars/${file.filename}`;
+
+    console.log(entity);
+
+    return await this.repository.save(entity);
   }
 }

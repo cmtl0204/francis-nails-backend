@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as Bcrypt from 'bcrypt';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { add, isBefore } from 'date-fns';
 import { TransactionalCodeEntity, UserEntity } from '@auth/entities';
 import { PayloadTokenInterface } from 'src/modules/auth/interfaces';
@@ -153,6 +153,20 @@ export class AuthService {
     //     );
     //   }
     // }
+
+    if (user?.maxAttempts === 0) {
+      throw new UnauthorizedException({
+        error: 'Sin Autorización',
+        message: 'Ha excedido el número máximo de intentos permitidos',
+      });
+    }
+
+    if (!(await this.checkPassword(payload.password, user))) {
+      throw new UnauthorizedException(
+        `Usuario y/o contraseña no válidos, ${user.maxAttempts - 1} intentos restantes`,
+      );
+    }
+
     const { password, suspendedAt, maxAttempts, roles, ...userRest } = user;
 
     await this.repository.update(user.id, { activatedAt: new Date() });
@@ -189,38 +203,6 @@ export class AuthService {
     return { data: userCreated };
   }
 
-  async findProfile(id: string): Promise<ServiceResponseHttpInterface> {
-    const user = await this.repository.findOne({
-      select: {
-        id: true,
-        identification: true,
-        lastname: true,
-        name: true,
-        maxAttempts: true,
-        password: true,
-        suspendedAt: true,
-        username: true,
-      },
-      where: {
-        id,
-      },
-      relations: {
-        roles: true,
-        identificationType: true,
-      },
-    });
-
-    if (!user) {
-      throw new NotFoundException('El perfil no existe');
-    }
-
-    return {
-      data: {
-        user: user,
-      },
-    };
-  }
-
   async findUserInformation(id: string): Promise<ServiceResponseHttpInterface> {
     const user = await this.repository.findOneBy({ id });
 
@@ -242,24 +224,10 @@ export class AuthService {
     }
 
     this.repository.merge(user, payload);
+
     const userUpdated = await this.repository.save(user);
 
     return { data: userUpdated };
-  }
-
-  async updateProfile(
-    id: string,
-    payload: UpdateProfileDto,
-  ): Promise<ServiceResponseHttpInterface> {
-    const user = await this.repository.findOneBy({ id });
-
-    if (!user) {
-      throw new NotFoundException('Usuario no encontrado para actualizar el perfil');
-    }
-
-    const profileUpdated = await this.repository.update(id, payload);
-
-    return { data: profileUpdated };
   }
 
   async refreshToken(user: UserEntity): Promise<ServiceResponseHttpInterface> {
@@ -386,20 +354,37 @@ export class AuthService {
     return { data: true };
   }
 
-  async uploadAvatar(file: Express.Multer.File, id: string): Promise<ServiceResponseHttpInterface> {
-    const entity = await this.repository.findOne({
-      select: {
-        id: true,
-        avatar: true,
-      },
-      where: { id: id },
-    });
-
-    if (entity?.avatar) entity.avatar = `avatars/${file.filename}`;
-
-    const user = await this.repository.save({ ...entity });
+  async verifyIdentification(identification: string): Promise<ServiceResponseHttpInterface> {
+    const user = await this.repository.findOneBy({ identification });
 
     return { data: user };
+  }
+
+  async verifyUserExist(identification: string, userId: string): Promise<UserEntity | null> {
+    const where: any = { identification };
+
+    if (userId) {
+      where.id = Not(userId);
+    }
+
+    return this.repository.findOne({ where });
+  }
+
+  async verifyRucPendingPayment(rucNumber: string): Promise<ServiceResponseHttpInterface> {
+    const ruc = await this.rucRepository.findOne({
+      relations: { payment: true },
+      where: { number: rucNumber },
+    });
+
+    if (!ruc) {
+      return { data: false };
+    }
+
+    if (!ruc.payment) {
+      return { data: false };
+    }
+
+    return { data: ruc.payment?.hasDebt };
   }
 
   private async generateJwt(user: UserEntity): Promise<string> {
@@ -439,28 +424,5 @@ export class AuthService {
     }
 
     return false;
-  }
-
-  async verifyIdentification(identification: string): Promise<ServiceResponseHttpInterface> {
-    const user = await this.repository.findOneBy({ identification });
-
-    return { data: user };
-  }
-
-  async verifyRucPendingPayment(rucNumber: string): Promise<ServiceResponseHttpInterface> {
-    const ruc = await this.rucRepository.findOne({
-      relations: { payment: true },
-      where: { number: rucNumber },
-    });
-
-    if (!ruc) {
-      return { data: false };
-    }
-
-    if (!ruc.payment) {
-      return { data: false };
-    }
-
-    return { data: ruc.payment?.hasDebt };
   }
 }

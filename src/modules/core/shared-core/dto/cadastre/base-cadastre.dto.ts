@@ -3,7 +3,7 @@ import {
   isDateValidationOptions,
   isNotEmptyValidationOptions,
   isStringValidationOptions,
-} from '../../../../../utils/dto-validation';
+} from '@utils/dto-validation';
 import { ProcessEntity } from '@modules/core/entities';
 
 export class BaseCadastreDto {

@@ -1,4 +1,4 @@
-import { Global, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -10,12 +10,11 @@ import { MenusController } from './controllers/menus.controller';
 import { UsersService } from './services/users.service';
 import { JwtStrategy } from '@auth/strategies';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtGuard } from '@auth/guards';
+import { JwtGuard, SuspendedUserGuard } from '@auth/guards';
 import { MailModule } from '@modules/common/mail/mail.module';
 import { AuthService } from '@auth/services/auth.service';
 import { RolesService } from '@auth/services/roles.service';
 import { MenusService } from '@auth/services/menus.service';
-import { VerifyUserMiddleware } from '@auth/middlewares';
 import { coreProviders } from '@modules/core/core.provider';
 import { HttpModule } from '@nestjs/axios';
 
@@ -44,6 +43,10 @@ import { HttpModule } from '@nestjs/axios';
       provide: APP_GUARD,
       useClass: JwtGuard,
     },
+    {
+      provide: APP_GUARD,
+      useClass: SuspendedUserGuard,
+    },
     ...authProviders,
     ...coreProviders,
     AuthService,
@@ -54,8 +57,4 @@ import { HttpModule } from '@nestjs/axios';
   ],
   exports: [...authProviders, UsersService, RolesService, MenusService, JwtModule, PassportModule],
 })
-export class AuthModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(VerifyUserMiddleware).forRoutes('api/v1/:path');
-  }
-}
+export class AuthModule {}

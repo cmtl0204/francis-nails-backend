@@ -10,12 +10,13 @@ import {
 } from 'class-validator';
 import {
   isBooleanValidationOptions,
+  isDateValidationOptions,
   isEmailValidationOptions,
   isNotEmptyValidationOptions,
   isStringValidationOptions,
   maxLengthValidationOptions,
   minLengthValidationOptions,
-} from '../../../../utils/dto-validation';
+} from '@utils/dto-validation';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 
 export class UserDto {
@@ -41,17 +42,21 @@ export class UserDto {
   readonly sex: CatalogueEntity;
 
   @IsOptional()
+  readonly nationality: CatalogueEntity;
+
+  @IsOptional()
   readonly avatar: string;
 
   @IsOptional()
-  @IsDate(isNotEmptyValidationOptions())
+  @IsDate(isDateValidationOptions())
   readonly birthdate: Date;
 
   @IsOptional()
   @MaxLength(10, maxLengthValidationOptions())
   readonly cellPhone: string;
 
-  @IsNotEmpty(isNotEmptyValidationOptions())
+  // @IsNotEmpty(isNotEmptyValidationOptions())
+  @IsOptional()
   @IsString(isStringValidationOptions())
   readonly identification: string;
 
@@ -70,7 +75,7 @@ export class UserDto {
   readonly lastname: string;
 
   @IsNotEmpty(isNotEmptyValidationOptions())
-  @IsString()
+  @IsString(isStringValidationOptions())
   @MinLength(8, minLengthValidationOptions())
   @MaxLength(32, minLengthValidationOptions())
   readonly password: string;
@@ -96,7 +101,7 @@ export class UserDto {
   readonly roles: any;
 
   @IsNotEmpty(isNotEmptyValidationOptions())
-  @IsString()
+  @IsString(isStringValidationOptions())
   @MinLength(5, minLengthValidationOptions())
   @MaxLength(100, maxLengthValidationOptions())
   readonly username: string;

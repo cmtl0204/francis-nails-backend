@@ -1,15 +1,21 @@
 import { ObjectLiteral, Repository } from 'typeorm';
-import { PaginationDto } from '../dto';
+import { PaginationDto } from '@utils/pagination';
 import { ServiceResponseHttpInterface } from '../interfaces';
+
+export interface ExecuteOptions<T> {
+  params: PaginationDto;
+  searchFields?: (keyof T)[];
+  relations?: string[];
+}
 
 export class PaginateFilterService<T extends ObjectLiteral> {
   constructor(private readonly repository: Repository<T>) {}
 
-  async execute(
-    params: PaginationDto,
-    searchFields: (keyof T)[] = [],
-    relations: string[] = [],
-  ): Promise<ServiceResponseHttpInterface> {
+  async execute({
+    params,
+    searchFields = [],
+    relations = [],
+  }: ExecuteOptions<T>): Promise<ServiceResponseHttpInterface> {
     const { search, page, limit } = params;
 
     const queryBuilder = this.repository.createQueryBuilder('entity');

@@ -5,7 +5,7 @@ import { CommonRepositoryEnum, MessageEnum } from '@utils/enums';
 import * as path from 'path';
 import { join } from 'path';
 import * as fs from 'fs';
-import { PaginationDto } from '../../../utils/dto';
+import { PaginationDto } from '@utils/pagination';
 import { ServiceResponseHttpInterface } from '@utils/interfaces';
 import { FilterFileDto } from './dto';
 import { IsArray } from 'class-validator';

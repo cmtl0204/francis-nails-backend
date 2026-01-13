@@ -2,7 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { Repository, FindOptionsWhere, ILike } from 'typeorm';
 import { MenuEntity, RoleEntity } from '@auth/entities';
-import { PaginationDto } from '../../../utils/dto';
+import { PaginationDto } from '@utils/pagination';
 import { ServiceResponseHttpInterface } from '../../../utils/interfaces';
 import { AuthRepositoryEnum } from '../../../utils/enums';
 import { CreateRoleDto, FilterRoleDto, ReadRoleDto, UpdateRoleDto } from '@auth/dto';
@@ -25,13 +25,8 @@ export class RolesService {
     return await this.repository.save(role);
   }
 
-  async catalogue(): Promise<ServiceResponseHttpInterface> {
-    const response = await this.repository.findAndCount({ take: 1000 });
-
-    return {
-      data: response[0],
-      pagination: { totalItems: response[1], limit: 10 },
-    };
+  async catalogue(): Promise<RoleEntity[]> {
+    return await this.repository.find();
   }
 
   async findAll(params?: FilterRoleDto): Promise<ServiceResponseHttpInterface> {

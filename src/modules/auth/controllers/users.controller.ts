@@ -3,48 +3,88 @@ import {
   Controller,
   Delete,
   Get,
-  HttpCode,
-  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
   Post,
-  Put,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto, FilterUserDto, UpdateUserDto } from '@auth/dto';
+import { CreateUserDto, UpdateProfileDto, UpdateUserDto } from '@auth/dto';
 import { UserEntity } from '@auth/entities';
 import { ResponseHttpInterface } from '@utils/interfaces';
-import { Auth, PublicRoute } from '@auth/decorators';
-import { RoleEnum } from '@auth/enums';
 import { UsersService } from '../services/users.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { join } from 'path';
+import { getFileName, imageFilter } from '@utils/helpers';
+import { PaginationDto } from '@utils/pagination';
 
-@Auth()
 @ApiTags('Users')
-@Controller('users')
+@Controller('auth/users')
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(private readonly service: UsersService) {}
 
-  @ApiOperation({ summary: 'Create One' })
-  @PublicRoute()
+  @ApiOperation({ summary: 'Create' })
   @Post()
-  @HttpCode(HttpStatus.CREATED)
   async create(@Body() payload: CreateUserDto): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.usersService.create(payload);
+    const serviceResponse = await this.service.create(payload);
 
     return {
       data: serviceResponse,
-      message: 'User created',
-      title: 'Created',
+      message: 'Usuario creado',
+      title: 'Creado',
+    };
+  }
+
+  @ApiOperation({ summary: 'Example' })
+  @Post('examples')
+  async exampleBody(
+    @Body() payload: any,
+    @Query('otro') otro: string,
+  ): Promise<ResponseHttpInterface> {
+    console.log(otro);
+    const serviceResponse = await this.service.create(payload);
+
+    return {
+      data: serviceResponse,
+      message: 'Usuario creado',
+      title: 'Creado',
+    };
+  }
+
+  @ApiOperation({ summary: 'Example' })
+  @Get(':id/examples')
+  async exampleParam(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
+    console.log(id);
+    const serviceResponse = await this.service.findOne(id);
+
+    return {
+      data: serviceResponse,
+      message: 'Usuario creado',
+      title: 'Creado',
+    };
+  }
+
+  @ApiOperation({ summary: 'Example' })
+  @Get('examples')
+  async exampleQuery(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
+    console.log(params);
+    const serviceResponse = await this.service.findOne(params.search);
+
+    return {
+      data: serviceResponse,
+      message: 'Usuario creado',
+      title: 'Creado',
     };
   }
 
   @ApiOperation({ summary: 'Catalogue' })
   @Get('catalogue')
-  @HttpCode(HttpStatus.OK)
   async catalogue(): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.usersService.catalogue();
+    const serviceResponse = await this.service.catalogue();
 
     return {
       data: serviceResponse.data,
@@ -55,11 +95,9 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: 'Find All' })
-  @Auth(RoleEnum.ADMIN)
   @Get()
-  @HttpCode(HttpStatus.OK)
-  async findAll(@Query() params: FilterUserDto): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.usersService.findAll(params);
+  async findAll(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findAll(params);
 
     return {
       data: serviceResponse.data,
@@ -70,28 +108,24 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: 'Find One' })
-  @Auth()
   @Get(':id')
-  @HttpCode(HttpStatus.OK)
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.usersService.findOne(id);
+    const serviceResponse = await this.service.findOne(id);
 
     return {
       data: serviceResponse,
-      message: `show ${id}`,
+      message: `find one ${id}`,
       title: `Success`,
     };
   }
 
-  @ApiOperation({ summary: 'Update One' })
-  @Auth()
-  @Put(':id')
-  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Update' })
+  @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() payload: UpdateUserDto,
   ): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.usersService.update(id, payload);
+    const serviceResponse = await this.service.update(id, payload);
 
     return {
       data: serviceResponse,
@@ -100,26 +134,22 @@ export class UsersController {
     };
   }
 
-  @ApiOperation({ summary: 'Reactivate' })
-  @Auth()
-  @Put(':id/reactivate')
-  @HttpCode(HttpStatus.CREATED)
-  async reactivate(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.usersService.reactivate(id);
+  @ApiOperation({ summary: 'Activate' })
+  @Patch(':id/activate')
+  async activate(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.activate(id);
 
     return {
       data: serviceResponse,
-      message: `Usuario reactivado`,
-      title: `Reactivado`,
+      message: `Usuario activado`,
+      title: `Activado`,
     };
   }
 
   @ApiOperation({ summary: 'Remove One' })
-  @Auth()
   @Delete(':id')
-  @HttpCode(HttpStatus.CREATED)
   async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.usersService.remove(id);
+    const serviceResponse = await this.service.remove(id);
 
     return {
       data: serviceResponse,
@@ -129,30 +159,78 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: 'Remove All' })
-  @Auth()
   @Patch('remove-all')
-  @HttpCode(HttpStatus.CREATED)
   async removeAll(@Body() payload: UserEntity[]): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.usersService.removeAll(payload);
+    const serviceResponse = await this.service.removeAll(payload);
 
     return {
       data: serviceResponse,
-      message: `Users deleted`,
-      title: `Deleted`,
+      message: `Usuarios eliminados`,
+      title: `Eliminados`,
     };
   }
 
   @ApiOperation({ summary: 'Suspend One' })
-  @Auth()
-  @Put(':id/suspend')
-  @HttpCode(HttpStatus.CREATED)
+  @Patch(':id/suspend')
   async suspend(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.usersService.suspend(id);
+    const serviceResponse = await this.service.suspend(id);
 
     return {
       data: serviceResponse,
       message: `Usuario suspendido`,
       title: `Suspendido`,
+    };
+  }
+
+  @ApiOperation({ summary: 'Upload Avatar' })
+  @Post(':id/avatar')
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: diskStorage({
+        destination: join(process.cwd(), 'public/assets/avatars'),
+        filename: getFileName,
+      }),
+      fileFilter: imageFilter,
+      limits: { fieldSize: 1 },
+    }),
+  )
+  async uploadAvatar(
+    @UploadedFile() avatar: Express.Multer.File,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.uploadAvatar(avatar, id);
+
+    return {
+      data: serviceResponse,
+      message: 'Imagen Subida Correctamente',
+      title: 'Imagen Subida',
+    };
+  }
+
+  @ApiOperation({ summary: 'Find Profile' })
+  @Get(':id/profile')
+  async findProfile(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findProfile(id);
+
+    return {
+      data: serviceResponse,
+      message: `profile`,
+      title: `Success`,
+    };
+  }
+
+  @ApiOperation({ summary: 'Update Profile' })
+  @Patch(':id/profile')
+  async updateProfile(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() payload: UpdateProfileDto,
+  ): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.updateProfile(id, payload);
+
+    return {
+      data: serviceResponse,
+      message: 'El perfil fue actualizado correctamente',
+      title: 'Perfil Actualizado',
     };
   }
 }

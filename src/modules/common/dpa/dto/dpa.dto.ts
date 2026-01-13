@@ -4,7 +4,7 @@ import {
   isNumberValidationOptions,
   isStringValidationOptions,
   minLengthValidationOptions,
-} from '../../../../utils/dto-validation';
+} from '@utils/dto-validation';
 
 export class DpaDto {
   @IsNotEmpty(isNotEmptyValidationOptions())

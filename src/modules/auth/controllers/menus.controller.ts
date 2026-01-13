@@ -25,9 +25,7 @@ export class MenusController {
   constructor(private menusService: MenusService) {}
 
   @ApiOperation({ summary: 'Create One' })
-  @Auth()
   @Post()
-  @HttpCode(HttpStatus.CREATED)
   async create(@Body() payload: CreateMenuDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.menusService.create(payload);
 
@@ -40,7 +38,6 @@ export class MenusController {
 
   @ApiOperation({ summary: 'Catalogue' })
   @Get('catalogue')
-  @HttpCode(HttpStatus.OK)
   async catalogue(): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.menusService.catalogue();
 
@@ -54,7 +51,6 @@ export class MenusController {
 
   @ApiOperation({ summary: 'Menus for sidebar' })
   @Get('sidebar')
-  @HttpCode(HttpStatus.OK)
   async getMenusForSidebar(): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.menusService.getMenusForSidebar();
 
@@ -68,7 +64,6 @@ export class MenusController {
 
   @ApiOperation({ summary: 'Menus for sidebar' })
   @Get('roles/:roleId')
-  @HttpCode(HttpStatus.OK)
   async getMenusByRole(@Param('roleId') roleId: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.menusService.getMenusByRole(roleId);
 
@@ -81,7 +76,6 @@ export class MenusController {
 
   @ApiOperation({ summary: 'Find All' })
   @Get()
-  @HttpCode(HttpStatus.OK)
   async findAll(@Query() params: FilterMenuDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.menusService.findAll(params);
 
@@ -94,9 +88,7 @@ export class MenusController {
   }
 
   @ApiOperation({ summary: 'Find One' })
-  @Auth()
   @Get(':id')
-  @HttpCode(HttpStatus.OK)
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.menusService.findOne(id);
 
@@ -108,9 +100,7 @@ export class MenusController {
   }
 
   @ApiOperation({ summary: 'Update One' })
-  @Auth()
   @Put(':id')
-  @HttpCode(HttpStatus.CREATED)
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() payload: UpdateMenuDto,
@@ -125,9 +115,7 @@ export class MenusController {
   }
 
   @ApiOperation({ summary: 'Remove One' })
-  @Auth()
   @Delete(':id')
-  @HttpCode(HttpStatus.CREATED)
   async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.menusService.remove(id);
 
@@ -139,9 +127,7 @@ export class MenusController {
   }
 
   @ApiOperation({ summary: 'Remove All' })
-  @Auth()
   @Patch('remove-all')
-  @HttpCode(HttpStatus.CREATED)
   async removeAll(@Body() payload: MenuEntity[]): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.menusService.removeAll(payload);
 

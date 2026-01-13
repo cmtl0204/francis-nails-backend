@@ -1,8 +1,5 @@
 import { IsNotEmpty, IsString } from 'class-validator';
-import {
-  isNotEmptyValidationOptions,
-  isStringValidationOptions,
-} from '../../../../utils/dto-validation';
+import { isNotEmptyValidationOptions, isStringValidationOptions } from '@utils/dto-validation';
 
 export class SignInDto {
   @IsString(isStringValidationOptions())
