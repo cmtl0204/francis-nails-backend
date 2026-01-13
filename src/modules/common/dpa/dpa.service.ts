@@ -20,18 +20,7 @@ export class DpaService {
 
     if (items === null || items === undefined || items.length === 0) {
       items = await this.repository.find({
-        select: [
-          'id',
-          'parentId',
-          'zoneId',
-          'zone',
-          'code',
-          'name',
-          'latitude',
-          'longitude',
-          'zoneType',
-        ],
-        relations: { zone: true },
+        select: ['id', 'parentId', 'code', 'name', 'latitude', 'longitude', 'zoneType'],
         order: { name: 'asc' },
       });
 
@@ -43,18 +32,7 @@ export class DpaService {
 
   async loadCache(): Promise<DpaEntity[]> {
     const items = await this.repository.find({
-      select: [
-        'id',
-        'parentId',
-        'zoneId',
-        'zone',
-        'code',
-        'name',
-        'latitude',
-        'longitude',
-        'zoneType',
-      ],
-      relations: { zone: true },
+      select: ['id', 'parentId', 'code', 'name', 'latitude', 'longitude', 'zoneType'],
       order: { name: 'asc' },
     });
 

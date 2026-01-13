@@ -10,7 +10,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
-import { ZoneEntity } from '@modules/core/entities';
 
 @Entity('dpa', { schema: 'common' })
 export class DpaEntity {
@@ -77,17 +76,6 @@ export class DpaEntity {
     comment: '',
   })
   typeId: string;
-
-  @ManyToOne(() => ZoneEntity, { nullable: true })
-  @JoinColumn({ name: 'zone_id' })
-  zone: ZoneEntity;
-  @Column({
-    type: 'uuid',
-    name: 'zone_id',
-    nullable: true,
-    comment: '',
-  })
-  zoneId: string;
 
   /** Columns **/
   @Column({

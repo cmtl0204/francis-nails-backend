@@ -21,7 +21,6 @@ import {
   PasswordChangeDto,
   SignInDto,
   SignUpExternalDto,
-  UpdateProfileDto,
   UpdateUserInformationDto,
 } from '@auth/dto';
 import { ServiceResponseHttpInterface } from '@utils/interfaces';
@@ -30,7 +29,6 @@ import { envConfig } from '@config';
 import { ConfigType } from '@nestjs/config';
 import { MailDataInterface } from '@modules/common/mail/interfaces/mail-data.interface';
 import { UsersService } from './users.service';
-import { RucEntity } from '@modules/core/entities';
 import { lastValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 
@@ -43,8 +41,6 @@ export class AuthService {
     private repository: Repository<UserEntity>,
     @Inject(AuthRepositoryEnum.TRANSACTIONAL_CODE_REPOSITORY)
     private transactionalCodeRepository: Repository<TransactionalCodeEntity>,
-    @Inject(CoreRepositoryEnum.RUC_REPOSITORY)
-    private rucRepository: Repository<RucEntity>,
     @Inject(envConfig.KEY) private configService: ConfigType<typeof envConfig>,
     private readonly userService: UsersService,
     private jwtService: JwtService,
@@ -108,7 +104,6 @@ export class AuthService {
       },
       relations: {
         roles: true,
-        payment: true,
       },
     });
 
@@ -354,12 +349,6 @@ export class AuthService {
     return { data: true };
   }
 
-  async verifyIdentification(identification: string): Promise<ServiceResponseHttpInterface> {
-    const user = await this.repository.findOneBy({ identification });
-
-    return { data: user };
-  }
-
   async verifyUserExist(identification: string, userId: string): Promise<UserEntity | null> {
     const where: any = { identification };
 
@@ -368,23 +357,6 @@ export class AuthService {
     }
 
     return this.repository.findOne({ where });
-  }
-
-  async verifyRucPendingPayment(rucNumber: string): Promise<ServiceResponseHttpInterface> {
-    const ruc = await this.rucRepository.findOne({
-      relations: { payment: true },
-      where: { number: rucNumber },
-    });
-
-    if (!ruc) {
-      return { data: false };
-    }
-
-    if (!ruc.payment) {
-      return { data: false };
-    }
-
-    return { data: ruc.payment?.hasDebt };
   }
 
   private async generateJwt(user: UserEntity): Promise<string> {
