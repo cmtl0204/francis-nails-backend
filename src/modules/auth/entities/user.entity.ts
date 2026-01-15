@@ -8,12 +8,17 @@ import {
   JoinColumn,
   ManyToMany,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import * as Bcrypt from 'bcrypt';
-import { RoleEntity } from '@auth/entities';
+import { RoleEntity } from './role.entity'; 
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
+import { BranchEntity } from '@modules/core/entities/branch.entity';
+import { CustomerEntity } from '@modules/core/entities/customer.entity';
+import { StaffProfileEntity } from '@modules/core/entities/staff_profile.entity';
+import { InvoiceEntity } from '@modules/core/entities/invoice.entity';
 
 @Entity('users', { schema: 'auth' })
 export class UserEntity {
@@ -45,7 +50,30 @@ export class UserEntity {
   @ManyToMany(() => RoleEntity, (role) => role.users)
   roles: RoleEntity[];
 
+  /** AGREGADO: Relaciones con el sistema core **/
+  @OneToOne(() => CustomerEntity, (customer) => customer.user)
+  customer: CustomerEntity;
+
+  @OneToOne(() => StaffProfileEntity, (staffProfile) => staffProfile.user)
+  staffProfile: StaffProfileEntity;
+
+  @OneToOne(() => InvoiceEntity, (invoice) => invoice.createdBy, { nullable: true })
+  createdInvoice: InvoiceEntity;
+
   /** Foreign Keys **/
+  /** AGREGADO: Relación con sucursal **/
+  @ManyToOne(() => BranchEntity, (branch) => branch.users)
+  @JoinColumn({ name: 'branch_id' })
+  branch: BranchEntity;
+
+  @Column({
+    type: 'uuid',
+    name: 'branch_id',
+    nullable: true,
+    comment: 'Referencia a la sucursal'
+  })
+  branchId: string;
+
   @ManyToOne(() => CatalogueEntity, { nullable: true })
   @JoinColumn({ name: 'blood_type_id' })
   bloodType: CatalogueEntity;
@@ -124,6 +152,32 @@ export class UserEntity {
   sexId: string;
 
   /** Fields **/
+  /** AGREGADO: Campos según el esquema SQL **/
+  @Column({
+    name: 'full_name',
+    type: 'varchar',
+    nullable: true,
+    comment: 'Nombre completo del usuario',
+  })
+  fullName: string;
+
+  @Column({
+    name: 'is_active',
+    type: 'boolean',
+    default: true,
+    comment: 'Indica si el usuario está activo',
+  })
+  isActive: boolean;
+
+  @Column({
+    name: 'password_hash',
+    type: 'varchar',
+    nullable: true,
+    comment: 'Hash de la contraseña',
+    select: false,
+  })
+  passwordHash: string;
+
   @Column({
     name: 'activated_at',
     type: 'timestamp',
