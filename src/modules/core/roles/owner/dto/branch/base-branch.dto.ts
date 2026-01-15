@@ -4,7 +4,6 @@ import {
   isNotEmptyValidationOptions,
   isStringValidationOptions,
 } from '@utils/dto-validation';
-import { ProcessEntity } from '@modules/core/entities';
 
 export class BaseBranchDto {
   @IsString()

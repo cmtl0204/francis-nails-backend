@@ -22,7 +22,7 @@ import {
 
 @ApiTags('Staff Profiles')
 @Auth()
-@Controller('core/externals/staff-profiles')
+@Controller('core/owner/staff-profiles')
 export class StaffProfilesController {
   constructor(private service: StaffProfilesService) {}
 

@@ -22,7 +22,7 @@ import {
 
 @ApiTags('Staff Time Off')
 @Auth()
-@Controller('core/externals/staff-time-off')
+@Controller('core/owner/staff-time-off')
 export class StaffTimeOffController {
   constructor(private service: StaffTimeOffService) {}
 

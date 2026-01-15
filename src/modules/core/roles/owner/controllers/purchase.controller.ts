@@ -22,7 +22,7 @@ import {
 
 @ApiTags('External Purchases')
 @Auth()
-@Controller('core/external/purchase')
+@Controller('core/owner/purchase')
 export class PurchaseController {
   constructor(private service: PurchaseService) {}
 

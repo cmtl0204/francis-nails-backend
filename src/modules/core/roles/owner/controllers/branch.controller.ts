@@ -22,7 +22,7 @@ import {
 
 @ApiTags('Branches')
 @Auth()
-@Controller('core/externals/branches')
+@Controller('core/owner/branches')
 export class BranchController {
   constructor(private service: BranchService) {}
 

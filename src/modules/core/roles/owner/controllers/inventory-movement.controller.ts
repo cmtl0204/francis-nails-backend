@@ -22,7 +22,7 @@ import {
 
 @ApiTags('External Inventory Movements')
 @Auth()
-@Controller('core/external/inventory-movement')
+@Controller('core/owner/inventory-movement')
 export class InventoryMovementController {
   constructor(private service: InventoryMovementService) {}
 

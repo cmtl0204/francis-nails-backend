@@ -22,7 +22,7 @@ import {
 
 @ApiTags('Staff Working Hours')
 @Auth()
-@Controller('core/externals/staff-working-hours')
+@Controller('core/owner/staff-working-hours')
 export class StaffWorkingHoursController {
   constructor(private service: StaffWorkingHoursService) {}
 

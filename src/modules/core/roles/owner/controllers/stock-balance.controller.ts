@@ -22,7 +22,7 @@ import {
 
 @ApiTags('External Stock Balances')
 @Auth()
-@Controller('core/external/stock-balance')
+@Controller('core/owner/stock-balance')
 export class StockBalanceController {
   constructor(private service: StockBalanceService) {}
 

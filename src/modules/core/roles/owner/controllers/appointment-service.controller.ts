@@ -22,7 +22,7 @@ import {
 
 @ApiTags('External Appointment Services')
 @Auth()
-@Controller('core/external/appointment-service')
+@Controller('core/owner/appointment-service')
 export class AppointmentServiceController {
   constructor(private service: AppointmentServiceService) {}
 
