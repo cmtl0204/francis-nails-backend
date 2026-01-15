@@ -4,7 +4,6 @@ import { title } from 'process';
 import { format } from 'date-fns';
 
 export const registerCertificateReport = (data: any): TDocumentDefinitions => {
-  console.log(data.cadastre);
   const qr = 'http://localhost:4200';
 
   return {

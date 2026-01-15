@@ -1,5 +1,5 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { Repository, UpdateResult } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserDto, UpdateProfileDto, UpdateUserDto } from '@auth/dto';
 import { MAX_ATTEMPTS } from '@auth/constants';
 import { UserEntity } from '@auth/entities';
@@ -31,7 +31,7 @@ export class UsersService {
   }
 
   async catalogue(): Promise<ServiceResponseHttpInterface> {
-    const response = await this.repository.findAndCount({ take: 1000 });
+    const response = await this.repository.find();
 
     return {
       data: response[0],
@@ -155,18 +155,19 @@ export class UsersService {
     return user;
   }
 
-  async updateProfile(id: string, payload: UpdateProfileDto): Promise<UpdateResult> {
-    const user = await this.repository.findOneBy({ id });
+  async updateProfile(id: string, payload: UpdateProfileDto): Promise<UserEntity> {
+    const entity = await this.repository.findOneBy({ id });
 
-    if (!user) {
+    if (!entity) {
       throw new NotFoundException('Usuario no encontrado para actualizar el perfil');
     }
 
-    return await this.repository.update(id, payload);
+    this.repository.merge(entity, payload);
+
+    return await this.repository.save(entity);
   }
 
   async uploadAvatar(file: Express.Multer.File, id: string): Promise<UserEntity> {
-    console.log('emtro');
     const entity = await this.repository.findOne({
       select: {
         id: true,
@@ -180,8 +181,6 @@ export class UsersService {
     }
 
     entity.avatar = `avatars/${file.filename}`;
-
-    console.log(entity);
 
     return await this.repository.save(entity);
   }
