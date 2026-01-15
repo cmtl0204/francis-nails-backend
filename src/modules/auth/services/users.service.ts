@@ -9,7 +9,7 @@ import { PaginateFilterService, PaginationDto } from '@utils/pagination';
 
 @Injectable()
 export class UsersService {
-  private paginateFilterService: PaginateFilterService<UserEntity>;
+  private readonly paginateFilterService: PaginateFilterService<UserEntity>;
 
   constructor(
     @Inject(AuthRepositoryEnum.USER_REPOSITORY)
@@ -30,19 +30,10 @@ export class UsersService {
     return await this.repository.save(entity);
   }
 
-  async catalogue(): Promise<ServiceResponseHttpInterface> {
-    const response = await this.repository.find();
-
-    return {
-      data: response[0],
-      pagination: { totalItems: response[1], limit: 10 },
-    };
-  }
-
   async findAll(params: PaginationDto): Promise<ServiceResponseHttpInterface> {
     return this.paginateFilterService.execute({
       params,
-      searchFields: ['name', 'lastname', 'identification'],
+      searchFields: ['name', 'lastname', 'identification', 'email'],
       relations: ['roles'],
     });
   }
@@ -70,12 +61,35 @@ export class UsersService {
     });
 
     if (!entity) {
-      throw new NotFoundException('Usuario no encontrado para actualizar');
+      throw new NotFoundException('Registro no encontrado para actualizar');
     }
 
     this.repository.merge(entity, payload);
 
     return await this.repository.save(entity);
+  }
+
+  async delete(id: string): Promise<UserEntity> {
+    const entity = await this.repository.findOneBy({ id });
+
+    if (!entity) {
+      throw new NotFoundException('Registro no encontrado para eliminar');
+    }
+
+    return await this.repository.softRemove(entity);
+  }
+
+  async deleteAll(payload: UserEntity[]): Promise<UserEntity[]> {
+    return await this.repository.softRemove(payload);
+  }
+
+  async catalogue(): Promise<ServiceResponseHttpInterface> {
+    const response = await this.repository.find();
+
+    return {
+      data: response[0],
+      pagination: { totalItems: response[1], limit: 10 },
+    };
   }
 
   async activate(id: string): Promise<UserEntity> {
@@ -89,20 +103,6 @@ export class UsersService {
     entity.maxAttempts = MAX_ATTEMPTS;
 
     return await this.repository.save(entity);
-  }
-
-  async remove(id: string): Promise<UserEntity> {
-    const entity = await this.repository.findOneBy({ id });
-
-    if (!entity) {
-      throw new NotFoundException('Usuario no encontrado para eliminar');
-    }
-
-    return await this.repository.softRemove(entity);
-  }
-
-  async removeAll(payload: UserEntity[]): Promise<UserEntity[]> {
-    return await this.repository.softRemove(payload);
   }
 
   async suspend(id: string): Promise<UserEntity> {
