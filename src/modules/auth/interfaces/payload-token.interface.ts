@@ -1,5 +1,5 @@
 export interface PayloadTokenInterface {
-  id: string;
+  sub: string;
   username: string;
   iat?: number;
   exp?: number;

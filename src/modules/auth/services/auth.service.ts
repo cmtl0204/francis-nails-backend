@@ -5,18 +5,13 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import * as Bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 import { Not, Repository } from 'typeorm';
 import { add, isBefore } from 'date-fns';
 import { TransactionalCodeEntity, UserEntity } from '@auth/entities';
-import { PayloadTokenInterface } from 'src/modules/auth/interfaces';
-import {
-  AuthRepositoryEnum,
-  CoreRepositoryEnum,
-  MailSubjectEnum,
-  MailTemplateEnum,
-} from '@utils/enums';
+import { PayloadTokenInterface, RefreshTokenInterface } from 'src/modules/auth/interfaces';
+import { AuthRepositoryEnum, MailSubjectEnum, MailTemplateEnum } from '@utils/enums';
 import {
   PasswordChangeDto,
   SignInDto,
@@ -31,6 +26,8 @@ import { MailDataInterface } from '@modules/common/mail/interfaces/mail-data.int
 import { UsersService } from './users.service';
 import { lastValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
+import ms from 'ms';
+import { SignInInterface } from '@auth/interfaces/sign-in.interface';
 
 @Injectable()
 export class AuthService {
@@ -87,7 +84,7 @@ export class AuthService {
     return { data: true };
   }
 
-  async signIn(payload: SignInDto): Promise<ServiceResponseHttpInterface> {
+  async signIn(payload: SignInDto): Promise<SignInInterface> {
     const user: UserEntity | null = await this.repository.findOne({
       select: {
         id: true,
@@ -164,14 +161,18 @@ export class AuthService {
 
     const { password, suspendedAt, maxAttempts, roles, ...userRest } = user;
 
-    await this.repository.update(user.id, { activatedAt: new Date() });
+    const tokens = this.generateJwt(user);
+
+    await this.repository.update(user.id, {
+      activatedAt: new Date(),
+      refreshToken: await Bcrypt.hash(tokens.refreshToken, 10),
+    });
 
     return {
-      data: {
-        accessToken: await this.generateJwt(user),
-        auth: userRest,
-        roles,
-      },
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      auth: userRest,
+      roles,
     };
   }
 
@@ -225,10 +226,12 @@ export class AuthService {
     return { data: userUpdated };
   }
 
-  async refreshToken(user: UserEntity): Promise<ServiceResponseHttpInterface> {
-    const accessToken = await this.generateJwt(user);
+  async refreshToken(user: UserEntity): Promise<RefreshTokenInterface> {
+    const tokens = this.generateJwt(user);
 
-    return { data: { accessToken, user } };
+    await this.saveRefreshToken(user.id, tokens.refreshToken);
+
+    return tokens;
   }
 
   async requestTransactionalCode(username: string): Promise<ServiceResponseHttpInterface> {
@@ -359,13 +362,34 @@ export class AuthService {
     return this.repository.findOne({ where });
   }
 
-  private async generateJwt(user: UserEntity): Promise<string> {
+  async saveRefreshToken(userId: string, refreshToken: string) {
+    await this.repository.update(userId, {
+      refreshToken: await Bcrypt.hash(refreshToken, 10),
+    });
+  }
+
+  async signOut(id: string): Promise<boolean> {
+    await this.repository.update(id, {
+      refreshToken: null,
+    });
+
+    return true;
+  }
+
+  private generateJwt(user: UserEntity) {
     const payload: PayloadTokenInterface = {
-      id: user.id,
+      sub: user.id,
       username: user.username,
     };
 
-    return await this.jwtService.signAsync(payload);
+    const accessToken = this.jwtService.sign(payload);
+
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: this.configService.jwtRefreshSecret,
+      expiresIn: ms(this.configService.jwtRefreshExpires ?? '7d'),
+    });
+
+    return { accessToken, refreshToken };
   }
 
   private async findByUsername(username: string): Promise<UserEntity> {

@@ -10,13 +10,14 @@ import { MenusController } from './controllers/menus.controller';
 import { UsersService } from './services/users.service';
 import { JwtStrategy } from '@auth/strategies';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtGuard, SuspendedUserGuard } from '@auth/guards';
+import { AccountGuard, JwtGuard } from '@auth/guards';
 import { MailModule } from '@modules/common/mail/mail.module';
 import { AuthService } from '@auth/services/auth.service';
 import { RolesService } from '@auth/services/roles.service';
 import { MenusService } from '@auth/services/menus.service';
 import { coreProviders } from '@modules/core/core.provider';
 import { HttpModule } from '@nestjs/axios';
+import { RefreshJwtStrategy } from '@auth/strategies/refresh-jwt.strategy';
 
 @Global()
 @Module({
@@ -31,7 +32,7 @@ import { HttpModule } from '@nestjs/axios';
         return {
           secret: configService.jwtSecret,
           signOptions: {
-            expiresIn: '24h',
+            expiresIn: configService.jwtExpires,
           },
         };
       },
@@ -39,13 +40,15 @@ import { HttpModule } from '@nestjs/axios';
   ],
   controllers: [AuthController, MenusController, RolesController, UsersController],
   providers: [
+    JwtStrategy,
+    RefreshJwtStrategy,
     {
       provide: APP_GUARD,
       useClass: JwtGuard,
     },
     {
       provide: APP_GUARD,
-      useClass: SuspendedUserGuard,
+      useClass: AccountGuard,
     },
     ...authProviders,
     ...coreProviders,
@@ -53,7 +56,6 @@ import { HttpModule } from '@nestjs/axios';
     RolesService,
     UsersService,
     MenusService,
-    JwtStrategy,
   ],
   exports: [...authProviders, UsersService, RolesService, MenusService, JwtModule, PassportModule],
 })

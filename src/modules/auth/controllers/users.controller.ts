@@ -21,9 +21,12 @@ import { diskStorage } from 'multer';
 import { join } from 'path';
 import { getFileName, imageFilter } from '@utils/helpers';
 import { PaginationDto } from '@utils/pagination';
+import { Auth } from '@auth/decorators';
+import { RoleEnum } from '@auth/enums';
 
 @ApiTags('Users')
 @Controller('auth/users')
+@Auth(RoleEnum.ADMIN)
 export class UsersController {
   constructor(private readonly service: UsersService) {}
 

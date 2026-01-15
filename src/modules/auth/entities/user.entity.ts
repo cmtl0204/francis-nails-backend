@@ -125,6 +125,13 @@ export class UserEntity {
 
   /** Fields **/
   @Column({
+    name: 'refresh_token',
+    type: 'varchar',
+    nullable: true,
+  })
+  refreshToken: string|null;
+
+  @Column({
     name: 'activated_at',
     type: 'timestamp',
     nullable: true,

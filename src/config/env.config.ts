@@ -1,5 +1,6 @@
 import { registerAs } from '@nestjs/config';
 import * as process from 'node:process';
+import { StringValue } from 'ms';
 
 export const envConfig = registerAs('envConfig', () => {
   return {
@@ -21,6 +22,9 @@ export const envConfig = registerAs('envConfig', () => {
     },
     apiKey: process.env.API_KEY,
     jwtSecret: process.env.JWT_SECRET,
+    jwtExpires: process.env.JWT_EXPIRES as StringValue,
+    jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
+    jwtRefreshExpires: process.env.JWT_REFRESH_EXPIRES as StringValue,
     port: parseInt(process.env.PORT!, 10),
     appUrl: process.env.APP_URL,
     env: process.env.ENV,

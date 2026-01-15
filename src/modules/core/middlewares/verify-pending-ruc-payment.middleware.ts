@@ -21,7 +21,7 @@ export class VerifyPendingRucPaymentMiddleware implements NestMiddleware {
       const jwtDecode: PayloadTokenInterface = this.jwtService.decode(token[1]);
 
       const user = await this.userEntityRepository.findOne({
-        where: { id: jwtDecode.id },
+        where: { id: jwtDecode.sub },
         select: { id: true, suspendedAt: true },
       });
 

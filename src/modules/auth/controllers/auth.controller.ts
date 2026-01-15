@@ -8,9 +8,10 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Auth, PublicRoute, User } from '@auth/decorators';
+import { PublicRoute, User } from '@auth/decorators';
 import { UserEntity } from '@auth/entities';
 import {
   PasswordChangeDto,
@@ -20,6 +21,7 @@ import {
 } from '@auth/dto';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { AuthService } from '@auth/services/auth.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -33,9 +35,35 @@ export class AuthController {
     const serviceResponse = await this.authService.signIn(payload);
 
     return {
-      data: serviceResponse.data,
+      data: serviceResponse,
       message: 'Acceso Correcto',
       title: 'Bienvenido/a',
+    };
+  }
+
+  @PublicRoute()
+  @UseGuards(AuthGuard('jwt'))
+  @Post('sign-out')
+  async signOut(@User() user: UserEntity) {
+    const serviceResponse = await this.authService.signOut(user.id);
+
+    return {
+      data: serviceResponse,
+      message: 'Sesión cerrada correctamente',
+      title: 'Cerrar Sesión',
+    };
+  }
+
+  @PublicRoute()
+  @UseGuards(AuthGuard('jwt-refresh'))
+  @Post('refresh-token')
+  async refreshToken(@User() user: UserEntity): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.authService.refreshToken(user);
+
+    return {
+      data: serviceResponse,
+      message: 'Refresh Token',
+      title: 'Refresh Token',
     };
   }
 
@@ -91,18 +119,6 @@ export class AuthController {
       data: serviceResponse,
       message: 'La inforación del usuario fue actualizada',
       title: 'Actualuizado',
-    };
-  }
-
-  @ApiOperation({ summary: 'Refresh Token' })
-  @Get('refresh-token')
-  async refreshToken(@User() user: UserEntity): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.authService.refreshToken(user);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Correct Access',
-      title: 'Refresh Token',
     };
   }
 

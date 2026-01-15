@@ -1,28 +1,45 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
-import { Observable } from 'rxjs';
 import { Reflector } from '@nestjs/core';
-import { ROLES_KEY } from '@auth/constants';
+import { IS_PUBLIC_ROUTE_KEY, ROLES_KEY } from '@auth/constants';
 import { RoleEnum } from '@auth/enums';
 import { UserEntity } from '@auth/entities';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(private readonly reflector: Reflector) {}
 
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
-    const roles: RoleEnum[] = this.reflector.get(ROLES_KEY, context.getHandler());
+  canActivate(context: ExecutionContext): boolean {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_ROUTE_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
-    if (!roles || roles.length === 0) return true;
+    if (isPublic) {
+      return true;
+    }
+
+    const requiredRoles = this.reflector.getAllAndOverride<RoleEnum[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    // Si el endpoint no requiere roles, permitir acceso
+    if (!requiredRoles || requiredRoles.length === 0) return true;
 
     const request = context.switchToHttp().getRequest();
     const user = request.user as UserEntity;
 
-    const isAuth = roles.some((role) => {
-      return user.roles.some((roleUser) => roleUser.code === role);
-    });
+    // Si por alguna razón no hay usuario o no tiene roles
+    if (!user || !Array.isArray(user.roles)) {
+      throw new ForbiddenException('User has no roles assigned');
+    }
 
-    if (!isAuth) {
-      throw new ForbiddenException();
+    const hasRole = requiredRoles.some((required) =>
+      user.roles.some((userRole) => userRole.code === required),
+    );
+
+    if (!hasRole) {
+      throw new ForbiddenException('Insufficient role permissions');
     }
 
     return true;

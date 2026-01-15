@@ -20,7 +20,7 @@ export class AuditMiddleware implements NestMiddleware {
         const jwtDecode: PayloadTokenInterface = this.jwtService.decode(token[1]);
 
         auditNamespace.run(() => {
-          setCurrentUser({ id: jwtDecode.id });
+          setCurrentUser({ id: jwtDecode.sub });
           next();
         });
       } catch (error) {
