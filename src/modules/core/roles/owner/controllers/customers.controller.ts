@@ -1,15 +1,24 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { CreateCustomerDto, UpdateCustomerDto } from '../dto/customer';
-import { CustomerEntity } from '@modules/core/entities';
-import { CustomersService } from '../services/customers.service';
+import { CustomerService } from '../services/customers.service';
 import { PaginationDto } from '@utils/pagination';
 import { ResponseHttpInterface } from '@utils/interfaces';
 
 @ApiTags('Customers')
 @Controller('core/owner/customers')
-export class CustomersController {
-  constructor(private readonly service: CustomersService) {}
+export class CustomerController {
+  constructor(private readonly service: CustomerService) {}
 
   @ApiOperation({ summary: 'Create' })
   @Post()
@@ -22,7 +31,12 @@ export class CustomersController {
   @Get()
   async findAll(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.findAll(params);
-    return { data: serviceResponse.data, pagination: serviceResponse.pagination, message: 'Clientes listados', title: 'Success' };
+    return {
+      data: serviceResponse.data,
+      pagination: serviceResponse.pagination,
+      message: 'Clientes listados',
+      title: 'Success',
+    };
   }
 
   @ApiOperation({ summary: 'Find One' })
@@ -34,7 +48,10 @@ export class CustomersController {
 
   @ApiOperation({ summary: 'Update' })
   @Patch(':id')
-  async update(@Param('id', ParseUUIDPipe) id: string, @Body() payload: UpdateCustomerDto): Promise<ResponseHttpInterface> {
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() payload: UpdateCustomerDto,
+  ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
     return { data: serviceResponse, message: 'Cliente actualizado', title: 'Actualizado' };
   }
@@ -50,6 +67,11 @@ export class CustomersController {
   @Get('catalogue')
   async catalogue(): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.catalogue();
-    return { data: serviceResponse.data, pagination: serviceResponse.pagination, message: 'Catálogo de clientes', title: 'Success' };
+    return {
+      data: serviceResponse.data,
+      pagination: serviceResponse.pagination,
+      message: 'Catálogo de clientes',
+      title: 'Success',
+    };
   }
 }

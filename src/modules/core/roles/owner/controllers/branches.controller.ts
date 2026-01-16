@@ -11,14 +11,14 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { CreateBranchDto, UpdateBranchDto } from '../dto/branch';
-import { BranchesService } from '../services/branches.service';
+import { BranchService } from '../services/branches.service';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { PaginationDto } from '@utils/pagination';
 
 @ApiTags('Branches')
 @Controller('core/owner/branches')
 export class BranchController {
-  constructor(private readonly service: BranchesService) {}
+  constructor(private readonly service: BranchService) {}
 
   @ApiOperation({ summary: 'Create' })
   @Post()

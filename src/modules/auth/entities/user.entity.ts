@@ -8,12 +8,14 @@ import {
   JoinColumn,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import * as Bcrypt from 'bcrypt';
 import { RoleEntity } from '@auth/entities';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
+import { CustomerEntity, StaffProfileEntity } from '@modules/core/entities';
 
 @Entity('users', { schema: 'auth' })
 export class UserEntity {
@@ -44,6 +46,12 @@ export class UserEntity {
   /** Inverse Relationship **/
   @ManyToMany(() => RoleEntity, (role) => role.users)
   roles: RoleEntity[];
+
+   @OneToMany(() => CustomerEntity, (customer) => customer.user)
+  customers: CustomerEntity[];
+
+  @OneToMany(() => StaffProfileEntity, (staffProfile) => staffProfile.user)
+  staffProfiles: StaffProfileEntity[];
 
   /** Foreign Keys **/
   @ManyToOne(() => CatalogueEntity, { nullable: true })

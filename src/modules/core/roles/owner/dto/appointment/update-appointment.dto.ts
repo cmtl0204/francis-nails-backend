@@ -1,12 +1,12 @@
 import { PickType } from '@nestjs/swagger';
-import { AppointmentDto } from './base-appointment.dto';
+import { BaseAppointmentDto } from './base-appointment.dto';
 
-export class UpdateAppointmentDto extends PickType(AppointmentDto, [
+export class UpdateAppointmentDto extends PickType(BaseAppointmentDto, [
   'branch',
-  'customerId',
-  'staffProfileId',
-  'statusId',
-  'sourceId',
+  'customer',
+  'staffProfile',
+  'status',
+  'source',
   'startAt',
   'endAt',
   'notes',

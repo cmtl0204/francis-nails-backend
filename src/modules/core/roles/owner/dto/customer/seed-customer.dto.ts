@@ -1,9 +1,9 @@
 import { PickType } from '@nestjs/swagger';
-import { CustomerDto } from './base-customer.dto';
+import { BaseCustomerDto } from './base-customer.dto';
 
-export class SeedCustomerDto extends PickType(CustomerDto, [
-  'referralId',
-  'userId',
+export class SeedCustomerDto extends PickType(BaseCustomerDto, [
+  'referral',
+  'user',
   'taxIdentification',
   'taxName',
   'allergies',

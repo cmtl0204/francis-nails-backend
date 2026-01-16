@@ -11,14 +11,14 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { CreateStaffProfileDto, UpdateStaffProfileDto } from '../dto/staff-profile';
-import { StaffProfilesService } from '../services/staff-profiles.service';
+import { StaffProfileService } from '../services/staff-profiles.service';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { PaginationDto } from '@utils/pagination';
 
 @ApiTags('Staff Profiles')
 @Controller('core/owner/staff-profiles')
-export class StaffProfilesController {
-  constructor(private readonly service: StaffProfilesService) {}
+export class StaffProfileController {
+  constructor(private readonly service: StaffProfileService) {}
 
   @ApiOperation({ summary: 'Create' })
   @Post()

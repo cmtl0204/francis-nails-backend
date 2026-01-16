@@ -68,14 +68,13 @@ export class StaffProfileEntity {
   invoiceItems: InvoiceItemEntity[];
 
   /** Foreign Keys **/
-  @OneToOne(() => UserEntity)
+ @ManyToOne(() => UserEntity, (user) => user.staffProfiles)
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 
   @Column({
     type: 'uuid',
     name: 'user_id',
-    unique: true,
     comment: 'Referencia al usuario (única)'
   })
   userId: string;

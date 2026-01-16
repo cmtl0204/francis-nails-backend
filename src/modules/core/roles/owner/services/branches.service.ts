@@ -7,7 +7,7 @@ import { CoreRepositoryEnum } from '@utils/enums';
 import { PaginateFilterService, PaginationDto } from '@utils/pagination';
 
 @Injectable()
-export class BranchesService {
+export class BranchService {
   private paginateFilterService: PaginateFilterService<BranchEntity>;
 
   constructor(

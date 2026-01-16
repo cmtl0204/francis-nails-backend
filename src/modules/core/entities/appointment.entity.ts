@@ -79,14 +79,13 @@ export class AppointmentEntity {
   })
   customerId: string;
 
-  @ManyToOne(() => StaffProfileEntity, (staff) => staff.appointments, { nullable: true })
+  @ManyToOne(() => StaffProfileEntity, (staff) => staff.appointments, )
   @JoinColumn({ name: 'staff_profile_id' })
   staffProfile: StaffProfileEntity;
 
   @Column({
     type: 'uuid',
     name: 'staff_profile_id',
-    nullable: true,
     comment: 'Referencia al personal',
   })
   staffProfileId: string;

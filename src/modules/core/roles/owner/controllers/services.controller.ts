@@ -1,14 +1,24 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { CreateServiceDto, UpdateServiceDto } from '../dto/services';
-import { ServicesService } from '../services/services.service';
+import { ServiceService } from '../services/services.service';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { PaginationDto } from '@utils/pagination';
 
 @ApiTags('Services')
 @Controller('core/owner/services')
-export class ServicesController {
-  constructor(private readonly service: ServicesService) {}
+export class ServiceController {
+  constructor(private readonly service: ServiceService) {}
 
   @ApiOperation({ summary: 'Create' })
   @Post()
@@ -21,7 +31,12 @@ export class ServicesController {
   @Get()
   async findAll(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.findAll(params);
-    return { data: serviceResponse.data, pagination: serviceResponse.pagination, message: 'Servicios listados', title: 'Success' };
+    return {
+      data: serviceResponse.data,
+      pagination: serviceResponse.pagination,
+      message: 'Servicios listados',
+      title: 'Success',
+    };
   }
 
   @ApiOperation({ summary: 'Find One' })
@@ -33,7 +48,10 @@ export class ServicesController {
 
   @ApiOperation({ summary: 'Update' })
   @Patch(':id')
-  async update(@Param('id', ParseUUIDPipe) id: string, @Body() payload: UpdateServiceDto): Promise<ResponseHttpInterface> {
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() payload: UpdateServiceDto,
+  ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
     return { data: serviceResponse, message: 'Servicio actualizado', title: 'Actualizado' };
   }
@@ -49,6 +67,11 @@ export class ServicesController {
   @Get('catalogue')
   async catalogue(): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.catalogue();
-    return { data: serviceResponse.data, pagination: serviceResponse.pagination, message: 'Catálogo de servicios', title: 'Success' };
+    return {
+      data: serviceResponse.data,
+      pagination: serviceResponse.pagination,
+      message: 'Catálogo de servicios',
+      title: 'Success',
+    };
   }
 }

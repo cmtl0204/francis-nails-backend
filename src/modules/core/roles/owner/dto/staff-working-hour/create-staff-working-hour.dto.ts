@@ -1,13 +1,12 @@
 import { PickType } from '@nestjs/swagger';
-import { StaffWorkingHourDto } from './base-staff-working-hour.dto';
+import {  BaseStaffWorkingHourDto } from './base-staff-working-hour.dto';
 
-export class CreateStaffWorkingHourDto extends PickType(StaffWorkingHourDto, [
-  'staffProfileId',
+export class CreateStaffWorkingHourDto extends PickType( BaseStaffWorkingHourDto, [
+  'staffProfile',
   'weekday',
   'startTime',
   'endTime',
   'breakStart',
   'breakEnd',
   'isDayOff',
-  'enabled',
 ]) {}

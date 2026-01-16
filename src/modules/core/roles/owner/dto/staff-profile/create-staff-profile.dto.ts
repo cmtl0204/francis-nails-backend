@@ -1,14 +1,13 @@
 import { PickType } from '@nestjs/swagger';
-import { StaffProfileDto } from './base-staff-profile.dto';
+import { BaseStaffProfileDto } from './base-staff-profile.dto';
 
-export class CreateStaffProfileDto extends PickType(StaffProfileDto, [
-  'userId',
-  'positionId',
+export class CreateStaffProfileDto extends PickType(BaseStaffProfileDto, [
+  'user',
+  'position',
   'photoUrl',
   'displayName',
   'specialty',
   'colorTag',
   'commissionType',
   'commissionValue',
-  'enabled',
 ]) {}

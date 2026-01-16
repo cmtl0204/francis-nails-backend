@@ -7,7 +7,7 @@ import { PaginateFilterService, PaginationDto } from '@utils/pagination';
 import { CoreRepositoryEnum } from '@utils/enums';
 
 @Injectable()
-export class AppointmentsService {
+export class AppointmentService {
   private paginateFilterService: PaginateFilterService<AppointmentEntity>;
 
   constructor(

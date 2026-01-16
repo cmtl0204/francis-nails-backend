@@ -1,16 +1,19 @@
-import { IsString, IsOptional, MaxLength, IsUUID, IsDecimal } from 'class-validator';
+import { IsString, IsOptional, MaxLength, IsUUID, IsDecimal, IsNotEmpty } from 'class-validator';
 import {
   isStringValidationOptions,
   maxLengthValidationOptions,
   isNumberValidationOptions,
+  isNotEmptyValidationOptions
 } from '@utils/dto-validation';
+import { UserEntity } from '@auth/entities';
+import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 
-export class StaffProfileDto {
-  @IsUUID()
-  readonly userId: string;
+export class BaseStaffProfileDto {
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  readonly user: UserEntity;
 
-  @IsUUID()
-  readonly positionId: string;
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  readonly position: CatalogueEntity;
 
   @IsOptional()
   @IsString(isStringValidationOptions())
@@ -36,7 +39,4 @@ export class StaffProfileDto {
   @IsOptional()
   @IsDecimal({ decimal_digits: '0,2' }, isNumberValidationOptions())
   readonly commissionValue: number;
-
-  @IsOptional()
-  readonly enabled: boolean;
 }

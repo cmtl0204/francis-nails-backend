@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { CreateStaffWorkingHourDto, UpdateStaffWorkingHourDto } from '../dto/staff-working-hour';
 import { StaffWorkingHourService } from '../services/staff-working-hours.service';
@@ -21,7 +31,12 @@ export class StaffWorkingHourController {
   @Get()
   async findAll(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.findAll(params);
-    return { data: serviceResponse.data, pagination: serviceResponse.pagination, message: 'Horarios listados', title: 'Success' };
+    return {
+      data: serviceResponse.data,
+      pagination: serviceResponse.pagination,
+      message: 'Horarios listados',
+      title: 'Success',
+    };
   }
 
   @ApiOperation({ summary: 'Find One' })
@@ -33,7 +48,10 @@ export class StaffWorkingHourController {
 
   @ApiOperation({ summary: 'Update' })
   @Patch(':id')
-  async update(@Param('id', ParseUUIDPipe) id: string, @Body() payload: UpdateStaffWorkingHourDto): Promise<ResponseHttpInterface> {
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() payload: UpdateStaffWorkingHourDto,
+  ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
     return { data: serviceResponse, message: 'Horario actualizado', title: 'Actualizado' };
   }
@@ -49,6 +67,11 @@ export class StaffWorkingHourController {
   @Get('catalogue')
   async catalogue(): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.catalogue();
-    return { data: serviceResponse.data, pagination: serviceResponse.pagination, message: 'Catálogo de horarios', title: 'Success' };
+    return {
+      data: serviceResponse.data,
+      pagination: serviceResponse.pagination,
+      message: 'Catálogo de horarios',
+      title: 'Success',
+    };
   }
 }

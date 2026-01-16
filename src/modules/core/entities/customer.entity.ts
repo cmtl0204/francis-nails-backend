@@ -73,15 +73,14 @@ export class CustomerEntity {
   })
   referralId: string;
 
-  @ManyToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity, (user) => user.customers)
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 
   @Column({
     type: 'uuid',
     name: 'user_id',
-    unique: true,
-    comment: 'Referencia al usuario (única)',
+    comment: 'Referencia al usuario (única)'
   })
   userId: string;
 
@@ -103,6 +102,7 @@ export class CustomerEntity {
   @Column({
     name: 'allergies',
     type: 'text',
+    nullable: true,
     comment: 'Alergias o restricciones del usuario',
   })
   allergies: string;

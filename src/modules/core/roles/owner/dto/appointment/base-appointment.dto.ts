@@ -4,25 +4,24 @@ import {
   isNotEmptyValidationOptions,
   isStringValidationOptions,
 } from '@utils/dto-validation';
-import { BranchEntity } from '@modules/core/entities';
+import { BranchEntity, CustomerEntity, StaffProfileEntity } from '@modules/core/entities';
+import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 
-export class AppointmentDto {
+export class BaseAppointmentDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly branch: BranchEntity;
 
-  @IsOptional()
-  @IsUUID()
-  readonly customerId: string;
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  readonly customer: CustomerEntity;
 
-  @IsOptional()
-  @IsUUID()
-  readonly staffProfileId: string;
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  readonly staffProfile: StaffProfileEntity;
 
-  @IsOptional()
-  readonly statusId: number;
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  readonly status: CatalogueEntity;
 
-  @IsOptional()
-  readonly sourceId: number;
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  readonly source: CatalogueEntity;
 
   @IsOptional()
   @IsDate(isDateValidationOptions())

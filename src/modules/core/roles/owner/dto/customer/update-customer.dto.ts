@@ -1,16 +1,9 @@
 import { PickType } from '@nestjs/swagger';
-import { CustomerDto } from './base-customer.dto';
-import { IsOptional, IsString, MaxLength } from 'class-validator';
-import { isStringValidationOptions, maxLengthValidationOptions } from '@utils/dto-validation';
+import { BaseCustomerDto } from './base-customer.dto';
 
-export class UpdateCustomerDto extends PickType(CustomerDto, [
-  'referralId',
+export class UpdateCustomerDto extends PickType(BaseCustomerDto, [
+  'referral',
   'taxIdentification',
   'taxName',
   'allergies',
-]) {
-  @IsOptional()
-  @IsString(isStringValidationOptions())
-  @MaxLength(150, maxLengthValidationOptions())
-  readonly taxName: string;
-}
+]) {}

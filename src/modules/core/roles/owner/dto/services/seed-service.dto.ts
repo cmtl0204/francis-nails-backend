@@ -1,12 +1,11 @@
 import { PickType } from '@nestjs/swagger';
-import { ServiceDto } from './base-service.dto';
+import { BaseServiceDto } from './base-service.dto';
 
-export class SeedServiceDto extends PickType(ServiceDto, [
-  'branchId',
-  'categoryId',
+export class SeedServiceDto extends PickType(BaseServiceDto, [
+  'branch',
+  'category',
   'name',
   'description',
   'durationMin',
   'basePrice',
-  'isEnabled',
 ]) {}

@@ -1,10 +1,9 @@
 import { PickType } from '@nestjs/swagger';
-import { StaffTimeOffDto } from './base-staff-time-off.dto';
+import { BaseStaffTimeOffDto } from './base-staff-time-off.dto';
 
-export class SeedStaffTimeOffDto extends PickType(StaffTimeOffDto, [
-  'staffProfileId',
+export class SeedStaffTimeOffDto extends PickType(BaseStaffTimeOffDto, [
+  'staffProfile',
   'startAt',
   'endAt',
   'reason',
-  'enabled',
 ]) {}

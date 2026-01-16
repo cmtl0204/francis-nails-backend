@@ -2,24 +2,26 @@ import {
   IsString,
   IsOptional,
   MaxLength,
-  IsUUID,
   IsInt,
   IsNumber,
-  IsBoolean,
+  IsNotEmpty
 } from 'class-validator';
 import {
   isStringValidationOptions,
   maxLengthValidationOptions,
-  isBooleanValidationOptions,
   isNumberValidationOptions,
+  isNotEmptyValidationOptions
 } from '@utils/dto-validation';
+import { BranchEntity } from '@modules/core/entities';
+import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 
-export class ServiceDto {
-  @IsUUID()
-  readonly branchId: string;
+export class BaseServiceDto {
 
-  @IsUUID()
-  readonly categoryId: string;
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  readonly branch: BranchEntity;
+
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  readonly category: CatalogueEntity;
 
   @IsString(isStringValidationOptions())
   @MaxLength(150, maxLengthValidationOptions())
@@ -34,8 +36,4 @@ export class ServiceDto {
 
   @IsNumber({ maxDecimalPlaces: 2 }, isNumberValidationOptions())
   readonly basePrice: number;
-
-  @IsOptional()
-  @IsBoolean(isBooleanValidationOptions())
-  readonly isEnabled: boolean;
 }

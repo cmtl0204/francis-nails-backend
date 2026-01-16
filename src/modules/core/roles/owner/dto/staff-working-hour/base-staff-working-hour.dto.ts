@@ -1,9 +1,10 @@
-import { IsUUID, IsInt, IsBoolean, IsOptional, IsString } from 'class-validator';
-import { isStringValidationOptions } from '@utils/dto-validation';
+import { IsUUID, IsInt, IsBoolean, IsOptional, IsString,IsNotEmpty } from 'class-validator';
+import { isStringValidationOptions,isNotEmptyValidationOptions } from '@utils/dto-validation';
+import { StaffProfileEntity } from '@modules/core/entities';
 
-export class StaffWorkingHourDto {
-  @IsUUID()
-  readonly staffProfileId: string;
+export class BaseStaffWorkingHourDto {
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  readonly staffProfile: StaffProfileEntity;
 
   @IsInt()
   readonly weekday: number;
@@ -24,7 +25,4 @@ export class StaffWorkingHourDto {
 
   @IsBoolean()
   readonly isDayOff: boolean;
-
-  @IsOptional()
-  readonly enabled: boolean;
 }

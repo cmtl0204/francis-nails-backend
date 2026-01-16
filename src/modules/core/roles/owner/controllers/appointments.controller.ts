@@ -10,15 +10,15 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { AppointmentsService } from '../services/appointments.service';
+import { AppointmentService } from '../services/appointments.service';
 import { CreateAppointmentDto, UpdateAppointmentDto } from '../dto/appointment';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { PaginationDto } from '@utils/pagination';
 
 @ApiTags('Appointments')
 @Controller('core/owner/appointments')
-export class AppointmentsController {
-  constructor(private readonly service: AppointmentsService) {}
+export class AppointmentController {
+  constructor(private readonly service: AppointmentService) {}
 
   @ApiOperation({ summary: 'Create' })
   @Post()

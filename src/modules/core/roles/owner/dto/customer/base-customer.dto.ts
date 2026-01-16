@@ -5,15 +5,15 @@ import {
   maxLengthValidationOptions,
 } from '@utils/dto-validation';
 import { CustomerEntity } from '@modules/core/entities';
+import { UserEntity } from '@auth/entities';
 
-export class CustomerDto {
-  @IsOptional()
-  @IsUUID()
-  readonly referralId: string;
+export class BaseCustomerDto {
+
+  @IsOptional(isNotEmptyValidationOptions())
+  readonly referral: CustomerEntity;
 
   @IsNotEmpty(isNotEmptyValidationOptions())
-  @IsUUID()
-  readonly userId: string;
+  readonly user: UserEntity;
 
   @IsNotEmpty(isNotEmptyValidationOptions())
   @IsString(isStringValidationOptions())

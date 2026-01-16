@@ -1,5 +1,5 @@
-import { ServicesController } from './services.controller';
-import { BranchController } from './branch.controller';
+import { ServiceController } from './services.controller';
+import { BranchController } from './branches.controller';
 import { AppointmentServicesController } from './appointment-service.controller';
 import { InventoryMovementsController } from './inventory-movement.controller';
 import { InvoiceItemsController } from './invoice-item.controller';
@@ -9,11 +9,11 @@ import { PurchaseItemsController } from './purchase-item.controller';
 import { PurchasesController } from './purchase.controller';
 import { StockBalancesController } from './stock-balance.controller';
 import { SuppliersController } from './supplier.controller';
-import { CustomersController } from './customers.controller';
-import { StaffProfilesController } from './staff-profiles.controller';
+import { CustomerController } from './customers.controller';
+import { StaffProfileController } from './staff-profiles.controller';
 import { StaffTimeOffController } from './staff-time-off.controller';
 import { StaffWorkingHourController } from './staff-working-hours.controller';
-import { AppointmentsController } from './appointments.controller';
+import { AppointmentController } from './appointments.controller';
 
 export const controllers = [
   BranchController,
@@ -26,10 +26,10 @@ export const controllers = [
   InventoryMovementsController,
   InvoicesController,
   InvoiceItemsController,
-  CustomersController,
-  StaffProfilesController,
+  CustomerController,
+  StaffProfileController,
   StaffWorkingHourController,
   StaffTimeOffController,
-  AppointmentsController,
-  ServicesController,
+  AppointmentController,
+  ServiceController,
 ];

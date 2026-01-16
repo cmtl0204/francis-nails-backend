@@ -7,7 +7,7 @@ import { CoreRepositoryEnum } from '@utils/enums';
 import { PaginateFilterService, PaginationDto } from '@utils/pagination';
 
 @Injectable()
-export class ServicesService {
+export class ServiceService {
   private paginateFilterService: PaginateFilterService<ServiceEntity>;
 
   constructor(
@@ -31,7 +31,7 @@ export class ServicesService {
   }
 
   async findOne(id: string): Promise<ServiceEntity> {
-    const entity = await this.repository.findOne({ 
+    const entity = await this.repository.findOne({
       where: { id },
       relations: ['branch', 'category'],
     });
