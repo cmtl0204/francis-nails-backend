@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_ROUTE_KEY, ROLES_KEY } from '@auth/constants';
-import { RoleEnum } from '@auth/enums';
+import { ErrorCodeEnum, RoleEnum } from '@auth/enums';
 import { UserEntity } from '@auth/entities';
 import { Request } from 'express';
 
@@ -42,7 +42,7 @@ export class RolesGuard implements CanActivate {
 
     if (!hasPermission) {
       throw new ForbiddenException({
-        error: 'INSUFFICIENT_PERMISSIONS',
+        error: ErrorCodeEnum.INSUFFICIENT_PERMISSIONS,
         message: 'El usuario no tiene permisos para esta acción',
       });
     }

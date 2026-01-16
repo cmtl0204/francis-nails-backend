@@ -29,6 +29,7 @@ import { lastValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import ms from 'ms';
 import { SignInInterface } from '@auth/interfaces/sign-in.interface';
+import { ErrorCodeEnum } from '@auth/enums';
 
 @Injectable()
 export class AuthService {
@@ -107,27 +108,27 @@ export class AuthService {
 
     if (!user) {
       throw new UnauthorizedException({
-        error: 'Sin Autorización',
+        error: ErrorCodeEnum.INVALID_USER,
         message: 'Usuario y/o contraseña no válidos',
       });
     }
 
     if (user?.suspendedAt)
       throw new ForbiddenException({
-        error: 'ACCOUNT_SUSPENDED',
+        error: ErrorCodeEnum.ACCOUNT_SUSPENDED,
         message: 'Su usuario se encuentra suspendido',
       });
 
     if (user?.maxAttempts === 0) {
       throw new ForbiddenException({
-        error: 'ACCOUNT_LOCKED',
+        error: ErrorCodeEnum.ACCOUNT_LOCKED,
         message: 'Ha excedido el número máximo de intentos permitidos',
       });
     }
 
     if (!(await this.checkPassword(payload.password, user))) {
       throw new UnauthorizedException({
-        error: 'INVALID_CREDENTIALS',
+        error: ErrorCodeEnum.INVALID_PASSWORD,
         message: `Usuario y/o contraseña no válidos, ${user.maxAttempts - 1} intentos restantes`,
       });
     }
@@ -220,8 +221,8 @@ export class AuthService {
 
     if (!user) {
       throw new NotFoundException({
-        error: 'Usuario no encontrado para generar código transaccional',
-        message: 'Intente de nuevo',
+        error: ErrorCodeEnum.NOT_FOUND,
+        message: 'Usuario no encontrado, intente de nuevo',
       });
     }
     const randomNumber = Math.random();
@@ -272,21 +273,21 @@ export class AuthService {
     if (!transactionalCode) {
       throw new BadRequestException({
         message: 'Código Transaccional no válido',
-        error: 'Error',
+        error: ErrorCodeEnum.NOT_FOUND,
       });
     }
 
     if (transactionalCode.username !== username) {
       throw new BadRequestException({
         message: 'El usuario no corresponde al código transaccional generado',
-        error: 'Error',
+        error: ErrorCodeEnum.TRANSACTIONAL_CODE_NOT_MATCH,
       });
     }
 
     if (transactionalCode.isUsed) {
       throw new BadRequestException({
         message: 'El código ya fue usado',
-        error: 'Error',
+        error: ErrorCodeEnum.TRANSACTIONAL_CODE_USED,
       });
     }
 
@@ -295,7 +296,7 @@ export class AuthService {
     if (isBefore(maxDate, new Date())) {
       throw new BadRequestException({
         message: 'El código ha expirado',
-        error: 'Error',
+        error: ErrorCodeEnum.TRANSACTIONAL_CODE_EXPIRED,
       });
     }
 
@@ -313,8 +314,8 @@ export class AuthService {
 
     if (!user) {
       throw new NotFoundException({
-        message: 'Intente de nuevo',
-        error: 'Usuario no encontrado para resetear contraseña',
+        message: 'Usuario no encontrado para resetear contraseña, intente de nuevo',
+        error: ErrorCodeEnum.NOT_FOUND,
       });
     }
 

@@ -16,6 +16,7 @@ import { QueryFailedError } from 'typeorm';
 import { ErrorResponseHttpModel } from '../interfaces';
 import { ThrottlerException } from '@nestjs/throttler';
 import { MailSendException } from '@utils/exceptions/MailSendException';
+import { ErrorCodeEnum } from '@auth/enums';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -27,7 +28,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
 
     const errorResponseHttpModel: ErrorResponseHttpModel = {
-      error: 'SERVER_ERROR',
+      error: ErrorCodeEnum.SERVER_ERROR,
       message: 'Unexpected error occurred',
     };
 

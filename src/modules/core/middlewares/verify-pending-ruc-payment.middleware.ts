@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { UserEntity } from '@auth/entities';
 import { PayloadTokenInterface } from 'src/modules/auth/interfaces';
 import { AuthRepositoryEnum } from '../../../utils/enums';
+import { ErrorCodeEnum } from '@auth/enums';
 
 @Injectable()
 export class VerifyPendingRucPaymentMiddleware implements NestMiddleware {
@@ -27,7 +28,7 @@ export class VerifyPendingRucPaymentMiddleware implements NestMiddleware {
 
       if (user?.suspendedAt) {
         throw new ForbiddenException({
-          error: 'Cuenta Suspendida',
+          error: ErrorCodeEnum.ACCOUNT_SUSPENDED,
           message: 'La cuenta del usuario está suspendida',
         });
       }

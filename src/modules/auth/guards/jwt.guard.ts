@@ -8,6 +8,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_ROUTE_KEY } from '@auth/constants';
+import { ErrorCodeEnum } from '@auth/enums';
 
 @Injectable()
 export class JwtGuard extends AuthGuard('jwt') {
@@ -18,8 +19,8 @@ export class JwtGuard extends AuthGuard('jwt') {
   handleRequest(err, user, info) {
     if (info?.name === 'TokenExpiredError') {
       throw new UnauthorizedException({
-        error: 'TOKEN_EXPIRED',
-        message: 'TOKEN_EXPIRED',
+        error: ErrorCodeEnum.TOKEN_EXPIRED,
+        message: ErrorCodeEnum.TOKEN_EXPIRED,
       });
     }
 

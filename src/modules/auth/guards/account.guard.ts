@@ -12,6 +12,7 @@ import { UserEntity } from '@auth/entities';
 import { AuthRepositoryEnum } from '@utils/enums';
 import { IS_PUBLIC_ROUTE_KEY } from '@auth/constants';
 import { Reflector } from '@nestjs/core';
+import { ErrorCodeEnum } from '@auth/enums';
 
 @Injectable()
 export class AccountGuard implements CanActivate {
@@ -37,14 +38,14 @@ export class AccountGuard implements CanActivate {
 
     if (user.suspendedAt) {
       throw new ForbiddenException({
-        error: 'ACCOUNT_SUSPENDED',
+        error: ErrorCodeEnum.ACCOUNT_SUSPENDED,
         message: 'La cuenta del usuario está suspendida',
       });
     }
 
     if (user.maxAttempts === 0)
       throw new ForbiddenException({
-        error: 'ACCOUNT_LOCKED',
+        error: ErrorCodeEnum.ACCOUNT_LOCKED,
         message: "'Ha excedido el número máximo de intentos permitidos'",
       });
 

@@ -19,24 +19,12 @@ export class RolesSeeder {
         name: 'Administrador',
       },
       {
-        code: RoleEnum.EXTERNAL,
-        name: 'Usuario Externo',
+        code: RoleEnum.OWNER,
+        name: 'Propietario',
       },
       {
-        code: RoleEnum.GAD,
-        name: 'GAD',
-      },
-      {
-        code: RoleEnum.DAC,
-        name: 'DAC',
-      },
-      {
-        code: RoleEnum.SPECIALIST,
-        name: 'Especialista Zonal',
-      },
-      {
-        code: RoleEnum.TECHNICIAN,
-        name: 'Técnico Zonal',
+        code: RoleEnum.CUSTOMER,
+        name: 'Cliente',
       },
     );
 
