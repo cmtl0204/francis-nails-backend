@@ -1,13 +1,13 @@
-import { IsNotEmpty, IsOptional, IsString, IsDate, IsDecimal, IsUUID, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString, IsUUID, IsDecimal, IsNumber, IsOptional, IsDate } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
   isStringValidationOptions,
-  isDateValidationOptions,
   isNumberValidationOptions,
 } from '@utils/dto-validation';
 import { Type } from 'class-transformer';
 
-export class BaseInvoiceDto {
+// base-invoice.dto.ts (CORREGIDO)
+export class InvoiceDto {
   @IsUUID('4', { message: 'La sucursal debe ser un UUID válido' })
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly branchId: string;
@@ -18,30 +18,36 @@ export class BaseInvoiceDto {
 
   @IsNumber({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly statusId: number; // 1=draft,2=issued,3=void
+  readonly statusId: number;
 
+  // CORRECCIÓN: Cambiar createdBy por createdById
   @IsUUID('4', { message: 'El usuario creador debe ser un UUID válido' })
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly createdBy: string;
+  readonly createdById: string;  // ← Cambiado de createdBy a createdById
 
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly invoiceNumber: string; // serie + secuencial
+  readonly invoiceNumber: string;
 
-  @IsDate(isDateValidationOptions())
+  @IsDate()
   @Type(() => Date)
+  @IsNotEmpty(isNotEmptyValidationOptions())
   readonly issuedAt: Date;
 
   @IsDecimal({}, { message: 'El subtotal debe ser un número decimal válido' })
+  @IsNotEmpty(isNotEmptyValidationOptions())
   readonly subtotal: number;
 
   @IsDecimal({}, { message: 'El descuento debe ser un número decimal válido' })
+  @IsNotEmpty(isNotEmptyValidationOptions())
   readonly discount: number;
 
-  @IsDecimal({}, { message: 'El IVA debe ser un número decimal válido' })
+  @IsDecimal({}, { message: 'El impuesto debe ser un número decimal válido' })
+  @IsNotEmpty(isNotEmptyValidationOptions())
   readonly tax: number;
 
   @IsDecimal({}, { message: 'El total debe ser un número decimal válido' })
+  @IsNotEmpty(isNotEmptyValidationOptions())
   readonly total: number;
 
   @IsString(isStringValidationOptions())

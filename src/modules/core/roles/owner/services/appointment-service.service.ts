@@ -1,105 +1,63 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+// appointment-services.service.ts
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { CoreRepositoryEnum } from '@utils/enums';
-import { ServiceResponseHttpInterface } from '@utils/interfaces';
 import { AppointmentServiceEntity } from '@modules/core/entities';
-import {
-  CreateAppointmentServiceDto,
-  UpdateAppointmentServiceDto,
-  FilterAppointmentServiceDto,
-} from '../dto/appointment-service';
+import { CreateAppointmentServiceDto, UpdateAppointmentServiceDto } from '../dto/appointment-service';
+import { ServiceResponseHttpInterface } from '@utils/interfaces';
+import { CoreRepositoryEnum } from '@utils/enums';
+import { PaginateFilterService, PaginationDto } from '@utils/pagination';
 
 @Injectable()
-export class AppointmentServiceService {
+export class AppointmentServicesService {
+  private paginateFilterService: PaginateFilterService<AppointmentServiceEntity>;
+
   constructor(
     @Inject(CoreRepositoryEnum.APPOINTMENT_SERVICE_REPOSITORY)
     private repository: Repository<AppointmentServiceEntity>,
-  ) {}
-
-  async findRuta1() {
-    return {
-      data: [
-        {
-          appointmentId: 'test-001',
-          serviceId: 'serv-001',
-          durationMin: 60,
-          price: 25.50,
-        },
-        {
-          appointmentId: 'test-002',
-          serviceId: 'serv-002',
-          durationMin: 90,
-          price: 35.00,
-        },
-      ],
-    };
+  ) {
+    this.paginateFilterService = new PaginateFilterService(this.repository);
   }
 
-  async createdRuta1(payload: any) {
+  async create(payload: CreateAppointmentServiceDto): Promise<AppointmentServiceEntity> {
     const entity = this.repository.create(payload);
-    return { data: entity };
+    return await this.repository.save(entity);
   }
 
-  async create(payload: CreateAppointmentServiceDto) {
-    const entity = this.repository.create(payload);
-    const saved = await this.repository.save(entity);
-    return { data: saved };
+  async findAll(params: PaginationDto): Promise<ServiceResponseHttpInterface> {
+    return this.paginateFilterService.execute({
+      params,
+      searchFields: [],
+      relations: ['appointment', 'service'],
+    });
   }
 
-  async findAll(params: FilterAppointmentServiceDto) {
-    const { page = 1, limit = 10, appointmentId, serviceId, enabled = true } = params;
-    
-    const query = this.repository.createQueryBuilder('as')
-      .where('as.enabled = :enabled', { enabled })
-      .skip((page - 1) * limit)
-      .take(limit);
-
-    if (appointmentId) {
-      query.andWhere('as.appointmentId = :appointmentId', { appointmentId });
-    }
-
-    if (serviceId) {
-      query.andWhere('as.serviceId = :serviceId', { serviceId });
-    }
-
-    const [data, total] = await query.getManyAndCount();
-
-    return {
-      data,
-      pagination: { total, page, limit },
-    };
+  async findOne(id: string): Promise<AppointmentServiceEntity> {
+    const entity = await this.repository.findOne({
+      where: { id },
+      relations: ['appointment', 'service'],
+    });
+    if (!entity) throw new NotFoundException(`Servicio de cita no encontrado (id: ${id})`);
+    return entity;
   }
 
-  async findOne(id: string) {
+  async update(id: string, payload: UpdateAppointmentServiceDto): Promise<AppointmentServiceEntity> {
     const entity = await this.repository.findOne({ where: { id } });
-
-    if (!entity) {
-      throw new NotFoundException('Servicio de cita no encontrado');
-    }
-
-    return { data: entity };
-  }
-
-  async update(id: string, payload: UpdateAppointmentServiceDto) {
-    const entity = await this.repository.findOneBy({ id });
-
-    if (!entity) {
-      throw new NotFoundException('Servicio de cita no encontrado');
-    }
-
+    if (!entity) throw new NotFoundException('Servicio de cita no encontrado para actualizar');
     this.repository.merge(entity, payload);
-    const updated = await this.repository.save(entity);
-    return { data: updated };
+    return await this.repository.save(entity);
   }
 
-  async remove(id: string) {
-    const entity = await this.repository.findOneBy({ id });
+  async remove(id: string): Promise<AppointmentServiceEntity> {
+    const entity = await this.repository.findOne({ where: { id } });
+    if (!entity) throw new NotFoundException('Servicio de cita no encontrado para eliminar');
+    return await this.repository.softRemove(entity);
+  }
 
-    if (!entity) {
-      throw new NotFoundException('Servicio de cita no encontrado');
-    }
-
-    const removed = await this.repository.softRemove(entity);
-    return { data: removed };
+  async catalogue(): Promise<ServiceResponseHttpInterface> {
+    const response = await this.repository.findAndCount({ take: 1000 });
+    return {
+      data: response[0],
+      pagination: { totalItems: response[1], limit: 10 },
+    };
   }
 }

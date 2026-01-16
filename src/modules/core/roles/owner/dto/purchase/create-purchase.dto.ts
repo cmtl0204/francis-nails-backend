@@ -1,3 +1,12 @@
-import { BasePurchaseDto } from './base-purchase.dto';
+import { PickType } from '@nestjs/swagger';
+import { PurchaseDto } from './base-purchase.dto';
 
-export class CreatePurchaseDto extends BasePurchaseDto {}
+export class CreatePurchaseDto extends PickType(PurchaseDto, [
+  'branchId',
+  'supplierId',
+  'documentNumber',
+  'purchasedAt',
+  'subtotal',
+  'tax',
+  'total',
+]) {}

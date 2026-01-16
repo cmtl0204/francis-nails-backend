@@ -1,128 +1,85 @@
+// inventory-movements.controller.ts
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  ParseUUIDPipe,
   Post,
-  Put,
+  Patch,
+  Delete,
+  Body,
+  Param,
   Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Auth, PublicRoute } from '@auth/decorators';
-import { InventoryMovementService } from '../services/inventory-movement.service';
-import {
-  CreateInventoryMovementDto,
-  UpdateInventoryMovementDto,
-  FilterInventoryMovementDto,
-} from '../dto/inventory-movement';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { InventoryMovementsService } from '../services/inventory-movement.service';
+import { CreateInventoryMovementDto, UpdateInventoryMovementDto } from '../dto/inventory-movement';
+import { ResponseHttpInterface } from '@utils/interfaces';
+import { PaginationDto } from '@utils/pagination';
 
-@ApiTags('External Inventory Movements')
-@Auth()
-@Controller('core/owner/inventory-movement')
-export class InventoryMovementController {
-  constructor(private service: InventoryMovementService) {}
+@ApiTags('Inventory Movements')
+@Controller('inventory-movements')
+export class InventoryMovementsController {
+  constructor(private readonly service: InventoryMovementsService) {}
 
-  @PublicRoute()
-  @ApiOperation({ summary: 'Endpoint de prueba para Inventory Movements' })
-  @Get('/rutas')
-  async ruta1() {
-    const serviceResponse = await this.service.findRuta1();
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @PublicRoute()
-  @ApiOperation({ summary: 'Crear Inventory Movement de prueba' })
-  @Post('/rutas')
-  async createdRuta() {
-    const payload = {
-      branchId: '123e4567-e89b-12d3-a456-426614174000',
-      productId: '123e4567-e89b-12d3-a456-426614174001',
-      locationId: '123e4567-e89b-12d3-a456-426614174002',
-      modelType: 'purchases',
-      modelId: '123e4567-e89b-12d3-a456-426614174003',
-      type: 'in',
-      reason: 'purchase',
-      quantity: 50,
-    };
-    const serviceResponse = await this.service.createdRuta1(payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @ApiOperation({ summary: 'List all Inventory Movements' })
-  @Get()
-  async findAll(@Query() params: FilterInventoryMovementDto) {
-    const serviceResponse = await this.service.findAll(params);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @ApiOperation({ summary: 'Get one Inventory Movement' })
-  @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    const serviceResponse = await this.service.findOne(id);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Consultado',
-      title: 'Consultado',
-    };
-  }
-
-  @ApiOperation({ summary: 'Create Inventory Movement' })
+  @ApiOperation({ summary: 'Create' })
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async create(@Body() payload: CreateInventoryMovementDto) {
+  async create(@Body() payload: CreateInventoryMovementDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.create(payload);
+    return { data: serviceResponse, message: 'Movimiento de inventario creado', title: 'Creado' };
+  }
 
+  @ApiOperation({ summary: 'Find All' })
+  @Get()
+  async findAll(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findAll(params);
     return {
       data: serviceResponse.data,
-      message: 'Registro Creado',
-      title: 'Creado',
+      pagination: serviceResponse.pagination,
+      message: 'Movimientos de inventario listados',
+      title: 'Success',
     };
   }
 
-  @ApiOperation({ summary: 'Update Inventory Movement' })
-  @Put(':id')
+  @ApiOperation({ summary: 'Find One' })
+  @Get(':id')
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findOne(id);
+    return { data: serviceResponse, message: `Movimiento de inventario encontrado ${id}`, title: 'Success' };
+  }
+
+  @ApiOperation({ summary: 'Update' })
+  @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() payload: UpdateInventoryMovementDto,
-  ) {
+  ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Actualizado',
-      title: 'Actualizado',
-    };
+    return { data: serviceResponse, message: 'Movimiento de inventario actualizado', title: 'Actualizado' };
   }
 
-  @ApiOperation({ summary: 'Delete Inventory Movement' })
+  @ApiOperation({ summary: 'Remove One' })
   @Delete(':id')
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.remove(id);
+    return { data: serviceResponse, message: 'Movimiento de inventario eliminado', title: 'Eliminado' };
+  }
 
+  @ApiOperation({ summary: 'Get product stock history' })
+  @Get('product/:productId/history')
+  async getProductHistory(@Param('productId', ParseUUIDPipe) productId: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findByProductId(productId);
+    return { data: serviceResponse, message: 'Historial de stock del producto', title: 'Success' };
+  }
+
+  @ApiOperation({ summary: 'Catalogue' })
+  @Get('catalogue')
+  async catalogue(): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.catalogue();
     return {
       data: serviceResponse.data,
-      message: 'Registro Eliminado',
-      title: 'Eliminado',
+      pagination: serviceResponse.pagination,
+      message: 'Catalogue',
+      title: 'Catalogue',
     };
   }
 }

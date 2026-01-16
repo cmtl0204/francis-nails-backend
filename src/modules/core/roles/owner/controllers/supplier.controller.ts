@@ -1,126 +1,78 @@
+// suppliers.controller.ts
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  ParseUUIDPipe,
   Post,
-  Put,
+  Patch,
+  Delete,
+  Body,
+  Param,
   Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Auth, PublicRoute } from '@auth/decorators';
-import { SupplierService } from '../services/supplier.service';
-import {
-  CreateSupplierDto,
-  UpdateSupplierDto,
-  FilterSupplierDto,
-} from '../dto/supplier';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { SuppliersService } from '../services/supplier.service';
+import { CreateSupplierDto, UpdateSupplierDto } from '../dto/supplier';
+import { ResponseHttpInterface } from '@utils/interfaces';
+import { PaginationDto } from '@utils/pagination';
 
-@ApiTags('External Suppliers')
-@Auth()
-@Controller('core/owner/supplier')
-export class SupplierController {
-  constructor(private service: SupplierService) {}
+@ApiTags('Suppliers')
+@Controller('suppliers')
+export class SuppliersController {
+  constructor(private readonly service: SuppliersService) {}
 
-  @PublicRoute()
-  @ApiOperation({ summary: 'Endpoint de prueba para Suppliers' })
-  @Get('/rutas')
-  async ruta1() {
-    const serviceResponse = await this.service.findRuta1();
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @PublicRoute()
-  @ApiOperation({ summary: 'Crear Supplier de prueba' })
-  @Post('/rutas')
-  async createdRuta() {
-    const payload = {
-      branchId: '123e4567-e89b-12d3-a456-426614174000',
-      name: 'Proveedor de prueba',
-      phone: '0999999999',
-      email: 'proveedor@test.com',
-      identification: '1234567890',
-      address: 'Calle Principal 123',
-    };
-    const serviceResponse = await this.service.createdRuta1(payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @ApiOperation({ summary: 'List all Suppliers' })
-  @Get()
-  async findAll(@Query() params: FilterSupplierDto) {
-    const serviceResponse = await this.service.findAll(params);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @ApiOperation({ summary: 'Get one Supplier' })
-  @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    const serviceResponse = await this.service.findOne(id);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Consultado',
-      title: 'Consultado',
-    };
-  }
-
-  @ApiOperation({ summary: 'Create Supplier' })
+  @ApiOperation({ summary: 'Create' })
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async create(@Body() payload: CreateSupplierDto) {
+  async create(@Body() payload: CreateSupplierDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.create(payload);
+    return { data: serviceResponse, message: 'Proveedor creado', title: 'Creado' };
+  }
 
+  @ApiOperation({ summary: 'Find All' })
+  @Get()
+  async findAll(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findAll(params);
     return {
       data: serviceResponse.data,
-      message: 'Registro Creado',
-      title: 'Creado',
+      pagination: serviceResponse.pagination,
+      message: 'Proveedores listados',
+      title: 'Success',
     };
   }
 
-  @ApiOperation({ summary: 'Update Supplier' })
-  @Put(':id')
+  @ApiOperation({ summary: 'Find One' })
+  @Get(':id')
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findOne(id);
+    return { data: serviceResponse, message: `Proveedor encontrado ${id}`, title: 'Success' };
+  }
+
+  @ApiOperation({ summary: 'Update' })
+  @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() payload: UpdateSupplierDto,
-  ) {
+  ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Actualizado',
-      title: 'Actualizado',
-    };
+    return { data: serviceResponse, message: 'Proveedor actualizado', title: 'Actualizado' };
   }
 
-  @ApiOperation({ summary: 'Delete Supplier' })
+  @ApiOperation({ summary: 'Remove One' })
   @Delete(':id')
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.remove(id);
+    return { data: serviceResponse, message: 'Proveedor eliminado', title: 'Eliminado' };
+  }
 
+  @ApiOperation({ summary: 'Catalogue' })
+  @Get('catalogue')
+  async catalogue(): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.catalogue();
     return {
       data: serviceResponse.data,
-      message: 'Registro Eliminado',
-      title: 'Eliminado',
+      pagination: serviceResponse.pagination,
+      message: 'Catalogue',
+      title: 'Catalogue',
     };
   }
 }

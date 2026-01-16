@@ -1,98 +1,75 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+// stock-balances.service.ts
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { CoreRepositoryEnum } from '@utils/enums';
-import { ServiceResponseHttpInterface } from '@utils/interfaces';
 import { StockBalanceEntity } from '@modules/core/entities';
-import {
-  CreateStockBalanceDto,
-  UpdateStockBalanceDto,
-  FilterStockBalanceDto,
-} from '../dto/stock-balance';
+import { CreateStockBalanceDto, UpdateStockBalanceDto } from '../dto/stock-balance';
+import { ServiceResponseHttpInterface } from '@utils/interfaces';
+import { CoreRepositoryEnum } from '@utils/enums';
+import { PaginateFilterService, PaginationDto } from '@utils/pagination';
 
 @Injectable()
-export class StockBalanceService {
+export class StockBalancesService {
+  private paginateFilterService: PaginateFilterService<StockBalanceEntity>;
+
   constructor(
     @Inject(CoreRepositoryEnum.STOCK_BALANCE_REPOSITORY)
     private repository: Repository<StockBalanceEntity>,
-  ) {}
-
-  async findRuta1() {
-    return {
-      data: [
-        {
-          productId: 'prod-001',
-          locationId: 'loc-001',
-          quantity: 150,
-        },
-        {
-          productId: 'prod-002',
-          locationId: 'loc-002',
-          quantity: 75,
-        },
-      ],
-    };
+  ) {
+    this.paginateFilterService = new PaginateFilterService(this.repository);
   }
 
-  async createdRuta1(payload: any) {
+  async create(payload: CreateStockBalanceDto): Promise<StockBalanceEntity> {
     const entity = this.repository.create(payload);
-    return { data: entity };
+    return await this.repository.save(entity);
   }
 
-  async create(payload: CreateStockBalanceDto) {
-    const entity = this.repository.create(payload);
-    const saved = await this.repository.save(entity);
-    return { data: saved };
+  async findAll(params: PaginationDto): Promise<ServiceResponseHttpInterface> {
+    return this.paginateFilterService.execute({
+      params,
+      searchFields: [],
+      relations: ['product', 'location'],
+    });
   }
 
-  async findAll(params: FilterStockBalanceDto) {
-    const { page = 1, limit = 10, productId, locationId } = params;
-    
-    const query = this.repository.createQueryBuilder('sb')
-      .where('sb.enabled = :enabled', { enabled: true })
-      .skip((page - 1) * limit)
-      .take(limit);
-
-    if (productId) query.andWhere('sb.productId = :productId', { productId });
-    if (locationId) query.andWhere('sb.locationId = :locationId', { locationId });
-
-    const [data, total] = await query.getManyAndCount();
-
-    return {
-      data,
-      pagination: { total, page, limit },
-    };
+  async findOne(id: string): Promise<StockBalanceEntity> {
+    const entity = await this.repository.findOne({
+      where: { id },
+      relations: ['product', 'location'],
+    });
+    if (!entity) throw new NotFoundException(`Balance de stock no encontrado (id: ${id})`);
+    return entity;
   }
 
-  async findOne(id: string) {
+  async update(id: string, payload: UpdateStockBalanceDto): Promise<StockBalanceEntity> {
     const entity = await this.repository.findOne({ where: { id } });
-
-    if (!entity) {
-      throw new NotFoundException('Balance de stock no encontrado');
-    }
-
-    return { data: entity };
-  }
-
-  async update(id: string, payload: UpdateStockBalanceDto) {
-    const entity = await this.repository.findOneBy({ id });
-
-    if (!entity) {
-      throw new NotFoundException('Balance de stock no encontrado');
-    }
-
+    if (!entity) throw new NotFoundException('Balance de stock no encontrado para actualizar');
     this.repository.merge(entity, payload);
-    const updated = await this.repository.save(entity);
-    return { data: updated };
+    return await this.repository.save(entity);
   }
 
-  async remove(id: string) {
-    const entity = await this.repository.findOneBy({ id });
+  async remove(id: string): Promise<StockBalanceEntity> {
+    const entity = await this.repository.findOne({ where: { id } });
+    if (!entity) throw new NotFoundException('Balance de stock no encontrado para eliminar');
+    return await this.repository.softRemove(entity);
+  }
 
-    if (!entity) {
-      throw new NotFoundException('Balance de stock no encontrado');
-    }
+  async findByProductAndLocation(productId: string, locationId: string): Promise<StockBalanceEntity> {
+    const entity = await this.repository.findOne({
+      where: { productId, locationId },
+      relations: ['product', 'location'],
+    });
+    if (!entity) throw new NotFoundException(`Balance de stock no encontrado para producto ${productId} y ubicación ${locationId}`);
+    return entity;
+  }
 
-    const removed = await this.repository.softRemove(entity);
-    return { data: removed };
+  async catalogue(): Promise<ServiceResponseHttpInterface> {
+    const response = await this.repository.findAndCount({ 
+      take: 1000,
+      relations: ['product', 'location'],
+    });
+    return {
+      data: response[0],
+      pagination: { totalItems: response[1], limit: 10 },
+    };
   }
 }

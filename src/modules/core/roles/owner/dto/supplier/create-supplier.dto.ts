@@ -1,3 +1,11 @@
-import { BaseSupplierDto } from './base-supplier.dto';
+import { PickType } from '@nestjs/swagger';
+import { SupplierDto } from './base-supplier.dto';
 
-export class CreateSupplierDto extends BaseSupplierDto {}
+export class CreateSupplierDto extends PickType(SupplierDto, [
+  'branchId',
+  'name',
+  'phone',
+  'email',
+  'identification',
+  'address',
+]) {}

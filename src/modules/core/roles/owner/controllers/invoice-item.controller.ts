@@ -1,130 +1,85 @@
+// invoice-items.controller.ts
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  ParseUUIDPipe,
   Post,
-  Put,
+  Patch,
+  Delete,
+  Body,
+  Param,
   Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Auth, PublicRoute } from '@auth/decorators';
-import { InvoiceItemService } from '../services/invoice-item.service';
-import {
-  CreateInvoiceItemDto,
-  UpdateInvoiceItemDto,
-  FilterInvoiceItemDto,
-} from '../dto/invoice-item';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { InvoiceItemsService } from '../services/invoice-item.service';
+import { CreateInvoiceItemDto, UpdateInvoiceItemDto } from '../dto/invoice-item';
+import { ResponseHttpInterface } from '@utils/interfaces';
+import { PaginationDto } from '@utils/pagination';
 
-@ApiTags('External Invoice Items')
-@Auth()
-@Controller('core/owner/invoice-item')
-export class InvoiceItemController {
-  constructor(private service: InvoiceItemService) {}
+@ApiTags('Invoice Items')
+@Controller('invoice-items')
+export class InvoiceItemsController {
+  constructor(private readonly service: InvoiceItemsService) {}
 
-  @PublicRoute()
-  @ApiOperation({ summary: 'Endpoint de prueba para Invoice Items' })
-  @Get('/rutas')
-  async ruta1() {
-    const serviceResponse = await this.service.findRuta1();
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @PublicRoute()
-  @ApiOperation({ summary: 'Crear Invoice Item de prueba' })
-  @Post('/rutas')
-  async createdRuta() {
-    const payload = {
-      invoiceId: '123e4567-e89b-12d3-a456-426614174000',
-      staffId: '123e4567-e89b-12d3-a456-426614174001',
-      modelType: 'product',
-      modelId: '123e4567-e89b-12d3-a456-426614174002',
-      description: 'Producto de prueba',
-      quantity: 2,
-      unitPrice: 25.00,
-      discount: 5.00,
-      tax: 3.80,
-      total: 43.80,
-    };
-    const serviceResponse = await this.service.createdRuta1(payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @ApiOperation({ summary: 'List all Invoice Items' })
-  @Get()
-  async findAll(@Query() params: FilterInvoiceItemDto) {
-    const serviceResponse = await this.service.findAll(params);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @ApiOperation({ summary: 'Get one Invoice Item' })
-  @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    const serviceResponse = await this.service.findOne(id);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Consultado',
-      title: 'Consultado',
-    };
-  }
-
-  @ApiOperation({ summary: 'Create Invoice Item' })
+  @ApiOperation({ summary: 'Create' })
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async create(@Body() payload: CreateInvoiceItemDto) {
+  async create(@Body() payload: CreateInvoiceItemDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.create(payload);
+    return { data: serviceResponse, message: 'Item de factura creado', title: 'Creado' };
+  }
 
+  @ApiOperation({ summary: 'Find All' })
+  @Get()
+  async findAll(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findAll(params);
     return {
       data: serviceResponse.data,
-      message: 'Registro Creado',
-      title: 'Creado',
+      pagination: serviceResponse.pagination,
+      message: 'Items de factura listados',
+      title: 'Success',
     };
   }
 
-  @ApiOperation({ summary: 'Update Invoice Item' })
-  @Put(':id')
+  @ApiOperation({ summary: 'Find One' })
+  @Get(':id')
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findOne(id);
+    return { data: serviceResponse, message: `Item de factura encontrado ${id}`, title: 'Success' };
+  }
+
+  @ApiOperation({ summary: 'Update' })
+  @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() payload: UpdateInvoiceItemDto,
-  ) {
+  ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Actualizado',
-      title: 'Actualizado',
-    };
+    return { data: serviceResponse, message: 'Item de factura actualizado', title: 'Actualizado' };
   }
 
-  @ApiOperation({ summary: 'Delete Invoice Item' })
+  @ApiOperation({ summary: 'Remove One' })
   @Delete(':id')
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.remove(id);
+    return { data: serviceResponse, message: 'Item de factura eliminado', title: 'Eliminado' };
+  }
 
+  @ApiOperation({ summary: 'Get items by invoice' })
+  @Get('invoice/:invoiceId')
+  async findByInvoice(@Param('invoiceId', ParseUUIDPipe) invoiceId: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findByInvoiceId(invoiceId);
+    return { data: serviceResponse, message: 'Items de la factura', title: 'Success' };
+  }
+
+  @ApiOperation({ summary: 'Catalogue' })
+  @Get('catalogue')
+  async catalogue(): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.catalogue();
     return {
       data: serviceResponse.data,
-      message: 'Registro Eliminado',
-      title: 'Eliminado',
+      pagination: serviceResponse.pagination,
+      message: 'Catalogue',
+      title: 'Catalogue',
     };
   }
 }

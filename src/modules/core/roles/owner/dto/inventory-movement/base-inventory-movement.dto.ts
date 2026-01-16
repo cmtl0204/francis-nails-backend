@@ -1,10 +1,10 @@
-import { IsNotEmpty, IsOptional, IsString, IsDecimal, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsString, IsUUID, IsDecimal, IsOptional } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
   isStringValidationOptions,
 } from '@utils/dto-validation';
 
-export class BaseInventoryMovementDto {
+export class InventoryMovementDto {
   @IsUUID('4', { message: 'La sucursal debe ser un UUID válido' })
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly branchId: string;
@@ -14,12 +14,12 @@ export class BaseInventoryMovementDto {
   readonly productId: string;
 
   @IsUUID('4', { message: 'La ubicación debe ser un UUID válido' })
-  @IsOptional()
-  readonly locationId?: string;
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  readonly locationId: string;
 
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly modelType: string; // invoices, appointments, purchases...
+  readonly modelType: string;
 
   @IsUUID('4', { message: 'El modelo debe ser un UUID válido' })
   @IsOptional()
@@ -27,12 +27,13 @@ export class BaseInventoryMovementDto {
 
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly type: string; // in|out|adjust
+  readonly type: string;
 
   @IsString(isStringValidationOptions())
   @IsOptional()
-  readonly reason?: string; // purchase, sale, service_use, shrinkage, adjustment
+  readonly reason?: string;
 
   @IsDecimal({}, { message: 'La cantidad debe ser un número decimal válido' })
+  @IsNotEmpty(isNotEmptyValidationOptions())
   readonly quantity: number;
 }

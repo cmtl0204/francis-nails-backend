@@ -1,11 +1,11 @@
-import { IsNotEmpty, IsOptional, IsString, IsDecimal, IsBoolean, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsString, IsUUID, IsBoolean, IsDecimal, IsOptional } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
   isStringValidationOptions,
   isBooleanValidationOptions,
 } from '@utils/dto-validation';
 
-export class BaseProductDto {
+export class ProductDto {
   @IsUUID('4', { message: 'La sucursal debe ser un UUID válido' })
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly branchId: string;
@@ -27,15 +27,22 @@ export class BaseProductDto {
   readonly description?: string;
 
   @IsString(isStringValidationOptions())
-  @IsOptional()
-  readonly unit?: string; // unidad, ml, g...
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  readonly unit: string;
 
-  @IsDecimal({}, { message: 'El precio de costo debe ser un número decimal válido' })
+  @IsDecimal({}, { message: 'El costo debe ser un número decimal válido' })
+  @IsNotEmpty(isNotEmptyValidationOptions())
   readonly costPrice: number;
 
   @IsDecimal({}, { message: 'El precio de venta debe ser un número decimal válido' })
+  @IsNotEmpty(isNotEmptyValidationOptions())
   readonly salePrice: number;
 
   @IsBoolean(isBooleanValidationOptions())
+  @IsNotEmpty(isNotEmptyValidationOptions())
   readonly trackStock: boolean;
+
+  @IsBoolean(isBooleanValidationOptions())
+  @IsOptional()
+  readonly enabled?: boolean;
 }

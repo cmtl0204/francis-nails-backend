@@ -1,110 +1,66 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+// products.service.ts
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { CoreRepositoryEnum } from '@utils/enums';
-import { ServiceResponseHttpInterface } from '@utils/interfaces';
 import { ProductEntity } from '@modules/core/entities';
-import {
-  CreateProductDto,
-  UpdateProductDto,
-  FilterProductDto,
-} from '../dto/product';
+import { CreateProductDto, UpdateProductDto } from '../dto/product';
+import { ServiceResponseHttpInterface } from '@utils/interfaces';
+import { CoreRepositoryEnum } from '@utils/enums';
+import { PaginateFilterService, PaginationDto } from '@utils/pagination';
 
 @Injectable()
-export class ProductService {
+export class ProductsService {
+  private paginateFilterService: PaginateFilterService<ProductEntity>;
+
   constructor(
     @Inject(CoreRepositoryEnum.PRODUCT_REPOSITORY)
     private repository: Repository<ProductEntity>,
-  ) {}
-
-  async findRuta1() {
-    return {
-      data: [
-        {
-          sku: 'ESM-001',
-          name: 'Esmalte profesional rojo',
-          costPrice: 5.50,
-          salePrice: 12.00,
-          trackStock: true,
-        },
-        {
-          sku: 'QUIT-001',
-          name: 'Quitaesmalte sin acetona',
-          costPrice: 3.80,
-          salePrice: 8.50,
-          trackStock: true,
-        },
-      ],
-    };
+  ) {
+    this.paginateFilterService = new PaginateFilterService(this.repository);
   }
 
-  async createdRuta1(payload: any) {
+  async create(payload: CreateProductDto): Promise<ProductEntity> {
     const entity = this.repository.create(payload);
-    return { data: entity };
+    return await this.repository.save(entity);
   }
 
-  async create(payload: CreateProductDto) {
-    const entity = this.repository.create(payload);
-    const saved = await this.repository.save(entity);
-    return { data: saved };
+  async findAll(params: PaginationDto): Promise<ServiceResponseHttpInterface> {
+    return this.paginateFilterService.execute({
+      params,
+      searchFields: ['name', 'sku', 'description'],
+      relations: ['branch', 'category'],
+    });
   }
 
-  async findAll(params: FilterProductDto) {
-    const { page = 1, limit = 10, search, branchId, categoryId, sku, trackStock, enabled = true } = params;
-    
-    const query = this.repository.createQueryBuilder('p')
-      .where('p.enabled = :enabled', { enabled })
-      .skip((page - 1) * limit)
-      .take(limit);
-
-    if (search) {
-      query.andWhere('(p.name ILIKE :search OR p.sku ILIKE :search OR p.description ILIKE :search)', {
-        search: `%${search}%`,
-      });
-    }
-
-    if (branchId) query.andWhere('p.branchId = :branchId', { branchId });
-    if (categoryId) query.andWhere('p.categoryId = :categoryId', { categoryId });
-    if (sku) query.andWhere('p.sku = :sku', { sku });
-    if (trackStock !== undefined) query.andWhere('p.trackStock = :trackStock', { trackStock });
-
-    const [data, total] = await query.getManyAndCount();
-
-    return {
-      data,
-      pagination: { total, page, limit },
-    };
+  async findOne(id: string): Promise<ProductEntity> {
+    const entity = await this.repository.findOne({
+      where: { id },
+      relations: ['branch', 'category'],
+    });
+    if (!entity) throw new NotFoundException(`Producto no encontrado (id: ${id})`);
+    return entity;
   }
 
-  async findOne(id: string) {
+  async update(id: string, payload: UpdateProductDto): Promise<ProductEntity> {
     const entity = await this.repository.findOne({ where: { id } });
-
-    if (!entity) {
-      throw new NotFoundException('Producto no encontrado');
-    }
-
-    return { data: entity };
-  }
-
-  async update(id: string, payload: UpdateProductDto) {
-    const entity = await this.repository.findOneBy({ id });
-
-    if (!entity) {
-      throw new NotFoundException('Producto no encontrado');
-    }
-
+    if (!entity) throw new NotFoundException('Producto no encontrado para actualizar');
     this.repository.merge(entity, payload);
-    const updated = await this.repository.save(entity);
-    return { data: updated };
+    return await this.repository.save(entity);
   }
 
-  async remove(id: string) {
-    const entity = await this.repository.findOneBy({ id });
+  async remove(id: string): Promise<ProductEntity> {
+    const entity = await this.repository.findOne({ where: { id } });
+    if (!entity) throw new NotFoundException('Producto no encontrado para eliminar');
+    return await this.repository.softRemove(entity);
+  }
 
-    if (!entity) {
-      throw new NotFoundException('Producto no encontrado');
-    }
-
-    const removed = await this.repository.softRemove(entity);
-    return { data: removed };
+  async catalogue(): Promise<ServiceResponseHttpInterface> {
+    const response = await this.repository.findAndCount({ 
+      where: { enabled: true },
+      take: 1000 
+    });
+    return {
+      data: response[0],
+      pagination: { totalItems: response[1], limit: 10 },
+    };
   }
 }

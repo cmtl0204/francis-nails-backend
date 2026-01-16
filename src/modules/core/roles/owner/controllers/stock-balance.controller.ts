@@ -1,123 +1,88 @@
+// stock-balances.controller.ts
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  ParseUUIDPipe,
   Post,
-  Put,
+  Patch,
+  Delete,
+  Body,
+  Param,
   Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Auth, PublicRoute } from '@auth/decorators';
-import { StockBalanceService } from '../services/stock-balance.service';
-import {
-  CreateStockBalanceDto,
-  UpdateStockBalanceDto,
-  FilterStockBalanceDto,
-} from '../dto/stock-balance';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { StockBalancesService } from '../services/stock-balance.service';
+import { CreateStockBalanceDto, UpdateStockBalanceDto } from '../dto/stock-balance';
+import { ResponseHttpInterface } from '@utils/interfaces';
+import { PaginationDto } from '@utils/pagination';
 
-@ApiTags('External Stock Balances')
-@Auth()
-@Controller('core/owner/stock-balance')
-export class StockBalanceController {
-  constructor(private service: StockBalanceService) {}
+@ApiTags('Stock Balances')
+@Controller('stock-balances')
+export class StockBalancesController {
+  constructor(private readonly service: StockBalancesService) {}
 
-  @PublicRoute()
-  @ApiOperation({ summary: 'Endpoint de prueba para Stock Balances' })
-  @Get('/rutas')
-  async ruta1() {
-    const serviceResponse = await this.service.findRuta1();
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @PublicRoute()
-  @ApiOperation({ summary: 'Crear Stock Balance de prueba' })
-  @Post('/rutas')
-  async createdRuta() {
-    const payload = {
-      productId: '123e4567',
-      locationId: '123e4567',
-      quantity: 100,
-    };
-    const serviceResponse = await this.service.createdRuta1(payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @ApiOperation({ summary: 'List all Stock Balances' })
-  @Get()
-  async findAll(@Query() params: FilterStockBalanceDto) {
-    const serviceResponse = await this.service.findAll(params);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @ApiOperation({ summary: 'Get one Stock Balance' })
-  @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    const serviceResponse = await this.service.findOne(id);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Consultado',
-      title: 'Consultado',
-    };
-  }
-
-  @ApiOperation({ summary: 'Create Stock Balance' })
+  @ApiOperation({ summary: 'Create' })
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async create(@Body() payload: CreateStockBalanceDto) {
+  async create(@Body() payload: CreateStockBalanceDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.create(payload);
+    return { data: serviceResponse, message: 'Balance de stock creado', title: 'Creado' };
+  }
 
+  @ApiOperation({ summary: 'Find All' })
+  @Get()
+  async findAll(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findAll(params);
     return {
       data: serviceResponse.data,
-      message: 'Registro Creado',
-      title: 'Creado',
+      pagination: serviceResponse.pagination,
+      message: 'Balances de stock listados',
+      title: 'Success',
     };
   }
 
-  @ApiOperation({ summary: 'Update Stock Balance' })
-  @Put(':id')
+  @ApiOperation({ summary: 'Find One' })
+  @Get(':id')
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findOne(id);
+    return { data: serviceResponse, message: `Balance de stock encontrado ${id}`, title: 'Success' };
+  }
+
+  @ApiOperation({ summary: 'Update' })
+  @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() payload: UpdateStockBalanceDto,
-  ) {
+  ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Actualizado',
-      title: 'Actualizado',
-    };
+    return { data: serviceResponse, message: 'Balance de stock actualizado', title: 'Actualizado' };
   }
 
-  @ApiOperation({ summary: 'Delete Stock Balance' })
+  @ApiOperation({ summary: 'Remove One' })
   @Delete(':id')
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.remove(id);
+    return { data: serviceResponse, message: 'Balance de stock eliminado', title: 'Eliminado' };
+  }
 
+  @ApiOperation({ summary: 'Get by product and location' })
+  @Get('product/:productId/location/:locationId')
+  async getByProductAndLocation(
+    @Param('productId', ParseUUIDPipe) productId: string,
+    @Param('locationId', ParseUUIDPipe) locationId: string,
+  ): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findByProductAndLocation(productId, locationId);
+    return { data: serviceResponse, message: 'Balance encontrado', title: 'Success' };
+  }
+
+  @ApiOperation({ summary: 'Catalogue' })
+  @Get('catalogue')
+  async catalogue(): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.catalogue();
     return {
       data: serviceResponse.data,
-      message: 'Registro Eliminado',
-      title: 'Eliminado',
+      pagination: serviceResponse.pagination,
+      message: 'Catalogue',
+      title: 'Catalogue',
     };
   }
 }

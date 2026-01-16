@@ -1,125 +1,85 @@
+// purchase-items.controller.ts
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  ParseUUIDPipe,
   Post,
-  Put,
+  Patch,
+  Delete,
+  Body,
+  Param,
   Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Auth, PublicRoute } from '@auth/decorators';
-import { PurchaseItemService } from '../services/purchase-item.service';
-import {
-  CreatePurchaseItemDto,
-  UpdatePurchaseItemDto,
-  FilterPurchaseItemDto,
-} from '../dto/purchase-item';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { PurchaseItemsService } from '../services/purchase-item.service';
+import { CreatePurchaseItemDto, UpdatePurchaseItemDto } from '../dto/purchase-item';
+import { ResponseHttpInterface } from '@utils/interfaces';
+import { PaginationDto } from '@utils/pagination';
 
-@ApiTags('External Purchase Items')
-@Auth()
-@Controller('core/owner/purchase-item')
-export class PurchaseItemController {
-  constructor(private service: PurchaseItemService) {}
+@ApiTags('Purchase Items')
+@Controller('purchase-items')
+export class PurchaseItemsController {
+  constructor(private readonly service: PurchaseItemsService) {}
 
-  @PublicRoute()
-  @ApiOperation({ summary: 'Endpoint de prueba para Purchase Items' })
-  @Get('/rutas')
-  async ruta1() {
-    const serviceResponse = await this.service.findRuta1();
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @PublicRoute()
-  @ApiOperation({ summary: 'Crear Purchase Item de prueba' })
-  @Post('/rutas')
-  async createdRuta() {
-    const payload = {
-      purchaseId: '123e4567-e89b-12d3-a456-426614174000',
-      productId: '123e4567-e89b-12d3-a456-426614174001',
-      quantity: 10,
-      unitCost: 5.50,
-      total: 55.00,
-    };
-    const serviceResponse = await this.service.createdRuta1(payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @ApiOperation({ summary: 'List all Purchase Items' })
-  @Get()
-  async findAll(@Query() params: FilterPurchaseItemDto) {
-    const serviceResponse = await this.service.findAll(params);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @ApiOperation({ summary: 'Get one Purchase Item' })
-  @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    const serviceResponse = await this.service.findOne(id);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Consultado',
-      title: 'Consultado',
-    };
-  }
-
-  @ApiOperation({ summary: 'Create Purchase Item' })
+  @ApiOperation({ summary: 'Create' })
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async create(@Body() payload: CreatePurchaseItemDto) {
+  async create(@Body() payload: CreatePurchaseItemDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.create(payload);
+    return { data: serviceResponse, message: 'Item de compra creado', title: 'Creado' };
+  }
 
+  @ApiOperation({ summary: 'Find All' })
+  @Get()
+  async findAll(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findAll(params);
     return {
       data: serviceResponse.data,
-      message: 'Registro Creado',
-      title: 'Creado',
+      pagination: serviceResponse.pagination,
+      message: 'Items de compra listados',
+      title: 'Success',
     };
   }
 
-  @ApiOperation({ summary: 'Update Purchase Item' })
-  @Put(':id')
+  @ApiOperation({ summary: 'Find One' })
+  @Get(':id')
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findOne(id);
+    return { data: serviceResponse, message: `Item de compra encontrado ${id}`, title: 'Success' };
+  }
+
+  @ApiOperation({ summary: 'Update' })
+  @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() payload: UpdatePurchaseItemDto,
-  ) {
+  ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Actualizado',
-      title: 'Actualizado',
-    };
+    return { data: serviceResponse, message: 'Item de compra actualizado', title: 'Actualizado' };
   }
 
-  @ApiOperation({ summary: 'Delete Purchase Item' })
+  @ApiOperation({ summary: 'Remove One' })
   @Delete(':id')
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.remove(id);
+    return { data: serviceResponse, message: 'Item de compra eliminado', title: 'Eliminado' };
+  }
 
+  @ApiOperation({ summary: 'Get items by purchase' })
+  @Get('purchase/:purchaseId')
+  async findByPurchase(@Param('purchaseId', ParseUUIDPipe) purchaseId: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findByPurchaseId(purchaseId);
+    return { data: serviceResponse, message: 'Items de la compra', title: 'Success' };
+  }
+
+  @ApiOperation({ summary: 'Catalogue' })
+  @Get('catalogue')
+  async catalogue(): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.catalogue();
     return {
       data: serviceResponse.data,
-      message: 'Registro Eliminado',
-      title: 'Eliminado',
+      pagination: serviceResponse.pagination,
+      message: 'Catalogue',
+      title: 'Catalogue',
     };
   }
 }

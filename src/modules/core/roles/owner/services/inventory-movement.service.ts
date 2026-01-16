@@ -1,103 +1,74 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+// inventory-movements.service.ts
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { CoreRepositoryEnum } from '@utils/enums';
-import { ServiceResponseHttpInterface } from '@utils/interfaces';
 import { InventoryMovementEntity } from '@modules/core/entities';
-import {
-  CreateInventoryMovementDto,
-  UpdateInventoryMovementDto,
-  FilterInventoryMovementDto,
-} from '../dto/inventory-movement';
+import { CreateInventoryMovementDto, UpdateInventoryMovementDto } from '../dto/inventory-movement';
+import { ServiceResponseHttpInterface } from '@utils/interfaces';
+import { CoreRepositoryEnum } from '@utils/enums';
+import { PaginateFilterService, PaginationDto } from '@utils/pagination';
 
 @Injectable()
-export class InventoryMovementService {
+export class InventoryMovementsService {
+  private paginateFilterService: PaginateFilterService<InventoryMovementEntity>;
+
   constructor(
     @Inject(CoreRepositoryEnum.INVENTORY_MOVEMENT_REPOSITORY)
     private repository: Repository<InventoryMovementEntity>,
-  ) {}
-
-  async findRuta1() {
-    return {
-      data: [
-        {
-          modelType: 'purchases',
-          type: 'in',
-          reason: 'compra',
-          quantity: 50,
-        },
-        {
-          modelType: 'invoices',
-          type: 'out',
-          reason: 'venta',
-          quantity: 10,
-        },
-      ],
-    };
+  ) {
+    this.paginateFilterService = new PaginateFilterService(this.repository);
   }
 
-  async createdRuta1(payload: any) {
+  async create(payload: CreateInventoryMovementDto): Promise<InventoryMovementEntity> {
     const entity = this.repository.create(payload);
-    return { data: entity };
+    return await this.repository.save(entity);
   }
 
-  async create(payload: CreateInventoryMovementDto) {
-    const entity = this.repository.create(payload);
-    const saved = await this.repository.save(entity);
-    return { data: saved };
+  async findAll(params: PaginationDto): Promise<ServiceResponseHttpInterface> {
+    return this.paginateFilterService.execute({
+      params,
+      searchFields: ['reason'],
+      relations: ['branch', 'product', 'location'],
+    });
   }
 
-  async findAll(params: FilterInventoryMovementDto) {
-    const { page = 1, limit = 10, branchId, productId, locationId, modelType, type, enabled = true } = params;
-    
-    const query = this.repository.createQueryBuilder('im')
-      .where('im.enabled = :enabled', { enabled })
-      .skip((page - 1) * limit)
-      .take(limit);
-
-    if (branchId) query.andWhere('im.branchId = :branchId', { branchId });
-    if (productId) query.andWhere('im.productId = :productId', { productId });
-    if (locationId) query.andWhere('im.locationId = :locationId', { locationId });
-    if (modelType) query.andWhere('im.modelType = :modelType', { modelType });
-    if (type) query.andWhere('im.type = :type', { type });
-
-    const [data, total] = await query.getManyAndCount();
-
-    return {
-      data,
-      pagination: { total, page, limit },
-    };
+  async findOne(id: string): Promise<InventoryMovementEntity> {
+    const entity = await this.repository.findOne({
+      where: { id },
+      relations: ['branch', 'product', 'location'],
+    });
+    if (!entity) throw new NotFoundException(`Movimiento de inventario no encontrado (id: ${id})`);
+    return entity;
   }
 
-  async findOne(id: string) {
+  async update(id: string, payload: UpdateInventoryMovementDto): Promise<InventoryMovementEntity> {
     const entity = await this.repository.findOne({ where: { id } });
-
-    if (!entity) {
-      throw new NotFoundException('Movimiento de inventario no encontrado');
-    }
-
-    return { data: entity };
-  }
-
-  async update(id: string, payload: UpdateInventoryMovementDto) {
-    const entity = await this.repository.findOneBy({ id });
-
-    if (!entity) {
-      throw new NotFoundException('Movimiento de inventario no encontrado');
-    }
-
+    if (!entity) throw new NotFoundException('Movimiento de inventario no encontrado para actualizar');
     this.repository.merge(entity, payload);
-    const updated = await this.repository.save(entity);
-    return { data: updated };
+    return await this.repository.save(entity);
   }
 
-  async remove(id: string) {
-    const entity = await this.repository.findOneBy({ id });
+  async remove(id: string): Promise<InventoryMovementEntity> {
+    const entity = await this.repository.findOne({ where: { id } });
+    if (!entity) throw new NotFoundException('Movimiento de inventario no encontrado para eliminar');
+    return await this.repository.softRemove(entity);
+  }
 
-    if (!entity) {
-      throw new NotFoundException('Movimiento de inventario no encontrado');
-    }
+  async findByProductId(productId: string): Promise<InventoryMovementEntity[]> {
+    return await this.repository.find({
+      where: { productId },
+      relations: ['location'],
+      order: { createdAt: 'DESC' },
+    });
+  }
 
-    const removed = await this.repository.softRemove(entity);
-    return { data: removed };
+  async catalogue(): Promise<ServiceResponseHttpInterface> {
+    const response = await this.repository.findAndCount({ 
+      take: 1000,
+      relations: ['product', 'location'],
+    });
+    return {
+      data: response[0],
+      pagination: { totalItems: response[1], limit: 10 },
+    };
   }
 }

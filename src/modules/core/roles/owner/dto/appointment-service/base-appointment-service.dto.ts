@@ -4,7 +4,7 @@ import {
   isNumberValidationOptions,
 } from '@utils/dto-validation';
 
-export class BaseAppointmentServiceDto {
+export class AppointmentServiceDto {
   @IsUUID('4', { message: 'La cita debe ser un UUID válido' })
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly appointmentId: string;
@@ -18,5 +18,6 @@ export class BaseAppointmentServiceDto {
   readonly durationMin: number;
 
   @IsDecimal({}, { message: 'El precio debe ser un número decimal válido' })
+  @IsNotEmpty(isNotEmptyValidationOptions())
   readonly price: number;
 }

@@ -1,4 +1,15 @@
-import { PartialType } from '@nestjs/swagger';
-import { BaseInvoiceItemDto } from './base-invoice-item.dto';
+import { PickType } from '@nestjs/swagger';
+import { InvoiceItemDto } from './base-invoice-item.dto';
 
-export class UpdateInvoiceItemDto extends PartialType(BaseInvoiceItemDto) {}
+export class UpdateInvoiceItemDto extends PickType(InvoiceItemDto, [
+  'invoiceId',
+  'staffId',
+  'modelType',
+  'modelId',
+  'description',
+  'quantity',
+  'unitPrice',
+  'discount',
+  'tax',
+  'total',
+]) {}

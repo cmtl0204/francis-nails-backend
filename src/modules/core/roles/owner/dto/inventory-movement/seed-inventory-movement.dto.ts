@@ -1,7 +1,7 @@
 import { PickType } from '@nestjs/swagger';
 import { InventoryMovementDto } from './base-inventory-movement.dto';
 
-export class UpdateInventoryMovementDto extends PickType(InventoryMovementDto, [
+export class SeedInventoryMovementDto extends PickType(InventoryMovementDto, [
   'branchId',
   'productId',
   'locationId',

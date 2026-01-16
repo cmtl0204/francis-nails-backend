@@ -1,9 +1,9 @@
-import { IsNotEmpty, IsDecimal, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsUUID, IsDecimal } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
 } from '@utils/dto-validation';
 
-export class BaseStockBalanceDto {
+export class StockBalanceDto {
   @IsUUID('4', { message: 'El producto debe ser un UUID válido' })
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly productId: string;
@@ -13,5 +13,6 @@ export class BaseStockBalanceDto {
   readonly locationId: string;
 
   @IsDecimal({}, { message: 'La cantidad debe ser un número decimal válido' })
+  @IsNotEmpty(isNotEmptyValidationOptions())
   readonly quantity: number;
 }

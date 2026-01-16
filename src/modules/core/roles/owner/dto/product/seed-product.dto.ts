@@ -1,7 +1,7 @@
 import { PickType } from '@nestjs/swagger';
 import { ProductDto } from './base-product.dto';
 
-export class UpdateProductDto extends PickType(ProductDto, [
+export class SeedProductDto extends PickType(ProductDto, [
   'branchId',
   'categoryId',
   'sku',

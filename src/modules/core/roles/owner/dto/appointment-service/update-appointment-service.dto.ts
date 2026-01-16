@@ -1,4 +1,9 @@
-import { PartialType } from '@nestjs/swagger';
-import { BaseAppointmentServiceDto } from './base-appointment-service.dto';
+import { PickType } from '@nestjs/swagger';
+import { AppointmentServiceDto } from './base-appointment-service.dto';
 
-export class UpdateAppointmentServiceDto extends PartialType(BaseAppointmentServiceDto) {}
+export class UpdateAppointmentServiceDto extends PickType(AppointmentServiceDto, [
+  'appointmentId',
+  'serviceId',
+  'durationMin',
+  'price',
+]) {}
