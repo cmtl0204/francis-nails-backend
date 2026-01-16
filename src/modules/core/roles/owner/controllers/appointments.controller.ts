@@ -1,132 +1,77 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  ParseUUIDPipe,
   Post,
-  Put,
+  Patch,
+  Delete,
+  Body,
+  Param,
   Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Auth, PublicRoute } from '@auth/decorators';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AppointmentsService } from '../services/appointments.service';
-import {
-  CreateAppointmentDto,
-  UpdateAppointmentDto,
-  FilterAppointmentDto,
-} from '../dto/appointment';
+import { CreateAppointmentDto, UpdateAppointmentDto } from '../dto/appointment';
+import { ResponseHttpInterface } from '@utils/interfaces';
+import { PaginationDto } from '@utils/pagination';
 
 @ApiTags('Appointments')
-@Auth()
 @Controller('core/owner/appointments')
 export class AppointmentsController {
-  constructor(private service: AppointmentsService) {}
+  constructor(private readonly service: AppointmentsService) {}
 
-  //  ENDPOINTS DE PRUEBA
-  @PublicRoute()
-  @ApiOperation({ summary: 'Endpoint de prueba para Appointments' })
-  @Get('/rutas')
-  async ruta1() {
-    const serviceResponse = await this.service.findRuta1();
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @PublicRoute()
-  @ApiOperation({ summary: 'Crear Appointment de prueba' })
-  @Post('/rutas')
-  async createdRuta() {
-    const payload = {
-      branchId: 'branch-test-001',
-      customerId: 'cust-test-001',
-      staffProfileId: 'staff-test-001',
-      statusId: 1,
-      sourceId: 1,
-      startAt: new Date(),
-      endAt: new Date(new Date().getTime() + 60 * 60 * 1000),
-      notes: 'Cita demo',
-      enabled: true,
-    };
-
-    const serviceResponse = await this.service.createdRuta1(payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  //  CRUD REAL
-  @ApiOperation({ summary: 'Listar citas' })
-  @Get()
-  async findAll(@Query() params: FilterAppointmentDto) {
-    const serviceResponse = await this.service.findAll(params);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @ApiOperation({ summary: 'Obtener cita' })
-  @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    const serviceResponse = await this.service.findOne(id);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Consultado',
-      title: 'Consultado',
-    };
-  }
-
-  @ApiOperation({ summary: 'Crear cita' })
+  @ApiOperation({ summary: 'Create' })
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async create(@Body() payload: CreateAppointmentDto) {
+  async create(@Body() payload: CreateAppointmentDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.create(payload);
+    return { data: serviceResponse, message: 'Cita creada', title: 'Creado' };
+  }
 
+  @ApiOperation({ summary: 'Find All' })
+  @Get()
+  async findAll(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findAll(params);
     return {
       data: serviceResponse.data,
-      message: 'Registro Creado',
-      title: 'Creado',
+      pagination: serviceResponse.pagination,
+      message: 'Citas listadas',
+      title: 'Success',
     };
   }
 
-  @ApiOperation({ summary: 'Actualizar cita' })
-  @Put(':id')
+  @ApiOperation({ summary: 'Find One' })
+  @Get(':id')
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findOne(id);
+    return { data: serviceResponse, message: `Cita encontrada ${id}`, title: 'Success' };
+  }
+
+  @ApiOperation({ summary: 'Update' })
+  @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() payload: UpdateAppointmentDto,
-  ) {
+  ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Actualizado',
-      title: 'Actualizado',
-    };
+    return { data: serviceResponse, message: 'Cita actualizada', title: 'Actualizado' };
   }
 
-  @ApiOperation({ summary: 'Eliminar cita' })
+  @ApiOperation({ summary: 'Remove One' })
   @Delete(':id')
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.remove(id);
+    return { data: serviceResponse, message: 'Cita eliminada', title: 'Eliminado' };
+  }
 
+  @ApiOperation({ summary: 'Catalogue' })
+  @Get('catalogue')
+  async catalogue(): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.catalogue();
     return {
       data: serviceResponse.data,
-      message: 'Registro Eliminado',
-      title: 'Eliminado',
+      pagination: serviceResponse.pagination,
+      message: 'Catalogue',
+      title: 'Catalogue',
     };
   }
 }

@@ -1,29 +1,41 @@
-import { IsBoolean, IsInt, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  MaxLength,
+  IsUUID,
+  IsInt,
+  IsNumber,
+  IsBoolean,
+} from 'class-validator';
+import {
+  isStringValidationOptions,
+  maxLengthValidationOptions,
+  isBooleanValidationOptions,
+  isNumberValidationOptions,
+} from '@utils/dto-validation';
 
-export class BaseServiceDto {
-  @IsUUID('4', { message: 'La sucursal debe ser un UUID válido' })
+export class ServiceDto {
+  @IsUUID()
   readonly branchId: string;
 
-  @IsUUID('4', { message: 'La categoría debe ser un UUID válido' })
+  @IsUUID()
   readonly categoryId: string;
 
-  @IsString()
+  @IsString(isStringValidationOptions())
+  @MaxLength(150, maxLengthValidationOptions())
   readonly name: string;
 
-  @IsString()
   @IsOptional()
-  readonly description?: string;
+  @IsString(isStringValidationOptions())
+  readonly description: string;
 
   @IsInt()
   readonly durationMin: number;
 
-  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsNumber({ maxDecimalPlaces: 2 }, isNumberValidationOptions())
   readonly basePrice: number;
 
-  @IsBoolean()
   @IsOptional()
-  readonly isEnabled?: boolean;
-
-  @IsOptional()
-  readonly enabled?: boolean;
+  @IsBoolean(isBooleanValidationOptions())
+  readonly isEnabled: boolean;
 }

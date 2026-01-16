@@ -1,32 +1,42 @@
-import { IsOptional, IsString, IsUUID, IsNumber } from 'class-validator';
+import { IsString, IsOptional, MaxLength, IsUUID, IsDecimal } from 'class-validator';
+import {
+  isStringValidationOptions,
+  maxLengthValidationOptions,
+  isNumberValidationOptions,
+} from '@utils/dto-validation';
 
-export class BaseStaffProfileDto {
-  @IsUUID('4', { message: 'El usuario debe ser un UUID válido' })
+export class StaffProfileDto {
+  @IsUUID()
   readonly userId: string;
 
-  @IsUUID('4', { message: 'La posición debe ser un UUID válido' })
+  @IsUUID()
   readonly positionId: string;
 
-  @IsString()
+  @IsOptional()
+  @IsString(isStringValidationOptions())
+  @MaxLength(255, maxLengthValidationOptions())
+  readonly photoUrl: string;
+
+  @IsString(isStringValidationOptions())
+  @MaxLength(150, maxLengthValidationOptions())
   readonly displayName: string;
 
-  @IsString()
+  @IsString(isStringValidationOptions())
+  @MaxLength(150, maxLengthValidationOptions())
   readonly specialty: string;
 
-  @IsString()
+  @IsString(isStringValidationOptions())
+  @MaxLength(50, maxLengthValidationOptions())
   readonly colorTag: string;
 
-  @IsString()
+  @IsString(isStringValidationOptions())
+  @MaxLength(50, maxLengthValidationOptions())
   readonly commissionType: string;
 
-  @IsNumber()
   @IsOptional()
-  readonly commissionValue?: number;
-
-  @IsString()
-  @IsOptional()
-  readonly photoUrl?: string;
+  @IsDecimal({ decimal_digits: '0,2' }, isNumberValidationOptions())
+  readonly commissionValue: number;
 
   @IsOptional()
-  readonly enabled?: boolean;
+  readonly enabled: boolean;
 }

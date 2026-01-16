@@ -8,6 +8,7 @@ import {
   JoinColumn,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -51,7 +52,7 @@ export class UserEntity {
   roles: RoleEntity[];
 
   /** AGREGADO: Relaciones con el sistema core **/
-  @OneToOne(() => CustomerEntity, (customer) => customer.user)
+  @OneToMany(() => CustomerEntity, (customer) => customer.user)
   customer: CustomerEntity;
 
   @OneToOne(() => StaffProfileEntity, (staffProfile) => staffProfile.user)

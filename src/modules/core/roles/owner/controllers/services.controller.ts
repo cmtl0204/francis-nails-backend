@@ -1,130 +1,54 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  ParseUUIDPipe,
-  Post,
-  Put,
-  Query,
-} from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Auth, PublicRoute } from '@auth/decorators';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { CreateServiceDto, UpdateServiceDto } from '../dto/services';
 import { ServicesService } from '../services/services.service';
-import {
-  CreateServiceDto,
-  UpdateServiceDto,
-  FilterServiceDto,
-} from '../dto/services';
+import { ResponseHttpInterface } from '@utils/interfaces';
+import { PaginationDto } from '@utils/pagination';
 
 @ApiTags('Services')
-@Auth()
 @Controller('core/owner/services')
 export class ServicesController {
-  constructor(private service: ServicesService) {}
+  constructor(private readonly service: ServicesService) {}
 
-  // ENDPOINTS DE PRUEBA
-  @PublicRoute()
-  @ApiOperation({ summary: 'Endpoint de prueba para Services' })
-  @Get('/rutas')
-  async ruta1() {
-    const serviceResponse = await this.service.findRuta1();
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @PublicRoute()
-  @ApiOperation({ summary: 'Crear Service de prueba' })
-  @Post('/rutas')
-  async createdRuta() {
-    const payload = {
-      branchId: 'branch-test-001',
-      categoryId: 'cat-test-001',
-      name: 'Servicio Demo',
-      durationMin: 45,
-      basePrice: 20,
-      isEnabled: true,
-      enabled: true,
-    };
-
-    const serviceResponse = await this.service.createdRuta1(payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  //  CRUD REAL
-  @ApiOperation({ summary: 'Listar servicios' })
-  @Get()
-  async findAll(@Query() params: FilterServiceDto) {
-    const serviceResponse = await this.service.findAll(params);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @ApiOperation({ summary: 'Obtener servicio' })
-  @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    const serviceResponse = await this.service.findOne(id);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Consultado',
-      title: 'Consultado',
-    };
-  }
-
-  @ApiOperation({ summary: 'Crear servicio' })
+  @ApiOperation({ summary: 'Create' })
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async create(@Body() payload: CreateServiceDto) {
+  async create(@Body() payload: CreateServiceDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.create(payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Creado',
-      title: 'Creado',
-    };
+    return { data: serviceResponse, message: 'Servicio creado', title: 'Creado' };
   }
 
-  @ApiOperation({ summary: 'Actualizar servicio' })
-  @Put(':id')
-  async update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() payload: UpdateServiceDto,
-  ) {
+  @ApiOperation({ summary: 'Find All' })
+  @Get()
+  async findAll(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findAll(params);
+    return { data: serviceResponse.data, pagination: serviceResponse.pagination, message: 'Servicios listados', title: 'Success' };
+  }
+
+  @ApiOperation({ summary: 'Find One' })
+  @Get(':id')
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findOne(id);
+    return { data: serviceResponse, message: `Servicio encontrado (${id})`, title: 'Success' };
+  }
+
+  @ApiOperation({ summary: 'Update' })
+  @Patch(':id')
+  async update(@Param('id', ParseUUIDPipe) id: string, @Body() payload: UpdateServiceDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Actualizado',
-      title: 'Actualizado',
-    };
+    return { data: serviceResponse, message: 'Servicio actualizado', title: 'Actualizado' };
   }
 
-  @ApiOperation({ summary: 'Eliminar servicio' })
+  @ApiOperation({ summary: 'Remove' })
   @Delete(':id')
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.remove(id);
+    return { data: serviceResponse, message: 'Servicio eliminado', title: 'Eliminado' };
+  }
 
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Eliminado',
-      title: 'Eliminado',
-    };
+  @ApiOperation({ summary: 'Catalogue' })
+  @Get('catalogue')
+  async catalogue(): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.catalogue();
+    return { data: serviceResponse.data, pagination: serviceResponse.pagination, message: 'Catálogo de servicios', title: 'Success' };
   }
 }

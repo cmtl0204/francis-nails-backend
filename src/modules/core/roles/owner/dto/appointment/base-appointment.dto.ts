@@ -1,33 +1,53 @@
-import { IsBoolean, IsDateString, IsInt, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsString,
+  IsBoolean,
+  IsOptional,
+  IsNotEmpty,
+  IsDate,
+  IsUUID,
+  MaxLength,
+} from 'class-validator';
+import {
+  isBooleanValidationOptions,
+  isDateValidationOptions,
+  isNotEmptyValidationOptions,
+  isStringValidationOptions,
+  maxLengthValidationOptions,
+} from '@utils/dto-validation';
+import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 
-export class BaseAppointmentDto {
-  @IsUUID('4')
+export class AppointmentDto {
+  @IsOptional()
+  @IsUUID()
   readonly branchId: string;
 
-  @IsUUID('4')
+  @IsOptional()
+  @IsUUID()
   readonly customerId: string;
 
-  @IsUUID('4')
   @IsOptional()
-  readonly staffProfileId?: string;
+  @IsUUID()
+  readonly staffProfileId: string;
 
-  @IsInt()
+  @IsOptional()
   readonly statusId: number;
 
-  @IsInt()
+  @IsOptional()
   readonly sourceId: number;
 
-  @IsDateString()
+  @IsOptional()
+  @IsDate(isDateValidationOptions())
   readonly startAt: Date;
 
-  @IsDateString()
+  @IsOptional()
+  @IsDate(isDateValidationOptions())
   readonly endAt: Date;
 
-  @IsString()
   @IsOptional()
-  readonly notes?: string;
+  @IsString(isStringValidationOptions())
+  readonly notes: string;
 
-  @IsBoolean()
   @IsOptional()
-  readonly enabled?: boolean;
+  @IsBoolean(isBooleanValidationOptions())
+  readonly enabled: boolean;
 }

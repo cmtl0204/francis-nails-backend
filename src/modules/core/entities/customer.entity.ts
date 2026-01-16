@@ -74,7 +74,7 @@ export class CustomerEntity {
   })
   referralId: string;
 
-  @OneToOne(() => UserEntity, (user) => user.customer)
+  @ManyToOne(() => UserEntity, (user) => user.customer)
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 

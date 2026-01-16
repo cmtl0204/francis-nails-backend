@@ -21,9 +21,12 @@ import { diskStorage } from 'multer';
 import { join } from 'path';
 import { getFileName, imageFilter } from '@utils/helpers';
 import { PaginationDto } from '@utils/pagination';
+import { Auth } from '@auth/decorators';
+import { RoleEnum } from '@auth/enums';
 
 @ApiTags('Users')
 @Controller('auth/users')
+@Auth(RoleEnum.ADMIN)
 export class UsersController {
   constructor(private readonly service: UsersService) {}
 
@@ -45,7 +48,6 @@ export class UsersController {
     @Body() payload: any,
     @Query('otro') otro: string,
   ): Promise<ResponseHttpInterface> {
-    console.log(otro);
     const serviceResponse = await this.service.create(payload);
 
     return {
@@ -146,10 +148,10 @@ export class UsersController {
     };
   }
 
-  @ApiOperation({ summary: 'Remove One' })
+  @ApiOperation({ summary: 'Delete One' })
   @Delete(':id')
-  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.service.remove(id);
+  async delete(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.delete(id);
 
     return {
       data: serviceResponse,
@@ -158,10 +160,10 @@ export class UsersController {
     };
   }
 
-  @ApiOperation({ summary: 'Remove All' })
-  @Patch('remove-all')
-  async removeAll(@Body() payload: UserEntity[]): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.service.removeAll(payload);
+  @ApiOperation({ summary: 'Delete All' })
+  @Patch('delete-all')
+  async deleteAll(@Body() payload: UserEntity[]): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.deleteAll(payload);
 
     return {
       data: serviceResponse,

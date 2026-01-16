@@ -18,7 +18,7 @@ import { StockBalanceService } from './services/stock-balance.service';
 import { SupplierService } from './services/supplier.service';
 import { CustomersService } from './services/customers.service';
 import { StaffProfilesService } from './services/staff-profiles.service';
-import { StaffWorkingHoursService } from './services/staff-working-hours.service';
+import { StaffWorkingHourService } from './services/staff-working-hours.service';
 import { StaffTimeOffService } from './services/staff-time-off.service';
 import { AppointmentsService } from './services/appointments.service';
 import { BranchService } from './services/branch.service';
@@ -41,7 +41,7 @@ import { BranchService } from './services/branch.service';
     InvoiceItemService,
     CustomersService,
     StaffProfilesService,
-    StaffWorkingHoursService,
+    StaffWorkingHourService,
     StaffTimeOffService,
     AppointmentsService,
     ServicesService

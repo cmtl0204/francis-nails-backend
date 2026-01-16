@@ -3,126 +3,75 @@ import {
   Controller,
   Delete,
   Get,
-  HttpCode,
-  HttpStatus,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
-  Put,
   Query,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Auth, PublicRoute } from '@auth/decorators';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { CreateStaffTimeOffDto, UpdateStaffTimeOffDto } from '../dto/staff-time-off';
 import { StaffTimeOffService } from '../services/staff-time-off.service';
-import {
-  CreateStaffTimeOffDto,
-  UpdateStaffTimeOffDto,
-  FilterStaffTimeOffDto,
-} from '../dto/staff-time-off';
+import { ResponseHttpInterface } from '@utils/interfaces';
+import { PaginationDto } from '@utils/pagination';
 
 @ApiTags('Staff Time Off')
-@Auth()
 @Controller('core/owner/staff-time-off')
 export class StaffTimeOffController {
-  constructor(private service: StaffTimeOffService) {}
+  constructor(private readonly service: StaffTimeOffService) {}
 
-  //  ENDPOINTS DE PRUEBA
-  @PublicRoute()
-  @ApiOperation({ summary: 'Endpoint de prueba para Staff Time Off' })
-  @Get('/rutas')
-  async ruta1() {
-    const serviceResponse = await this.service.findRuta1();
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @PublicRoute()
-  @ApiOperation({ summary: 'Crear Staff Time Off de prueba' })
-  @Post('/rutas')
-  async createdRuta() {
-    const payload = {
-      staffProfileId: 'staff-test-001',
-      startAt: '2026-01-25T08:00:00Z',
-      endAt: '2026-01-25T18:00:00Z',
-      reason: 'Vacaciones',
-      enabled: true,
-    };
-
-    const serviceResponse = await this.service.createdRuta1(payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  //  CRUD REAL
-  @ApiOperation({ summary: 'Listar tiempos libres' })
-  @Get()
-  async findAll(@Query() params: FilterStaffTimeOffDto) {
-    const serviceResponse = await this.service.findAll(params);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @ApiOperation({ summary: 'Obtener tiempo libre' })
-  @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    const serviceResponse = await this.service.findOne(id);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Consultado',
-      title: 'Consultado',
-    };
-  }
-
-  @ApiOperation({ summary: 'Crear tiempo libre' })
+  @ApiOperation({ summary: 'Create' })
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async create(@Body() payload: CreateStaffTimeOffDto) {
+  async create(@Body() payload: CreateStaffTimeOffDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.create(payload);
+    return { data: serviceResponse, message: 'Tiempo libre creado', title: 'Creado' };
+  }
 
+  @ApiOperation({ summary: 'Find All' })
+  @Get()
+  async findAll(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findAll(params);
     return {
       data: serviceResponse.data,
-      message: 'Registro Creado',
-      title: 'Creado',
+      pagination: serviceResponse.pagination,
+      message: 'Tiempos libres listados',
+      title: 'Success',
     };
   }
 
-  @ApiOperation({ summary: 'Actualizar tiempo libre' })
-  @Put(':id')
+  @ApiOperation({ summary: 'Find One' })
+  @Get(':id')
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findOne(id);
+    return { data: serviceResponse, message: `Tiempo libre encontrado (${id})`, title: 'Success' };
+  }
+
+  @ApiOperation({ summary: 'Update' })
+  @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() payload: UpdateStaffTimeOffDto,
-  ) {
+  ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Actualizado',
-      title: 'Actualizado',
-    };
+    return { data: serviceResponse, message: 'Tiempo libre actualizado', title: 'Actualizado' };
   }
 
-  @ApiOperation({ summary: 'Eliminar tiempo libre' })
+  @ApiOperation({ summary: 'Remove' })
   @Delete(':id')
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.remove(id);
+    return { data: serviceResponse, message: 'Tiempo libre eliminado', title: 'Eliminado' };
+  }
 
+  @ApiOperation({ summary: 'Catalogue' })
+  @Get('catalogue')
+  async catalogue(): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.catalogue();
     return {
       data: serviceResponse.data,
-      message: 'Registro Eliminado',
-      title: 'Eliminado',
+      pagination: serviceResponse.pagination,
+      message: 'Catálogo de tiempos libres',
+      title: 'Success',
     };
   }
 }

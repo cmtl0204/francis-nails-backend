@@ -1,26 +1,31 @@
-import { IsOptional, IsString, IsUUID } from 'class-validator';
-import { isNotEmptyValidationOptions } from '@utils/dto-validation';
+import { IsString, IsOptional, IsNotEmpty, IsUUID, MaxLength } from 'class-validator';
+import {
+  isNotEmptyValidationOptions,
+  isStringValidationOptions,
+  maxLengthValidationOptions,
+} from '@utils/dto-validation';
+import { CustomerEntity } from '@modules/core/entities';
 
-export class BaseCustomerDto {
-  @IsUUID('4', { message: 'El usuario debe ser un UUID válido' })
+export class CustomerDto {
+  @IsOptional()
+  @IsUUID()
+  readonly referralId: string;
+
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  @IsUUID()
   readonly userId: string;
 
-  @IsUUID('4', { message: 'La referencia debe ser un UUID válido' })
-  @IsOptional()
-  readonly referralId?: string;
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  @IsString(isStringValidationOptions())
+  @MaxLength(20, maxLengthValidationOptions())
+  readonly taxIdentification: string;
 
-  @IsString()
-  @IsOptional()
-  readonly taxIdentification?: string;
-
-  @IsString()
-  @IsOptional()
-  readonly taxName?: string;
-
-  @IsString()
-  @IsOptional()
-  readonly allergies?: string;
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  @IsString(isStringValidationOptions())
+  @MaxLength(150, maxLengthValidationOptions())
+  readonly taxName: string;
 
   @IsOptional()
-  readonly enabled?: boolean;
+  @IsString(isStringValidationOptions())
+  readonly allergies: string;
 }

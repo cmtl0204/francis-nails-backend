@@ -1,7 +1,7 @@
 import { PickType } from '@nestjs/swagger';
 import { BranchDto } from './base-branch.dto';
 
-export class CreateBranchDto extends PickType(BranchDto, [
+export class SeedBranchDto extends PickType(BranchDto, [
   'name',
   'phone',
   'email',

@@ -1,32 +1,30 @@
-import { IsBoolean, IsInt, IsOptional, IsString, IsUUID, Min, Max } from 'class-validator';
+import { IsUUID, IsInt, IsBoolean, IsOptional, IsString } from 'class-validator';
+import { isStringValidationOptions } from '@utils/dto-validation';
 
-export class BaseStaffWorkingHourDto {
-  @IsUUID('4', { message: 'El staffProfileId debe ser un UUID válido' })
+export class StaffWorkingHourDto {
+  @IsUUID()
   readonly staffProfileId: string;
 
   @IsInt()
-  @Min(1)
-  @Max(7)
   readonly weekday: number;
 
-  @IsString()
+  @IsString(isStringValidationOptions())
   readonly startTime: string;
 
-  @IsString()
+  @IsString(isStringValidationOptions())
   readonly endTime: string;
 
-  @IsString()
   @IsOptional()
+  @IsString(isStringValidationOptions())
   readonly breakStart?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString(isStringValidationOptions())
   readonly breakEnd?: string;
 
   @IsBoolean()
-  @IsOptional()
-  readonly isDayOff?: boolean;
+  readonly isDayOff: boolean;
 
   @IsOptional()
-  readonly enabled?: boolean;
+  readonly enabled: boolean;
 }

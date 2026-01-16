@@ -3,128 +3,79 @@ import {
   Controller,
   Delete,
   Get,
-  HttpCode,
-  HttpStatus,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
-  Put,
   Query,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Auth, PublicRoute } from '@auth/decorators';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { CreateStaffProfileDto, UpdateStaffProfileDto } from '../dto/staff-profile';
 import { StaffProfilesService } from '../services/staff-profiles.service';
-import {
-  CreateStaffProfileDto,
-  UpdateStaffProfileDto,
-  FilterStaffProfileDto,
-} from '../dto/staff-profile';
+import { ResponseHttpInterface } from '@utils/interfaces';
+import { PaginationDto } from '@utils/pagination';
 
 @ApiTags('Staff Profiles')
-@Auth()
 @Controller('core/owner/staff-profiles')
 export class StaffProfilesController {
-  constructor(private service: StaffProfilesService) {}
+  constructor(private readonly service: StaffProfilesService) {}
 
-  //  ENDPOINTS DE PRUEBA
-  @PublicRoute()
-  @ApiOperation({ summary: 'Endpoint de prueba para Staff Profiles' })
-  @Get('/rutas')
-  async ruta1() {
-    const serviceResponse = await this.service.findRuta1();
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @PublicRoute()
-  @ApiOperation({ summary: 'Crear Staff Profile de prueba' })
-  @Post('/rutas')
-  async createdRuta() {
-    const payload = {
-      userId: 'user-test-001',
-      positionId: 'position-test-001',
-      displayName: 'Demo',
-      specialty: 'Uñas',
-      colorTag: '#000000',
-      commissionType: 'none',
-      enabled: true,
-    };
-
-    const serviceResponse = await this.service.createdRuta1(payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  //  CRUD REAL
-  @ApiOperation({ summary: 'Listar staff profiles' })
-  @Get()
-  async findAll(@Query() params: FilterStaffProfileDto) {
-    const serviceResponse = await this.service.findAll(params);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registros Consultados',
-      title: 'Consultados',
-    };
-  }
-
-  @ApiOperation({ summary: 'Obtener staff profile' })
-  @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    const serviceResponse = await this.service.findOne(id);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Consultado',
-      title: 'Consultado',
-    };
-  }
-
-  @ApiOperation({ summary: 'Crear staff profile' })
+  @ApiOperation({ summary: 'Create' })
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async create(@Body() payload: CreateStaffProfileDto) {
+  async create(@Body() payload: CreateStaffProfileDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.create(payload);
+    return { data: serviceResponse, message: 'Perfil de staff creado', title: 'Creado' };
+  }
 
+  @ApiOperation({ summary: 'Find All' })
+  @Get()
+  async findAll(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findAll(params);
     return {
       data: serviceResponse.data,
-      message: 'Registro Creado',
-      title: 'Creado',
+      pagination: serviceResponse.pagination,
+      message: 'Perfiles de staff listados',
+      title: 'Success',
     };
   }
 
-  @ApiOperation({ summary: 'Actualizar staff profile' })
-  @Put(':id')
+  @ApiOperation({ summary: 'Find One' })
+  @Get(':id')
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findOne(id);
+    return {
+      data: serviceResponse,
+      message: `Perfil de staff encontrado (${id})`,
+      title: 'Success',
+    };
+  }
+
+  @ApiOperation({ summary: 'Update' })
+  @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() payload: UpdateStaffProfileDto,
-  ) {
+  ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
-
-    return {
-      data: serviceResponse.data,
-      message: 'Registro Actualizado',
-      title: 'Actualizado',
-    };
+    return { data: serviceResponse, message: 'Perfil de staff actualizado', title: 'Actualizado' };
   }
 
-  @ApiOperation({ summary: 'Eliminar staff profile' })
+  @ApiOperation({ summary: 'Remove' })
   @Delete(':id')
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.remove(id);
+    return { data: serviceResponse, message: 'Perfil de staff eliminado', title: 'Eliminado' };
+  }
 
+  @ApiOperation({ summary: 'Catalogue' })
+  @Get('catalogue')
+  async catalogue(): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.catalogue();
     return {
       data: serviceResponse.data,
-      message: 'Registro Eliminado',
-      title: 'Eliminado',
+      pagination: serviceResponse.pagination,
+      message: 'Catálogo de perfiles de staff',
+      title: 'Success',
     };
   }
 }

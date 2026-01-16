@@ -1,18 +1,19 @@
-import { IsDateString, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsUUID, IsString, IsDate, IsOptional } from 'class-validator';
+import { isStringValidationOptions, isDateValidationOptions } from '@utils/dto-validation';
 
-export class BaseStaffTimeOffDto {
-  @IsUUID('4', { message: 'El staffProfileId debe ser un UUID válido' })
+export class StaffTimeOffDto {
+  @IsUUID()
   readonly staffProfileId: string;
 
-  @IsDateString({}, { message: 'La fecha de inicio debe ser válida' })
+  @IsDate(isDateValidationOptions())
   readonly startAt: Date;
 
-  @IsDateString({}, { message: 'La fecha de fin debe ser válida' })
+  @IsDate(isDateValidationOptions())
   readonly endAt: Date;
 
-  @IsString()
+  @IsString(isStringValidationOptions())
   readonly reason: string;
 
   @IsOptional()
-  readonly enabled?: boolean;
+  readonly enabled: boolean;
 }
