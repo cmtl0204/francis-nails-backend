@@ -3,7 +3,6 @@ import { UserDto } from '@auth/dto';
 
 export class SeedUserDto extends PickType(UserDto, [
   'birthdate',
-  'careers',
   'identificationType',
   'cellPhone',
   'identification',

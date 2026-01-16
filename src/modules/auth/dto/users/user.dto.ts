@@ -21,9 +21,6 @@ import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 
 export class UserDto {
   @IsOptional()
-  readonly careers: any;
-
-  @IsOptional()
   readonly bloodType: CatalogueEntity;
 
   @IsOptional()
