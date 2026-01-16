@@ -21,7 +21,7 @@ export class AccountGuard implements CanActivate {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+  canActivate(context: ExecutionContext): boolean {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_ROUTE_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -33,33 +33,18 @@ export class AccountGuard implements CanActivate {
 
     const req = context.switchToHttp().getRequest<Request>();
 
-    const user = req.user as UserEntity | undefined;
+    const user = req.user as UserEntity;
 
-    // Si no hay usuario en la request, no aplica este guard
-    if (!user) return true;
-
-    const exists = await this.userRepository.findOne({
-      where: { id: user.id },
-      select: { id: true, suspendedAt: true },
-    });
-
-    if (!exists) {
+    if (user.suspendedAt) {
       throw new ForbiddenException({
-        error: 'Usuario no válido',
-        message: 'La sesión ya no es válida',
-      });
-    }
-
-    if (exists.suspendedAt) {
-      throw new ForbiddenException({
-        error: 'Cuenta Suspendida',
+        error: 'ACCOUNT_SUSPENDED',
         message: 'La cuenta del usuario está suspendida',
       });
     }
 
     if (user.maxAttempts === 0)
-      throw new UnauthorizedException({
-        error: 'Cuenta Bloqueada',
+      throw new ForbiddenException({
+        error: 'ACCOUNT_LOCKED',
         message: "'Ha excedido el número máximo de intentos permitidos'",
       });
 

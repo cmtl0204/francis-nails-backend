@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
@@ -112,54 +113,26 @@ export class AuthService {
     }
 
     if (user?.suspendedAt)
-      throw new UnauthorizedException({
-        error: 'Cuenta Suspendida',
+      throw new ForbiddenException({
+        error: 'ACCOUNT_SUSPENDED',
         message: 'Su usuario se encuentra suspendido',
       });
 
-    // if (payload.username.includes('@turismo.gob.ec')) {
-    //   if (!(await this.signInLDAP(payload)))
-    //     throw new UnauthorizedException({
-    //       error: 'Sin Autorización',
-    //       message: 'Usuario y/o contraseña no válidos',
-    //     });
-    // }
-
-    // if (!payload.username.includes('@turismo.gob.ec')) {
-    //   if (user?.payment?.hasDebt)
-    //     throw new UnauthorizedException({
-    //       error: 'El RUC ingresado mantiene pendiente el pago',
-    //       message:
-    //         'De la Contribución Uno por Mil sobre Activos Fijos, cobrados por esta Cartera de Estado, dentro del periodo de vigencia de la Ley de Turismo de Registro Oficial Suplemento No. 733 de 27 de Diciembre 2002, por favor sírvase asistir a la oficina zonal en la que se encuentra registrado su establecimiento para el trámite de revisión y declaración respectiva.',
-    //     });
-    //
-    //   if (user?.maxAttempts === 0)
-    //     throw new UnauthorizedException({
-    //       error: 'Sin Autorización',
-    //       message: 'Ha excedido el número máximo de intentos permitidos',
-    //     });
-    //
-    //   if (!(await this.checkPassword(payload.password, user))) {
-    //     throw new UnauthorizedException(
-    //       `Usuario y/o contraseña no válidos, ${user.maxAttempts - 1} intentos restantes`,
-    //     );
-    //   }
-    // }
-
     if (user?.maxAttempts === 0) {
-      throw new UnauthorizedException({
-        error: 'Sin Autorización',
+      throw new ForbiddenException({
+        error: 'ACCOUNT_LOCKED',
         message: 'Ha excedido el número máximo de intentos permitidos',
       });
     }
 
     if (!(await this.checkPassword(payload.password, user))) {
-      throw new UnauthorizedException(
-        `Usuario y/o contraseña no válidos, ${user.maxAttempts - 1} intentos restantes`,
-      );
+      throw new UnauthorizedException({
+        error: 'INVALID_CREDENTIALS',
+        message: `Usuario y/o contraseña no válidos, ${user.maxAttempts - 1} intentos restantes`,
+      });
     }
 
-    const { password, suspendedAt, maxAttempts, roles, ...userRest } = user;
+    const { password, suspendedAt, maxAttempts, ...userRest } = user;
 
     const tokens = this.generateJwt(user);
 
@@ -172,7 +145,7 @@ export class AuthService {
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
       auth: userRest,
-      roles,
+      roles: userRest.roles,
     };
   }
 
@@ -232,6 +205,12 @@ export class AuthService {
     await this.saveRefreshToken(user.id, tokens.refreshToken);
 
     return tokens;
+  }
+
+  async saveRefreshToken(userId: string, refreshToken: string) {
+    await this.repository.update(userId, {
+      refreshToken: await Bcrypt.hash(refreshToken, 10),
+    });
   }
 
   async requestTransactionalCode(username: string): Promise<ServiceResponseHttpInterface> {
@@ -362,12 +341,6 @@ export class AuthService {
     return this.repository.findOne({ where });
   }
 
-  async saveRefreshToken(userId: string, refreshToken: string) {
-    await this.repository.update(userId, {
-      refreshToken: await Bcrypt.hash(refreshToken, 10),
-    });
-  }
-
   async signOut(id: string): Promise<boolean> {
     await this.repository.update(id, {
       refreshToken: null,
@@ -405,19 +378,26 @@ export class AuthService {
     user: UserEntity,
     reduceAttempts = true,
   ): Promise<boolean> {
-    const { password, ...userRest } = user;
-    const isMatch = Bcrypt.compareSync(passwordCompare, password);
+    const isMatch = await Bcrypt.compare(passwordCompare, user.password);
 
     if (isMatch) {
-      await this.repository.update(user.id, { maxAttempts: this.MAX_ATTEMPTS });
+      await this.repository.update(user.id, {
+        maxAttempts: this.MAX_ATTEMPTS,
+        suspendedAt: null,
+      });
       return true;
     }
 
-    if (reduceAttempts) {
-      await this.repository.update(userRest.id, {
-        maxAttempts: userRest.maxAttempts > 0 ? userRest.maxAttempts - 1 : 0,
-      });
+    if (!reduceAttempts) {
+      return false;
     }
+
+    const remainingAttempts = Math.max(user.maxAttempts - 1, 0);
+
+    await this.repository.update(user.id, {
+      maxAttempts: remainingAttempts,
+      suspendedAt: remainingAttempts === 0 ? new Date() : user.suspendedAt,
+    });
 
     return false;
   }

@@ -3,6 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_ROUTE_KEY, ROLES_KEY } from '@auth/constants';
 import { RoleEnum } from '@auth/enums';
 import { UserEntity } from '@auth/entities';
+import { Request } from 'express';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -26,20 +27,24 @@ export class RolesGuard implements CanActivate {
     // Si el endpoint no requiere roles, permitir acceso
     if (!requiredRoles || requiredRoles.length === 0) return true;
 
-    const request = context.switchToHttp().getRequest();
-    const user = request.user as UserEntity;
+    const req = context.switchToHttp().getRequest<Request>();
 
-    // Si por alguna razón no hay usuario o no tiene roles
-    if (!user || !Array.isArray(user.roles)) {
-      throw new ForbiddenException('User has no roles assigned');
+    const user = req.user as UserEntity;
+
+    // Si no tiene roles asignados
+    if (!Array.isArray(user.roles)) {
+      throw new ForbiddenException('El usuario no tiene roles asignados');
     }
 
-    const hasRole = requiredRoles.some((required) =>
+    const hasPermission = requiredRoles.some((required) =>
       user.roles.some((userRole) => userRole.code === required),
     );
 
-    if (!hasRole) {
-      throw new ForbiddenException('Insufficient role permissions');
+    if (!hasPermission) {
+      throw new ForbiddenException({
+        error: 'INSUFFICIENT_PERMISSIONS',
+        message: 'El usuario no tiene permisos para esta acción',
+      });
     }
 
     return true;
