@@ -41,8 +41,6 @@ export class AuthController {
     };
   }
 
-  @PublicRoute()
-  @UseGuards(AuthGuard('jwt'))
   @Post('sign-out')
   async signOut(@User() user: UserEntity) {
     const serviceResponse = await this.authService.signOut(user.id);

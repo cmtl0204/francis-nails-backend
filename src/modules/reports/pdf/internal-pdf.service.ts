@@ -15,11 +15,10 @@ export class InternalPdfService {
 
   async generateUsersReportBuffer() {
     const data: any = await this.internalPdfSql.findUsers();
-    // console.log(data);
     try {
       return await this.printerService.createPdfBuffer(registerCertificateReport(data));
     } catch (error) {
-      console.log(error);
+      console.error(error);
       throw new Error();
     }
   }

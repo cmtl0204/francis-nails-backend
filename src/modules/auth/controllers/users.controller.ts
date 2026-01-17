@@ -60,7 +60,6 @@ export class UsersController {
   @ApiOperation({ summary: 'Example' })
   @Get(':id/examples')
   async exampleParam(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
-    console.log(id);
     const serviceResponse = await this.service.findOne(id);
 
     return {
@@ -73,7 +72,6 @@ export class UsersController {
   @ApiOperation({ summary: 'Example' })
   @Get('examples')
   async exampleQuery(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
-    console.log(params);
     const serviceResponse = await this.service.findOne(params.search);
 
     return {

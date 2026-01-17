@@ -148,7 +148,7 @@ export class FileController {
         .replace('ú', 'u');
       const dataFile = fs.lstatSync(pathFile);
       fs.rename(pathFile, newPathFile, function (err) {
-        if (err) console.log('ERROR: ' + err);
+        if (err) console.error('ERROR: ' + err);
       });
     });
 
