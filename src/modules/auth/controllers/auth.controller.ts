@@ -135,6 +135,21 @@ export class AuthController {
   }
 
   @PublicRoute()
+  @Get('transactional-password-reset-codes/:identification/request')
+  async requestTransactionalPasswordResetCode(
+    @Param('identification') identification: string,
+  ): Promise<ResponseHttpInterface> {
+    const serviceResponse =
+      await this.authService.requestTransactionalPasswordResetCode(identification);
+
+    return {
+      data: serviceResponse,
+      message: `Su código fue enviado a ${JSON.stringify(serviceResponse)}`,
+      title: 'Código Enviado',
+    };
+  }
+
+  @PublicRoute()
   @Patch('transactional-codes/:token/verify')
   async verifyTransactionalCode(
     @Param('token') token: string,
@@ -150,12 +165,15 @@ export class AuthController {
   }
 
   @PublicRoute()
-  @Patch('reset-passwords')
-  async resetPassword(@Body() payload: any): Promise<ResponseHttpInterface> {
-    await this.authService.resetPassword(payload);
+  @Patch('passwords/:username/reset')
+  async resetPassword(
+    @Body('password') password: string,
+    @Param('username') username: string,
+  ): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.authService.resetPassword(username, password);
 
     return {
-      data: null,
+      data: serviceResponse,
       message: `Por favor inicie sesión`,
       title: 'Contraseña Reseteada',
     };
@@ -164,6 +182,35 @@ export class AuthController {
   @PublicRoute()
   @Get('verify-user-exist/:identification')
   async verifyUserExist(
+    @Param('identification') identification: string,
+    @Query('userId') userId: string,
+  ): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.authService.verifyUserExist(identification, userId);
+
+    return {
+      data: serviceResponse,
+      message: `Existe Identificacion`,
+      title: 'Existe',
+    };
+  }
+
+  @PublicRoute()
+  @Get('verify-user-register/:identification')
+  async verifyUserRegister(
+    @Param('identification') identification: string,
+  ): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.authService.verifyUserRegister(identification);
+
+    return {
+      data: serviceResponse.data,
+      message: `Usuario registrado`,
+      title: 'Usuario registrado',
+    };
+  }
+
+  @PublicRoute()
+  @Get('verify-user-identification/:identification')
+  async verifyUserIdentification(
     @Param('identification') identification: string,
     @Query('userId') userId: string,
   ): Promise<ResponseHttpInterface> {

@@ -225,6 +225,7 @@ export class AuthService {
         message: 'Usuario no encontrado, intente de nuevo',
       });
     }
+
     const randomNumber = Math.random();
     const token = randomNumber.toString().substring(2, 8);
 
@@ -245,21 +246,39 @@ export class AuthService {
     await this.transactionalCodeRepository.save(payload);
 
     const value = user.email || user.personalEmail;
-    const chars = 3; // Cantidad de caracters visibles
 
-    const email = value.replace(
-      /[a-z0-9\-_.]+@/gi,
-      (c) =>
-        c.substr(0, chars) +
-        c
-          .split('')
-          .slice(chars, -1)
-          .map((v) => '*')
-          .join('') +
-        '@',
-    );
+    const email = this.maskEmail(value);
 
     return { data: email };
+  }
+
+  async requestTransactionalPasswordResetCode(identification: string): Promise<string> {
+    const user = await this.repository.findOneBy({ identification });
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    const randomNumber = Math.random();
+    const token = randomNumber.toString().substring(2, 8);
+
+    const mailData: MailDataInterface = {
+      to: user.email,
+      subject: MailSubjectEnum.ACCOUNT_REGISTER,
+      template: MailTemplateEnum.TRANSACTIONAL_PASSWORD_RESET_CODE,
+      data: {
+        token,
+        user,
+      },
+    };
+
+    await this.mailService.sendMail(mailData);
+
+    const payload = { username: user.identification, token, type: 'password_reset' };
+
+    await this.transactionalCodeRepository.save(payload);
+
+    return user.email;
   }
 
   async verifyTransactionalCode(
@@ -307,9 +326,9 @@ export class AuthService {
     return { data: true };
   }
 
-  async resetPassword(payload: any): Promise<ServiceResponseHttpInterface> {
+  async resetPassword(username: string, password: string): Promise<boolean> {
     const user = await this.repository.findOne({
-      where: { username: payload.username },
+      where: { username },
     });
 
     if (!user) {
@@ -325,11 +344,11 @@ export class AuthService {
 
     await this.repository.update(user.id, {
       maxAttempts: this.MAX_ATTEMPTS,
-      password: Bcrypt.hashSync(payload.passwordNew, 10),
+      password: Bcrypt.hashSync(password, 10),
       passwordChanged: true,
     });
 
-    return { data: true };
+    return true;
   }
 
   async verifyUserExist(identification: string, userId: string): Promise<UserEntity | null> {
@@ -340,6 +359,23 @@ export class AuthService {
     }
 
     return this.repository.findOne({ where });
+  }
+
+  async verifyUserRegister(identification: string): Promise<ServiceResponseHttpInterface> {
+    const user = await this.repository.findOne({
+      where: { identification },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    return {
+      data: {
+        ...user,
+        email: user.email ? this.maskEmail(user.email) : '',
+      },
+    };
   }
 
   async signOut(id: string): Promise<boolean> {
@@ -401,5 +437,20 @@ export class AuthService {
     });
 
     return false;
+  }
+
+  private maskEmail(email: string): string {
+    if (!email || !email.includes('@')) return email;
+
+    const [user, domain] = email.split('@');
+
+    if (user.length <= 3) {
+      return `${user[0]}**@${domain}`;
+    }
+
+    const visible = user.slice(0, 3);
+    const hidden = '*'.repeat(user.length - 3);
+
+    return `${visible}${hidden}@${domain}`;
   }
 }

@@ -29,7 +29,7 @@ export class MailService implements OnModuleInit {
   }
 
   async onModuleInit() {
-    //await this.configTemplates();
+    await this.configTemplates();
   }
 
   private async configTemplates() {
