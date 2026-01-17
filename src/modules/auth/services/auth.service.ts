@@ -10,7 +10,7 @@ import * as Bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { Not, Repository } from 'typeorm';
 import { add, isBefore } from 'date-fns';
-import { TransactionalCodeEntity, UserEntity } from '@auth/entities';
+import { RoleEntity, TransactionalCodeEntity, UserEntity } from '@auth/entities';
 import { PayloadTokenInterface, RefreshTokenInterface } from 'src/modules/auth/interfaces';
 import { AuthRepositoryEnum, MailSubjectEnum, MailTemplateEnum } from '@utils/enums';
 import {
@@ -29,7 +29,7 @@ import { lastValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import ms from 'ms';
 import { SignInInterface } from '@auth/interfaces/sign-in.interface';
-import { ErrorCodeEnum } from '@auth/enums';
+import { ErrorCodeEnum, MessageAuthEnum, RoleEnum } from '@auth/enums';
 
 @Injectable()
 export class AuthService {
@@ -38,6 +38,8 @@ export class AuthService {
   constructor(
     @Inject(AuthRepositoryEnum.USER_REPOSITORY)
     private repository: Repository<UserEntity>,
+    @Inject(AuthRepositoryEnum.ROLE_REPOSITORY)
+    private roleRepository: Repository<RoleEntity>,
     @Inject(AuthRepositoryEnum.TRANSACTIONAL_CODE_REPOSITORY)
     private transactionalCodeRepository: Repository<TransactionalCodeEntity>,
     @Inject(envConfig.KEY) private configService: ConfigType<typeof envConfig>,
@@ -158,19 +160,19 @@ export class AuthService {
     return response.data.data;
   }
 
-  async signUpExternal(payload: SignUpExternalDto): Promise<ServiceResponseHttpInterface> {
-    const user = this.repository.create();
+  async signUpExternal(payload: SignUpExternalDto): Promise<UserEntity> {
+    const role = await this.roleRepository.findOneBy({ code: RoleEnum.CUSTOMER });
 
-    user.identification = payload.identification;
-    user.email = payload.email;
-    user.username = payload.email;
-    user.name = payload.name;
-    user.password = payload.password;
-    user.passwordChanged = true;
+    const entity = this.repository.create({
+      ...payload,
+      passwordChanged: true,
+      emailVerifiedAt: new Date(),
+      termsAcceptedAt: new Date(),
+    });
 
-    const userCreated = await this.repository.save(user);
+    entity.roles = [role!];
 
-    return { data: userCreated };
+    return await this.repository.save(entity);
   }
 
   async findUserInformation(id: string): Promise<ServiceResponseHttpInterface> {
@@ -221,7 +223,7 @@ export class AuthService {
 
     if (!user) {
       throw new NotFoundException({
-        error: ErrorCodeEnum.NOT_FOUND,
+        error: MessageAuthEnum.NOT_FOUND,
         message: 'Usuario no encontrado, intente de nuevo',
       });
     }
@@ -231,7 +233,7 @@ export class AuthService {
 
     const mailData: MailDataInterface = {
       to: user.email || user.personalEmail,
-      subject: MailSubjectEnum.RESET_PASSWORD,
+      subject: MailSubjectEnum.TRANSACTIONAL_CODE,
       template: MailTemplateEnum.TRANSACTIONAL_CODE,
       data: {
         token,
@@ -264,7 +266,7 @@ export class AuthService {
 
     const mailData: MailDataInterface = {
       to: user.email,
-      subject: MailSubjectEnum.ACCOUNT_REGISTER,
+      subject: MailSubjectEnum.PASSWORD_RESET,
       template: MailTemplateEnum.TRANSACTIONAL_PASSWORD_RESET_CODE,
       data: {
         token,
@@ -281,6 +283,31 @@ export class AuthService {
     return user.email;
   }
 
+  async requestTransactionalSignupCode(email: string): Promise<string> {
+    const randomNumber = Math.random();
+
+    const token = randomNumber.toString().substring(2, 8);
+
+    const mailData: MailDataInterface = {
+      to: email,
+      subject: MailSubjectEnum.ACCOUNT_REGISTER,
+      template: MailTemplateEnum.TRANSACTIONAL_SIGNUP_CODE,
+      data: { token },
+    };
+
+    await this.mailService.sendMail(mailData);
+
+    const entity = this.transactionalCodeRepository.create({
+      username: email,
+      token,
+      type: 'signup',
+    });
+
+    await this.transactionalCodeRepository.save(entity);
+
+    return email;
+  }
+
   async verifyTransactionalCode(
     token: string,
     username: string,
@@ -292,21 +319,21 @@ export class AuthService {
     if (!transactionalCode) {
       throw new BadRequestException({
         message: 'Código Transaccional no válido',
-        error: ErrorCodeEnum.NOT_FOUND,
+        error: MessageAuthEnum.TRANSACTIONAL_CODE_INVALID,
       });
     }
 
-    if (transactionalCode.username !== username) {
+    if (transactionalCode.username.toLowerCase() !== username.toLowerCase()) {
       throw new BadRequestException({
         message: 'El usuario no corresponde al código transaccional generado',
-        error: ErrorCodeEnum.TRANSACTIONAL_CODE_NOT_MATCH,
+        error: MessageAuthEnum.TRANSACTIONAL_CODE_NOT_MATCH,
       });
     }
 
     if (transactionalCode.isUsed) {
       throw new BadRequestException({
         message: 'El código ya fue usado',
-        error: ErrorCodeEnum.TRANSACTIONAL_CODE_USED,
+        error: MessageAuthEnum.TRANSACTIONAL_CODE_USED,
       });
     }
 
@@ -315,7 +342,7 @@ export class AuthService {
     if (isBefore(maxDate, new Date())) {
       throw new BadRequestException({
         message: 'El código ha expirado',
-        error: ErrorCodeEnum.TRANSACTIONAL_CODE_EXPIRED,
+        error: MessageAuthEnum.TRANSACTIONAL_CODE_EXPIRED,
       });
     }
 
@@ -334,7 +361,7 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException({
         message: 'Usuario no encontrado para resetear contraseña, intente de nuevo',
-        error: ErrorCodeEnum.NOT_FOUND,
+        error: MessageAuthEnum.NOT_FOUND,
       });
     }
 
@@ -351,23 +378,28 @@ export class AuthService {
     return true;
   }
 
-  async verifyUserExist(identification: string, userId: string): Promise<UserEntity | null> {
-    const where: any = { identification };
-
-    if (userId) {
-      where.id = Not(userId);
-    }
-
-    return this.repository.findOne({ where });
+  async verifyExistUser(identification: string): Promise<UserEntity | null> {
+    return await this.repository.findOne({
+      where: { identification },
+      select: { id: true },
+    });
   }
 
-  async verifyUserRegister(identification: string): Promise<ServiceResponseHttpInterface> {
+  async verifyUpdatedUser(identification: string, userId: string): Promise<UserEntity | null> {
+    return await this.repository.findOne({
+      where: { identification, id: Not(userId) },
+      select: { id: true },
+    });
+  }
+
+  async verifyRegisteredUser(identification: string): Promise<ServiceResponseHttpInterface> {
     const user = await this.repository.findOne({
       where: { identification },
+      select: { id: true, name: true, lastname: true, email: true },
     });
 
     if (!user) {
-      throw new NotFoundException('Usuario no encontrado');
+      throw new NotFoundException('Registro no encontrado');
     }
 
     return {
@@ -420,7 +452,6 @@ export class AuthService {
     if (isMatch) {
       await this.repository.update(user.id, {
         maxAttempts: this.MAX_ATTEMPTS,
-        suspendedAt: null,
       });
       return true;
     }
@@ -433,7 +464,6 @@ export class AuthService {
 
     await this.repository.update(user.id, {
       maxAttempts: remainingAttempts,
-      suspendedAt: remainingAttempts === 0 ? new Date() : user.suspendedAt,
     });
 
     return false;

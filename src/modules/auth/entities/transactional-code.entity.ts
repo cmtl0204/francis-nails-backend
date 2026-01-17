@@ -1,8 +1,10 @@
 import {
-  PrimaryGeneratedColumn,
+  BeforeInsert,
+  BeforeUpdate,
   Column,
-  Entity,
   CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -54,4 +56,16 @@ export class TransactionalCodeEntity {
     comment: 'Type',
   })
   type: string;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  setUsername() {
+    if (!this.username) {
+      return;
+    }
+
+    if (this.username.includes('@')) {
+      this.username = this.username.toLowerCase().trim();
+    }
+  }
 }

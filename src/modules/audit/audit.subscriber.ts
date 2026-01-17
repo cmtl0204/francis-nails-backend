@@ -12,7 +12,7 @@ import { isDeepStrictEqual } from 'node:util';
 
 @EventSubscriber()
 export class AuditSubscriber implements EntitySubscriberInterface {
-  private readonly nonAuditableEntities = new Set(['AuditLog']);
+  private readonly nonAuditableEntities = new Set(['AuditLog', 'role_user']);
 
   async afterInsert(event: InsertEvent<any>) {
     await this.log(event, 'CREATE', {

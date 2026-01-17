@@ -91,7 +91,7 @@ export class RoleEntity {
   /** Before Actions **/
   @BeforeInsert()
   @BeforeUpdate()
-  async setCode() {
+  setCode() {
     if (!this.code) {
       return;
     }

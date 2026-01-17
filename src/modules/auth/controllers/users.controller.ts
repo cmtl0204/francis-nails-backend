@@ -208,6 +208,7 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: 'Find Profile' })
+  @Auth()
   @Get(':id/profile')
   async findProfile(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.findProfile(id);
@@ -220,6 +221,7 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: 'Update Profile' })
+  @Auth()
   @Patch(':id/profile')
   async updateProfile(
     @Param('id', ParseUUIDPipe) id: string,

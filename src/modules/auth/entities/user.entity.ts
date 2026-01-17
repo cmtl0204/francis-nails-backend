@@ -129,7 +129,7 @@ export class UserEntity {
     type: 'varchar',
     nullable: true,
   })
-  refreshToken: string|null;
+  refreshToken: string | null;
 
   @Column({
     name: 'activated_at',
@@ -257,6 +257,14 @@ export class UserEntity {
     comment: 'Nombre de usuario para ingreso al sistema',
   })
   username: string;
+
+  @Column({
+    name: ' terms_accepted_at',
+    type: 'timestamp',
+    nullable: true,
+    comment: 'Fecha de la ultima aceptacion de terminos y condiciones',
+  })
+  termsAcceptedAt: Date | null;
 
   @Column({
     name: 'id_temp',

@@ -1,12 +1,12 @@
 import {
-  IsString,
   IsBoolean,
-  IsOptional,
-  IsNotEmpty,
-  MinLength,
-  IsEmail,
-  MaxLength,
   IsDate,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
 } from 'class-validator';
 import {
   isBooleanValidationOptions,
@@ -102,4 +102,8 @@ export class UserDto {
   @MinLength(5, minLengthValidationOptions())
   @MaxLength(100, maxLengthValidationOptions())
   readonly username: string;
+
+  @IsOptional()
+  @IsString(isStringValidationOptions())
+  readonly allergies: string;
 }

@@ -1,10 +1,11 @@
 import { IsNotEmpty, IsString } from 'class-validator';
-import {
-  isNotEmptyValidationOptions,
-  isStringValidationOptions,
-} from '@utils/dto-validation';
+import { isNotEmptyValidationOptions, isStringValidationOptions } from '@utils/dto-validation';
 
 export class SignUpExternalDto {
+  @IsString(isStringValidationOptions())
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  username: string;
+
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   email: string;
@@ -18,6 +19,6 @@ export class SignUpExternalDto {
   name: string;
 
   @IsString(isStringValidationOptions())
-  @IsNotEmpty()
+  @IsNotEmpty(isNotEmptyValidationOptions())
   password: string;
 }
