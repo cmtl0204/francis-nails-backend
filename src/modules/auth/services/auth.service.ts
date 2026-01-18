@@ -30,6 +30,7 @@ import { HttpService } from '@nestjs/axios';
 import ms from 'ms';
 import { SignInInterface } from '@auth/interfaces/sign-in.interface';
 import { ErrorCodeEnum, MessageAuthEnum, RoleEnum } from '@auth/enums';
+import { SECURITY_CODE_EXPIRES_IN } from '@auth/constants';
 
 @Injectable()
 export class AuthService {
@@ -271,6 +272,7 @@ export class AuthService {
       data: {
         token,
         user,
+        expiresIn: SECURITY_CODE_EXPIRES_IN,
       },
     };
 
@@ -337,7 +339,7 @@ export class AuthService {
       });
     }
 
-    const maxDate = add(transactionalCode.createdAt, { minutes: 10 });
+    const maxDate = add(transactionalCode.createdAt, { minutes: SECURITY_CODE_EXPIRES_IN });
 
     if (isBefore(maxDate, new Date())) {
       throw new BadRequestException({
