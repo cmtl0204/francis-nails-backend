@@ -29,7 +29,7 @@ export class UsersSeeder {
   }
 
   async loadCatalogues() {
-    const catalogues = (await this.cataloguesService.findAll()).data as CatalogueEntity[];
+    const catalogues = await this.cataloguesService.findCache();
 
     this.identificationTypes = catalogues.filter(
       (catalogue) => catalogue.type === CatalogueTypeEnum.users_identification_type,

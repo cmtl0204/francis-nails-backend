@@ -19,11 +19,11 @@ export class UsersService {
   }
 
   async create(payload: CreateUserDto): Promise<UserEntity> {
-    const userExist = await this.repository.findOne({
+    const entityExist = await this.repository.findOne({
       where: [{ identification: payload.email }, { username: payload.username }],
     });
 
-    if (userExist) throw new BadRequestException('El usuario ya existe');
+    if (entityExist) throw new BadRequestException('El registro ya existe');
 
     const entity = this.repository.create(payload);
 
@@ -39,7 +39,7 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<UserEntity> {
-    const entity = await this.repository.findOne({
+      const entity = await this.repository.findOne({
       where: { id },
       relations: {
         roles: true,
@@ -49,7 +49,7 @@ export class UsersService {
     });
 
     if (!entity) {
-      throw new NotFoundException('Usuario no encontrado (find one)');
+      throw new NotFoundException('Registro no encontrado (find one)');
     }
 
     return entity;
@@ -61,7 +61,7 @@ export class UsersService {
     });
 
     if (!entity) {
-      throw new NotFoundException('Registro no encontrado para actualizar');
+      throw new NotFoundException('Registro no encontrado');
     }
 
     this.repository.merge(entity, payload);

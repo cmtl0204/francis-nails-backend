@@ -11,7 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Not, Repository } from 'typeorm';
 import { add, isBefore } from 'date-fns';
 import { RoleEntity, TransactionalCodeEntity, UserEntity } from '@auth/entities';
-import { PayloadTokenInterface, RefreshTokenInterface } from 'src/modules/auth/interfaces';
+import { PayloadTokenInterface, TokenInterface } from 'src/modules/auth/interfaces';
 import { AuthRepositoryEnum, MailSubjectEnum, MailTemplateEnum } from '@utils/enums';
 import {
   PasswordChangeDto,
@@ -202,7 +202,7 @@ export class AuthService {
     return { data: userUpdated };
   }
 
-  async refreshToken(user: UserEntity): Promise<RefreshTokenInterface> {
+  async refreshToken(user: UserEntity): Promise<TokenInterface> {
     const tokens = this.generateJwt(user);
 
     await this.saveRefreshToken(user.id, tokens.refreshToken);
