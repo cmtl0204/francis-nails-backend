@@ -14,6 +14,7 @@ import { BranchEntity } from './branch.entity';
 import { CustomerEntity } from './customer.entity';
 import { UserEntity } from '@auth/entities';
 import { InvoiceItemEntity } from './invoice-item.entity';
+import { PaymentEntity } from './payment.entity';
 
 @Entity('invoices', { schema: 'core' })
 export class InvoiceEntity {
@@ -55,6 +56,9 @@ export class InvoiceEntity {
   /** Inverse Relationship **/
   @OneToMany(() => InvoiceItemEntity, (invoiceItem) => invoiceItem.invoice)
   invoiceItems: InvoiceItemEntity[];
+
+  @OneToMany(() => PaymentEntity, (payment) => payment.invoice)
+  payment: PaymentEntity[];
 
 
   /** Foreign Keys **/

@@ -17,6 +17,7 @@ import {
   StaffWorkingHourEntity,
   StockBalanceEntity,
   SupplierEntity,
+  PaymentEntity,
 } from '@modules/core/entities';
 
 export const coreProviders = [
@@ -109,4 +110,10 @@ export const coreProviders = [
     useFactory: (dataSource: DataSource) => dataSource.getRepository(InvoiceItemEntity),
     inject: [ConfigEnum.PG_DATA_SOURCE],
   },
+  {
+    provide: CoreRepositoryEnum.PAYMENT_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(PaymentEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+  
 ];

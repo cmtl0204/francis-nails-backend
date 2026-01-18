@@ -9,23 +9,26 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { CreateBranchDto, UpdateBranchDto } from '../dto/branch';
-import { BranchService } from '../services/branches.service';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AppointmentServiceService } from '../services/appointment-services.service';
+import {
+  CreateAppointmentServiceDto,
+  UpdateAppointmentServiceDto,
+} from '../dto/appointment-service';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { PaginationDto } from '@utils/pagination';
 import { PublicRoute } from '@auth/decorators';
 
-@ApiTags('Branches')
-@Controller('core/owner/branches')
-export class BranchController {
-  constructor(private readonly service: BranchService) {}
+@ApiTags('Appointment Services')
+@Controller('core/owner/appointment-services')
+export class AppointmentServiceController {
+  constructor(private readonly service: AppointmentServiceService) {}
   @PublicRoute()
   @ApiOperation({ summary: 'Create' })
   @Post()
-  async create(@Body() payload: CreateBranchDto): Promise<ResponseHttpInterface> {
+  async create(@Body() payload: CreateAppointmentServiceDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.create(payload);
-    return { data: serviceResponse, message: 'Sucursal creada', title: 'Creado' };
+    return { data: serviceResponse, message: 'Servicio de cita creado', title: 'Creado' };
   }
   @PublicRoute()
   @ApiOperation({ summary: 'Find All' })
@@ -35,33 +38,37 @@ export class BranchController {
     return {
       data: serviceResponse.data,
       pagination: serviceResponse.pagination,
-      message: 'Sucursales listadas',
+      message: 'Servicios de citas listados',
       title: 'Success',
     };
   }
-  @PublicRoute()
+
   @ApiOperation({ summary: 'Find One' })
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.findOne(id);
-    return { data: serviceResponse, message: `Sucursal encontrada (${id})`, title: 'Success' };
+    return {
+      data: serviceResponse,
+      message: `Servicio de cita encontrado ${id}`,
+      title: 'Success',
+    };
   }
 
   @ApiOperation({ summary: 'Update' })
   @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() payload: UpdateBranchDto,
+    @Body() payload: UpdateAppointmentServiceDto,
   ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
-    return { data: serviceResponse, message: 'Sucursal actualizada', title: 'Actualizado' };
+    return { data: serviceResponse, message: 'Servicio de cita actualizado', title: 'Actualizado' };
   }
 
-  @ApiOperation({ summary: 'Remove' })
+  @ApiOperation({ summary: 'Remove One' })
   @Delete(':id')
   async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.remove(id);
-    return { data: serviceResponse, message: 'Sucursal eliminada', title: 'Eliminado' };
+    return { data: serviceResponse, message: 'Servicio de cita eliminado', title: 'Eliminado' };
   }
 
   @ApiOperation({ summary: 'Catalogue' })
@@ -71,8 +78,8 @@ export class BranchController {
     return {
       data: serviceResponse.data,
       pagination: serviceResponse.pagination,
-      message: 'Catálogo de sucursales',
-      title: 'Success',
+      message: 'Catalogue',
+      title: 'Catalogue',
     };
   }
 }

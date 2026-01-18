@@ -17,6 +17,7 @@ export { PurchaseItemEntity } from './purchase-item.entity';
 export { InventoryMovementEntity } from './inventory-movement.entity';
 export { InvoiceEntity } from './invoice.entity';
 export { InvoiceItemEntity } from './invoice-item.entity';
+export { PaymentEntity } from './payment.entity';
 
 //
 
@@ -38,6 +39,7 @@ import { PurchaseItemEntity } from './purchase-item.entity';
 import { InventoryMovementEntity } from './inventory-movement.entity';
 import { InvoiceEntity } from './invoice.entity';
 import { InvoiceItemEntity } from './invoice-item.entity';
+import { PaymentEntity } from './payment.entity';
 
 //
 
@@ -60,4 +62,5 @@ export const entities = [
   InventoryMovementEntity,
   InvoiceEntity,
   InvoiceItemEntity,
+  PaymentEntity
 ];

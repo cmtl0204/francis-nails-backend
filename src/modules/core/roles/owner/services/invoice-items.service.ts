@@ -1,4 +1,3 @@
-// invoice-items.service.ts
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InvoiceItemEntity } from '@modules/core/entities';
@@ -8,7 +7,7 @@ import { CoreRepositoryEnum } from '@utils/enums';
 import { PaginateFilterService, PaginationDto } from '@utils/pagination';
 
 @Injectable()
-export class InvoiceItemsService {
+export class InvoiceItemService {
   private paginateFilterService: PaginateFilterService<InvoiceItemEntity>;
 
   constructor(

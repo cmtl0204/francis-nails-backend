@@ -1,4 +1,3 @@
-// suppliers.service.ts
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { SupplierEntity } from '@modules/core/entities';
@@ -8,7 +7,7 @@ import { CoreRepositoryEnum } from '@utils/enums';
 import { PaginateFilterService, PaginationDto } from '@utils/pagination';
 
 @Injectable()
-export class SuppliersService {
+export class SupplierService {
   private paginateFilterService: PaginateFilterService<SupplierEntity>;
 
   constructor(

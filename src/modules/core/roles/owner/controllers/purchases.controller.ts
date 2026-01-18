@@ -1,4 +1,3 @@
-// purchases.controller.ts
 import {
   Controller,
   Get,
@@ -11,15 +10,15 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { PurchasesService } from '../services/purchases.service';
+import { PurchaseService } from '../services/purchases.service';
 import { CreatePurchaseDto, UpdatePurchaseDto } from '../dto/purchase';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { PaginationDto } from '@utils/pagination';
 
 @ApiTags('Purchases')
-@Controller('purchases')
-export class PurchasesController {
-  constructor(private readonly service: PurchasesService) {}
+@Controller('core/owner/purchases')
+export class PurchaseController {
+  constructor(private readonly service: PurchaseService) {}
 
   @ApiOperation({ summary: 'Create' })
   @Post()

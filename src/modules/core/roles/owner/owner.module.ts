@@ -8,21 +8,21 @@ import { SharedCoreModule } from '@modules/core/shared-core/shared-core.module';
 import { ReportsModule } from '@modules/reports/reports.module';
 import { ServiceService } from './services/services.service';
 import { AppointmentService } from './services/appointments.service';
-import { InventoryMovementsService } from './services/inventory-movements.service';
-import { InvoiceItemsService } from './services/invoice-items.service';
-import { InvoicesService } from './services/invoices.service';
-import { ProductsService } from './services/products.service';
-import { PurchaseItemsService } from './services/purchase-items.service';
-import { PurchasesService } from './services/purchases.service';
-import { StockBalancesService } from './services/stock-balances.service';
-import { SuppliersService } from './services/suppliers.service';
+import { InventoryMovementService } from './services/inventory-movements.service';
+import { InvoiceItemService } from './services/invoice-items.service';
+import { InvoiceService } from './services/invoices.service';
+import { ProductService } from './services/products.service';
+import { PurchaseItemService } from './services/purchase-items.service';
+import { PurchaseService } from './services/purchases.service';
+import { StockBalanceService } from './services/stock-balances.service';
+import { SupplierService } from './services/suppliers.service';
 import { CustomerService } from './services/customers.service';
 import { StaffProfileService } from './services/staff-profiles.service';
 import { StaffWorkingHourService } from './services/staff-working-hours.service';
 import { StaffTimeOffService } from './services/staff-time-off.service';
-
 import { BranchService } from './services/branches.service';
-import { AppointmentServicesService } from '@modules/core/roles/owner/services/appointment-services.service';
+import { AppointmentServiceService } from '@modules/core/roles/owner/services/appointment-services.service';
+import { PaymentsService } from './services/payments.service';
 
 @Global()
 @Module({
@@ -32,20 +32,21 @@ import { AppointmentServicesService } from '@modules/core/roles/owner/services/a
     ...coreProviders,
     BranchService,
     AppointmentService,
-    AppointmentServicesService,
-    ProductsService,
-    StockBalancesService,
-    SuppliersService,
-    PurchasesService,
-    PurchaseItemsService,
-    InventoryMovementsService,
-    InvoicesService,
-    InvoiceItemsService,
+    AppointmentServiceService,
+    ProductService,
+    StockBalanceService,
+    SupplierService,
+    PurchaseService,
+    PurchaseItemService,
+    InventoryMovementService,
+    InvoiceService,
+    InvoiceItemService,
     CustomerService,
     StaffProfileService,
     StaffWorkingHourService,
     StaffTimeOffService,
     ServiceService,
+    PaymentsService
   ],
   exports: [],
 })
