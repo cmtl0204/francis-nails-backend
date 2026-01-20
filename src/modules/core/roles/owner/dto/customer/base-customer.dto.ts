@@ -20,12 +20,13 @@ export class BaseCustomerDto {
   @MaxLength(20, maxLengthValidationOptions())
   readonly taxIdentification: string;
 
-  @IsNotEmpty(isNotEmptyValidationOptions())
-  @IsString(isStringValidationOptions())
   @MaxLength(150, maxLengthValidationOptions())
+  @IsString(isStringValidationOptions())
+  @IsNotEmpty(isNotEmptyValidationOptions())
   readonly taxName: string;
 
-  @IsOptional()
+
   @IsString(isStringValidationOptions())
+  @IsOptional()
   readonly allergies: string;
 }

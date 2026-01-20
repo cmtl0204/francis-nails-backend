@@ -19,6 +19,8 @@ export class CustomerService {
 
   async create(payload: CreateCustomerDto): Promise<CustomerEntity> {
     const entity = this.repository.create(payload);
+    console.log(entity);
+
     return await this.repository.save(entity);
   }
 

@@ -1,12 +1,12 @@
-import { IsUUID, IsInt, IsBoolean, IsOptional, IsString,IsNotEmpty } from 'class-validator';
-import { isStringValidationOptions,isNotEmptyValidationOptions } from '@utils/dto-validation';
+import { IsUUID, IsInt, IsBoolean, IsOptional, IsString,IsNotEmpty, IsPositive } from 'class-validator';
+import { isStringValidationOptions,isNotEmptyValidationOptions, isPositiveValidationOptions } from '@utils/dto-validation';
 import { StaffProfileEntity } from '@modules/core/entities';
 
 export class BaseStaffWorkingHourDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly staffProfile: StaffProfileEntity;
 
-  @IsInt()
+  @IsPositive(isPositiveValidationOptions())
   readonly weekday: number;
 
   @IsString(isStringValidationOptions())
@@ -17,11 +17,11 @@ export class BaseStaffWorkingHourDto {
 
   @IsOptional()
   @IsString(isStringValidationOptions())
-  readonly breakStart?: string;
+  readonly breakStart: string;
 
   @IsOptional()
   @IsString(isStringValidationOptions())
-  readonly breakEnd?: string;
+  readonly breakEnd: string;
 
   @IsBoolean()
   readonly isDayOff: boolean;
