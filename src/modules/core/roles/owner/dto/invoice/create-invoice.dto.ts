@@ -2,8 +2,8 @@ import { PickType } from '@nestjs/swagger';
 import { InvoiceDto } from './base-invoice.dto';
 
 export class CreateInvoiceDto extends PickType(InvoiceDto, [
-  'branchId',
-  'customerId',
+  'branch',
+  'customer',
   'statusId',
   'createdById',
   'invoiceNumber',

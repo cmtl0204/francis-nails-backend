@@ -10,7 +10,7 @@ export class StockBalanceDto {
   readonly product: ProductEntity;
 
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly locationId: string;
+  readonly location: string;
 
   @IsDecimal({},isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
