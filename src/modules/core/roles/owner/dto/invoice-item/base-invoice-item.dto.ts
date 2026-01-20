@@ -1,15 +1,16 @@
-import { IsNotEmpty, IsString, IsUUID, IsDecimal, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsDecimal, IsOptional } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
+  isNumberValidationOptions,
   isStringValidationOptions,
 } from '@utils/dto-validation';
+import { InvoiceEntity } from '@modules/core/entities';
 
 export class InvoiceItemDto {
-  @IsUUID('4', { message: 'La factura debe ser un UUID válido' })
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly invoiceId: string;
-
-  @IsUUID('4', { message: 'El personal debe ser un UUID válido' })
+  readonly invoice: InvoiceEntity;
+  
+  @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly staffId: string;
 
@@ -17,7 +18,6 @@ export class InvoiceItemDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly modelType: string;
 
-  @IsUUID('4', { message: 'El modelo debe ser un UUID válido' })
   @IsOptional()
   readonly modelId?: string;
 
@@ -25,23 +25,23 @@ export class InvoiceItemDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly description: string;
 
-  @IsDecimal({}, { message: 'La cantidad debe ser un número decimal válido' })
+  @IsDecimal({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly quantity: number;
 
-  @IsDecimal({}, { message: 'El precio unitario debe ser un número decimal válido' })
+  @IsDecimal({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly unitPrice: number;
 
-  @IsDecimal({}, { message: 'El descuento debe ser un número decimal válido' })
+  @IsDecimal({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly discount: number;
 
-  @IsDecimal({}, { message: 'El impuesto debe ser un número decimal válido' })
+  @IsDecimal({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly tax: number;
 
-  @IsDecimal({}, { message: 'El total debe ser un número decimal válido' })
+  @IsDecimal({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly total: number;
 }

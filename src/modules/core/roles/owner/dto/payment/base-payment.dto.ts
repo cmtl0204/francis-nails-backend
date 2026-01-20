@@ -1,20 +1,20 @@
-import { IsNotEmpty, IsString, IsUUID, IsDecimal, IsDate, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsDecimal, IsDate, IsOptional } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
+  isNumberValidationOptions,
   isStringValidationOptions,
 } from '@utils/dto-validation';
 import { Type } from 'class-transformer';
+import { InvoiceEntity } from '@modules/core/entities';
 
 export class PaymentDto {
-  @IsUUID('4', { message: 'La factura debe ser un UUID válido' })
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly invoiceId: string;
+  readonly invoice: InvoiceEntity;
 
-  @IsUUID('4', { message: 'El método de pago debe ser un UUID válido' })
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly methodId: string;
 
-  @IsDecimal({}, { message: 'El monto debe ser un número decimal válido' })
+  @IsDecimal({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly amount: number;
 
