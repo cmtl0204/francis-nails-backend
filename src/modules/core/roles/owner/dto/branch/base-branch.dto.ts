@@ -15,7 +15,7 @@ export class BaseBranchDto {
   readonly email: string;
 
   @IsString(isStringValidationOptions())
-  @MaxLength(255, maxLengthValidationOptions())
+  @MaxLength(500, maxLengthValidationOptions())
   readonly address: string;
 
   @IsString(isStringValidationOptions())

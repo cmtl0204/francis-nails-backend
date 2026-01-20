@@ -61,7 +61,7 @@ export class CustomerEntity {
   invoices: InvoiceEntity[];
 
   /** Foreign Keys **/
-  @ManyToOne(() => CustomerEntity, (custom) => custom.referrals)
+  @ManyToOne(() => CustomerEntity, (custom) => custom.referrals, {nullable:true})
   @JoinColumn({ name: 'referral_id' })
   referral: CustomerEntity;
 
@@ -81,6 +81,7 @@ export class CustomerEntity {
     type: 'uuid',
     name: 'user_id',
     comment: 'Referencia al usuario (única)'
+    //
   })
   userId: string;
 
