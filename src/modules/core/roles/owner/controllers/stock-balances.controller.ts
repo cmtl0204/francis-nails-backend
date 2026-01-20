@@ -1,4 +1,3 @@
-// purchase-items.controller.ts
 import {
   Controller,
   Get,
@@ -11,21 +10,21 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { PurchaseItemsService } from '../services/purchase-items.service';
-import { CreatePurchaseItemDto, UpdatePurchaseItemDto } from '../dto/purchase-item';
+import { StockBalanceService } from '../services/stock-balances.service';
+import { CreateStockBalanceDto, UpdateStockBalanceDto } from '../dto/stock-balance';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { PaginationDto } from '@utils/pagination';
 
-@ApiTags('Purchase Items')
-@Controller('purchase-items')
-export class PurchaseItemsController {
-  constructor(private readonly service: PurchaseItemsService) {}
+@ApiTags('Stock Balances')
+@Controller('core/owner/stock-balances')
+export class StockBalanceController {
+  constructor(private readonly service: StockBalanceService) {}
 
   @ApiOperation({ summary: 'Create' })
   @Post()
-  async create(@Body() payload: CreatePurchaseItemDto): Promise<ResponseHttpInterface> {
+  async create(@Body() payload: CreateStockBalanceDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.create(payload);
-    return { data: serviceResponse, message: 'Item de compra creado', title: 'Creado' };
+    return { data: serviceResponse, message: 'Balance de stock creado', title: 'Creado' };
   }
 
   @ApiOperation({ summary: 'Find All' })
@@ -35,7 +34,7 @@ export class PurchaseItemsController {
     return {
       data: serviceResponse.data,
       pagination: serviceResponse.pagination,
-      message: 'Items de compra listados',
+      message: 'Balances de stock listados',
       title: 'Success',
     };
   }
@@ -44,31 +43,34 @@ export class PurchaseItemsController {
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.findOne(id);
-    return { data: serviceResponse, message: `Item de compra encontrado ${id}`, title: 'Success' };
+    return { data: serviceResponse, message: `Balance de stock encontrado ${id}`, title: 'Success' };
   }
 
   @ApiOperation({ summary: 'Update' })
   @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() payload: UpdatePurchaseItemDto,
+    @Body() payload: UpdateStockBalanceDto,
   ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
-    return { data: serviceResponse, message: 'Item de compra actualizado', title: 'Actualizado' };
+    return { data: serviceResponse, message: 'Balance de stock actualizado', title: 'Actualizado' };
   }
 
   @ApiOperation({ summary: 'Remove One' })
   @Delete(':id')
   async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.remove(id);
-    return { data: serviceResponse, message: 'Item de compra eliminado', title: 'Eliminado' };
+    return { data: serviceResponse, message: 'Balance de stock eliminado', title: 'Eliminado' };
   }
 
-  @ApiOperation({ summary: 'Get items by purchase' })
-  @Get('purchase/:purchaseId')
-  async findByPurchase(@Param('purchaseId', ParseUUIDPipe) purchaseId: string): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.service.findByPurchaseId(purchaseId);
-    return { data: serviceResponse, message: 'Items de la compra', title: 'Success' };
+  @ApiOperation({ summary: 'Get by product and location' })
+  @Get('product/:productId/location/:locationId')
+  async getByProductAndLocation(
+    @Param('productId', ParseUUIDPipe) productId: string,
+    @Param('locationId', ParseUUIDPipe) locationId: string,
+  ): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findByProductAndLocation(productId, locationId);
+    return { data: serviceResponse, message: 'Balance encontrado', title: 'Success' };
   }
 
   @ApiOperation({ summary: 'Catalogue' })

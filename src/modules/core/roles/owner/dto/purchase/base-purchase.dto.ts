@@ -1,18 +1,18 @@
-import { IsNotEmpty, IsString, IsUUID, IsDecimal, IsDate } from 'class-validator';
+import { IsNotEmpty, IsString, IsDecimal, IsDate } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
+  isNumberValidationOptions,
   isStringValidationOptions,
 } from '@utils/dto-validation';
 import { Type } from 'class-transformer';
+import { BranchEntity, SupplierEntity } from '@modules/core/entities';
 
 export class PurchaseDto {
-  @IsUUID('4', { message: 'La sucursal debe ser un UUID válido' })
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly branchId: string;
+  readonly branch: BranchEntity;
 
-  @IsUUID('4', { message: 'El proveedor debe ser un UUID válido' })
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly supplierId: string;
+  readonly supplier: SupplierEntity;
 
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
@@ -23,15 +23,15 @@ export class PurchaseDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly purchasedAt: Date;
 
-  @IsDecimal({}, { message: 'El subtotal debe ser un número decimal válido' })
+  @IsDecimal({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly subtotal: number;
 
-  @IsDecimal({}, { message: 'El impuesto debe ser un número decimal válido' })
+  @IsDecimal({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly tax: number;
 
-  @IsDecimal({}, { message: 'El total debe ser un número decimal válido' })
+  @IsDecimal({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly total: number;
 }

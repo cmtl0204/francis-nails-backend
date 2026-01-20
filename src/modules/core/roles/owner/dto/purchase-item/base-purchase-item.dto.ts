@@ -1,26 +1,25 @@
-import { IsNotEmpty, IsUUID, IsDecimal } from 'class-validator';
+import { IsNotEmpty, IsDecimal } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
+  isNumberValidationOptions,
 } from '@utils/dto-validation';
+import { ProductEntity, PurchaseEntity } from '@modules/core/entities';
 
 export class PurchaseItemDto {
-  @IsUUID('4', { message: 'La compra debe ser un UUID válido' })
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly purchaseId: string;
+  readonly purchase: PurchaseEntity;
 
-  @IsUUID('4', { message: 'El producto debe ser un UUID válido' })
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly productId: string;
+  readonly product: ProductEntity;
 
-  @IsDecimal({}, { message: 'La cantidad debe ser un número decimal válido' })
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly quantity: number;
 
-  @IsDecimal({}, { message: 'El costo unitario debe ser un número decimal válido' })
+  @IsDecimal({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly unitCost: number;
 
-  @IsDecimal({}, { message: 'El total debe ser un número decimal válido' })
+  @IsDecimal({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly total: number;
 }

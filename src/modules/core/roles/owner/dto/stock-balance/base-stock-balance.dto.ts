@@ -1,18 +1,18 @@
-import { IsNotEmpty, IsUUID, IsDecimal } from 'class-validator';
+import { IsNotEmpty, IsDecimal } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
+  isNumberValidationOptions,
 } from '@utils/dto-validation';
+import { ProductEntity } from '@modules/core/entities';
 
 export class StockBalanceDto {
-  @IsUUID('4', { message: 'El producto debe ser un UUID válido' })
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly productId: string;
+  readonly product: ProductEntity;
 
-  @IsUUID('4', { message: 'La ubicación debe ser un UUID válido' })
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly locationId: string;
 
-  @IsDecimal({}, { message: 'La cantidad debe ser un número decimal válido' })
+  @IsDecimal({},isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly quantity: number;
 }

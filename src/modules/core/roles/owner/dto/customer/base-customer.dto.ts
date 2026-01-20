@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsNotEmpty, IsUUID, MaxLength } from 'class-validator';
+import { IsString, IsOptional, IsNotEmpty, MaxLength } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
   isStringValidationOptions,

@@ -1,4 +1,3 @@
-// products.controller.ts
 import {
   Controller,
   Get,
@@ -11,21 +10,21 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { ProductsService } from '../services/products.service';
-import { CreateProductDto, UpdateProductDto } from '../dto/product';
+import { SupplierService } from '../services/suppliers.service';
+import { CreateSupplierDto, UpdateSupplierDto } from '../dto/supplier';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { PaginationDto } from '@utils/pagination';
 
-@ApiTags('Products')
-@Controller('products')
-export class ProductsController {
-  constructor(private readonly service: ProductsService) {}
+@ApiTags('Suppliers')
+@Controller('core/owner/suppliers')
+export class SupplierController {
+  constructor(private readonly service: SupplierService) {}
 
   @ApiOperation({ summary: 'Create' })
   @Post()
-  async create(@Body() payload: CreateProductDto): Promise<ResponseHttpInterface> {
+  async create(@Body() payload: CreateSupplierDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.create(payload);
-    return { data: serviceResponse, message: 'Producto creado', title: 'Creado' };
+    return { data: serviceResponse, message: 'Proveedor creado', title: 'Creado' };
   }
 
   @ApiOperation({ summary: 'Find All' })
@@ -35,7 +34,7 @@ export class ProductsController {
     return {
       data: serviceResponse.data,
       pagination: serviceResponse.pagination,
-      message: 'Productos listados',
+      message: 'Proveedores listados',
       title: 'Success',
     };
   }
@@ -44,24 +43,24 @@ export class ProductsController {
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.findOne(id);
-    return { data: serviceResponse, message: `Producto encontrado ${id}`, title: 'Success' };
+    return { data: serviceResponse, message: `Proveedor encontrado ${id}`, title: 'Success' };
   }
 
   @ApiOperation({ summary: 'Update' })
   @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() payload: UpdateProductDto,
+    @Body() payload: UpdateSupplierDto,
   ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
-    return { data: serviceResponse, message: 'Producto actualizado', title: 'Actualizado' };
+    return { data: serviceResponse, message: 'Proveedor actualizado', title: 'Actualizado' };
   }
 
   @ApiOperation({ summary: 'Remove One' })
   @Delete(':id')
   async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.remove(id);
-    return { data: serviceResponse, message: 'Producto eliminado', title: 'Eliminado' };
+    return { data: serviceResponse, message: 'Proveedor eliminado', title: 'Eliminado' };
   }
 
   @ApiOperation({ summary: 'Catalogue' })

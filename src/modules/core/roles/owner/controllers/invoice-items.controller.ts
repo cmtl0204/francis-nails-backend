@@ -1,4 +1,3 @@
-// suppliers.controller.ts
 import {
   Controller,
   Get,
@@ -11,21 +10,21 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { SuppliersService } from '../services/suppliers.service';
-import { CreateSupplierDto, UpdateSupplierDto } from '../dto/supplier';
+import { InvoiceItemService } from '../services/invoice-items.service';
+import { CreateInvoiceItemDto, UpdateInvoiceItemDto } from '../dto/invoice-item';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { PaginationDto } from '@utils/pagination';
 
-@ApiTags('Suppliers')
-@Controller('suppliers')
-export class SuppliersController {
-  constructor(private readonly service: SuppliersService) {}
+@ApiTags('Invoice Items')
+@Controller('core/owner/invoice-items')
+export class InvoiceItemController {
+  constructor(private readonly service: InvoiceItemService) {}
 
   @ApiOperation({ summary: 'Create' })
   @Post()
-  async create(@Body() payload: CreateSupplierDto): Promise<ResponseHttpInterface> {
+  async create(@Body() payload: CreateInvoiceItemDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.create(payload);
-    return { data: serviceResponse, message: 'Proveedor creado', title: 'Creado' };
+    return { data: serviceResponse, message: 'Item de factura creado', title: 'Creado' };
   }
 
   @ApiOperation({ summary: 'Find All' })
@@ -35,7 +34,7 @@ export class SuppliersController {
     return {
       data: serviceResponse.data,
       pagination: serviceResponse.pagination,
-      message: 'Proveedores listados',
+      message: 'Items de factura listados',
       title: 'Success',
     };
   }
@@ -44,24 +43,31 @@ export class SuppliersController {
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.findOne(id);
-    return { data: serviceResponse, message: `Proveedor encontrado ${id}`, title: 'Success' };
+    return { data: serviceResponse, message: `Item de factura encontrado ${id}`, title: 'Success' };
   }
 
   @ApiOperation({ summary: 'Update' })
   @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() payload: UpdateSupplierDto,
+    @Body() payload: UpdateInvoiceItemDto,
   ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
-    return { data: serviceResponse, message: 'Proveedor actualizado', title: 'Actualizado' };
+    return { data: serviceResponse, message: 'Item de factura actualizado', title: 'Actualizado' };
   }
 
   @ApiOperation({ summary: 'Remove One' })
   @Delete(':id')
   async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.remove(id);
-    return { data: serviceResponse, message: 'Proveedor eliminado', title: 'Eliminado' };
+    return { data: serviceResponse, message: 'Item de factura eliminado', title: 'Eliminado' };
+  }
+
+  @ApiOperation({ summary: 'Get items by invoice' })
+  @Get('invoice/:invoiceId')
+  async findByInvoice(@Param('invoiceId', ParseUUIDPipe) invoiceId: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findByInvoiceId(invoiceId);
+    return { data: serviceResponse, message: 'Items de la factura', title: 'Success' };
   }
 
   @ApiOperation({ summary: 'Catalogue' })

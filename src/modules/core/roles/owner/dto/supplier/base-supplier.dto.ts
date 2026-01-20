@@ -1,13 +1,13 @@
-import { IsNotEmpty, IsString, IsUUID, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
   isStringValidationOptions,
 } from '@utils/dto-validation';
+import { BranchEntity } from '@modules/core/entities';
 
 export class SupplierDto {
-  @IsUUID('4', { message: 'La sucursal debe ser un UUID válido' })
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly branchId: string;
+  readonly branch: BranchEntity;
 
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())

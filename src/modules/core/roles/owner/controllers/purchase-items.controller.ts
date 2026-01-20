@@ -1,4 +1,3 @@
-// invoices.controller.ts
 import {
   Controller,
   Get,
@@ -11,21 +10,21 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { InvoicesService } from '../services/invoices.service';
-import { CreateInvoiceDto, UpdateInvoiceDto } from '../dto/invoice';
+import { PurchaseItemService } from '../services/purchase-items.service';
+import { CreatePurchaseItemDto, UpdatePurchaseItemDto } from '../dto/purchase-item';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { PaginationDto } from '@utils/pagination';
 
-@ApiTags('Invoices')
-@Controller('invoices')
-export class InvoicesController {
-  constructor(private readonly service: InvoicesService) {}
+@ApiTags('Purchase Items')
+@Controller('core/owner/purchase-items')
+export class PurchaseItemController {
+  constructor(private readonly service: PurchaseItemService) {}
 
   @ApiOperation({ summary: 'Create' })
   @Post()
-  async create(@Body() payload: CreateInvoiceDto): Promise<ResponseHttpInterface> {
+  async create(@Body() payload: CreatePurchaseItemDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.create(payload);
-    return { data: serviceResponse, message: 'Factura creada', title: 'Creado' };
+    return { data: serviceResponse, message: 'Item de compra creado', title: 'Creado' };
   }
 
   @ApiOperation({ summary: 'Find All' })
@@ -35,7 +34,7 @@ export class InvoicesController {
     return {
       data: serviceResponse.data,
       pagination: serviceResponse.pagination,
-      message: 'Facturas listadas',
+      message: 'Items de compra listados',
       title: 'Success',
     };
   }
@@ -44,39 +43,32 @@ export class InvoicesController {
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.findOne(id);
-    return { data: serviceResponse, message: `Factura encontrada ${id}`, title: 'Success' };
+    return { data: serviceResponse, message: `Item de compra encontrado ${id}`, title: 'Success' };
   }
 
   @ApiOperation({ summary: 'Update' })
   @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() payload: UpdateInvoiceDto,
+    @Body() payload: UpdatePurchaseItemDto,
   ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
-    return { data: serviceResponse, message: 'Factura actualizada', title: 'Actualizado' };
+    return { data: serviceResponse, message: 'Item de compra actualizado', title: 'Actualizado' };
   }
 
   @ApiOperation({ summary: 'Remove One' })
   @Delete(':id')
   async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.remove(id);
-    return { data: serviceResponse, message: 'Factura eliminada', title: 'Eliminado' };
+    return { data: serviceResponse, message: 'Item de compra eliminado', title: 'Eliminado' };
   }
 
-  @ApiOperation({ summary: 'Get invoice items' })
-  @Get(':id/items')
-  async getItems(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.service.findItems(id);
-    return { data: serviceResponse, message: 'Items de la factura', title: 'Success' };
+  @ApiOperation({ summary: 'Get items by purchase' })
+  @Get('purchase/:purchaseId')
+  async findByPurchase(@Param('purchaseId', ParseUUIDPipe) purchaseId: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findByPurchaseId(purchaseId);
+    return { data: serviceResponse, message: 'Items de la compra', title: 'Success' };
   }
-
-  // @ApiOperation({ summary: 'Get invoice payments' })
-  // @Get(':id/payments')
-  // async getPayments(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
-  //   const serviceResponse = await this.service.findPayments(id);
-  //   return { data: serviceResponse, message: 'Pagos de la factura', title: 'Success' };
-  // }
 
   @ApiOperation({ summary: 'Catalogue' })
   @Get('catalogue')

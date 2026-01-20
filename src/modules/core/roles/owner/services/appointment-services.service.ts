@@ -1,4 +1,3 @@
-// appointment-services.service.ts
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { AppointmentServiceEntity } from '@modules/core/entities';
@@ -8,7 +7,7 @@ import { CoreRepositoryEnum } from '@utils/enums';
 import { PaginateFilterService, PaginationDto } from '@utils/pagination';
 
 @Injectable()
-export class AppointmentServicesService {
+export class AppointmentServiceService {
   private paginateFilterService: PaginateFilterService<AppointmentServiceEntity>;
 
   constructor(

@@ -1,33 +1,30 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  Param,
-  ParseUUIDPipe,
-  Patch,
   Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
   Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AppointmentServicesService } from '../services/appointment-services.service';
-import {
-  CreateAppointmentServiceDto,
-  UpdateAppointmentServiceDto,
-} from '../dto/appointment-service';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ProductService } from '../services/products.service';
+import { CreateProductDto, UpdateProductDto } from '../dto/product';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { PaginationDto } from '@utils/pagination';
 
-@ApiTags('Appointment Services')
-@Controller('appointment-services')
-export class AppointmentServicesController {
-  constructor(private readonly service: AppointmentServicesService) {}
+@ApiTags('Products')
+@Controller('core/owner/products')
+export class ProductController {
+  constructor(private readonly service: ProductService) {}
 
   @ApiOperation({ summary: 'Create' })
   @Post()
-  async create(@Body() payload: CreateAppointmentServiceDto): Promise<ResponseHttpInterface> {
+  async create(@Body() payload: CreateProductDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.create(payload);
-    return { data: serviceResponse, message: 'Servicio de cita creado', title: 'Creado' };
+    return { data: serviceResponse, message: 'Producto creado', title: 'Creado' };
   }
 
   @ApiOperation({ summary: 'Find All' })
@@ -37,7 +34,7 @@ export class AppointmentServicesController {
     return {
       data: serviceResponse.data,
       pagination: serviceResponse.pagination,
-      message: 'Servicios de citas listados',
+      message: 'Productos listados',
       title: 'Success',
     };
   }
@@ -46,28 +43,24 @@ export class AppointmentServicesController {
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.findOne(id);
-    return {
-      data: serviceResponse,
-      message: `Servicio de cita encontrado ${id}`,
-      title: 'Success',
-    };
+    return { data: serviceResponse, message: `Producto encontrado ${id}`, title: 'Success' };
   }
 
   @ApiOperation({ summary: 'Update' })
   @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() payload: UpdateAppointmentServiceDto,
+    @Body() payload: UpdateProductDto,
   ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.update(id, payload);
-    return { data: serviceResponse, message: 'Servicio de cita actualizado', title: 'Actualizado' };
+    return { data: serviceResponse, message: 'Producto actualizado', title: 'Actualizado' };
   }
 
   @ApiOperation({ summary: 'Remove One' })
   @Delete(':id')
   async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.remove(id);
-    return { data: serviceResponse, message: 'Servicio de cita eliminado', title: 'Eliminado' };
+    return { data: serviceResponse, message: 'Producto eliminado', title: 'Eliminado' };
   }
 
   @ApiOperation({ summary: 'Catalogue' })

@@ -1,4 +1,3 @@
-// inventory-movements.controller.ts
 import {
   Controller,
   Get,
@@ -11,15 +10,15 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { InventoryMovementsService } from '../services/inventory-movements.service';
+import { InventoryMovementService } from '../services/inventory-movements.service';
 import { CreateInventoryMovementDto, UpdateInventoryMovementDto } from '../dto/inventory-movement';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { PaginationDto } from '@utils/pagination';
 
 @ApiTags('Inventory Movements')
-@Controller('inventory-movements')
-export class InventoryMovementsController {
-  constructor(private readonly service: InventoryMovementsService) {}
+@Controller('core/owner/inventory-movements')
+export class InventoryMovementController {
+  constructor(private readonly service: InventoryMovementService) {}
 
   @ApiOperation({ summary: 'Create' })
   @Post()
