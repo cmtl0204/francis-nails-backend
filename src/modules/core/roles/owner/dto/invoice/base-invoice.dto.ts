@@ -1,8 +1,9 @@
-import { IsNotEmpty, IsString, IsDecimal, IsNumber, IsOptional, IsDate } from 'class-validator';
+import { IsNotEmpty, IsString, IsDecimal, IsNumber, IsOptional, IsDate, MaxLength } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
   isStringValidationOptions,
   isNumberValidationOptions,
+  maxLengthValidationOptions,
 } from '@utils/dto-validation';
 import { Type } from 'class-transformer';
 import { BranchEntity, CustomerEntity } from '@modules/core/entities';
@@ -23,6 +24,7 @@ export class InvoiceDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly createdBy: UserEntity;  
 
+  @MaxLength(20, maxLengthValidationOptions())
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly invoiceNumber: string;
@@ -48,7 +50,8 @@ export class InvoiceDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly total: number;
 
+  @MaxLength(20, maxLengthValidationOptions())
   @IsString(isStringValidationOptions())
   @IsOptional()
-  readonly notes?: string;
+  readonly notes: string;
 }

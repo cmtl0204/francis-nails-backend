@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { InvoiceItemEntity } from '@modules/core/entities';
+import { InvoiceEntity, InvoiceItemEntity } from '@modules/core/entities';
 import { CreateInvoiceItemDto, UpdateInvoiceItemDto } from '../dto/invoice-item';
 import { ServiceResponseHttpInterface } from '@utils/interfaces';
 import { CoreRepositoryEnum } from '@utils/enums';
@@ -26,14 +26,14 @@ export class InvoiceItemService {
     return this.paginateFilterService.execute({
       params,
       searchFields: ['description'],
-      relations: ['invoice', 'staff'],
+      relations: ['invoice', 'staff', 'model'],
     });
   }
 
   async findOne(id: string): Promise<InvoiceItemEntity> {
     const entity = await this.repository.findOne({
-      where: { id },
-      relations: ['invoice', 'staff'],
+      where:  { id },
+      relations: ['invoice', 'staff', 'model'],
     });
     if (!entity) throw new NotFoundException(`Item de factura no encontrado (id: ${id})`);
     return entity;
@@ -52,12 +52,12 @@ export class InvoiceItemService {
     return await this.repository.softRemove(entity);
   }
 
-  async findByInvoiceId(invoiceId: string): Promise<InvoiceItemEntity[]> {
+  async findByInvoiceId(invoiceId: string) { 
     return await this.repository.find({
-      where: { invoiceId },
-      relations: ['staff'],
-    });
-  }
+    where: { invoice: { id: invoiceId } },
+    relations: ['invoice', 'staff', 'model'],
+  });
+}
 
   async catalogue(): Promise<ServiceResponseHttpInterface> {
     const response = await this.repository.findAndCount({ 

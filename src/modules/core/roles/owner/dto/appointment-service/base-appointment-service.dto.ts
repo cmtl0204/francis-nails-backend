@@ -13,7 +13,7 @@ export class AppointmentServiceDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly durationMin: number;
 
-  @IsDecimal({},isNumberValidationOptions())
+  @IsNumber({},isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly price: number;
 }

@@ -1,31 +1,33 @@
-import { IsNotEmpty, IsString, IsDecimal, IsOptional, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsNumber, MaxLength } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
   isNumberValidationOptions,
   isStringValidationOptions,
+  maxLengthValidationOptions,
 } from '@utils/dto-validation';
-import { InvoiceEntity } from '@modules/core/entities';
+import { InvoiceEntity, ServiceEntity, StaffProfileEntity } from '@modules/core/entities';
 
 export class InvoiceItemDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly invoice: InvoiceEntity;
+  readonly invoice: InvoiceEntity; 
   
-  @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly staffId: string;
+  readonly staff: StaffProfileEntity; 
 
+  @MaxLength(20, maxLengthValidationOptions())
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly modelType: string;
 
   @IsOptional()
-  readonly modelId?: string;
+  readonly model: ServiceEntity; 
 
+  @MaxLength(20, maxLengthValidationOptions())
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly description: string;
 
-  @IsDecimal({}, isNumberValidationOptions())
+  @IsNumber({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly quantity: number;
 
@@ -41,7 +43,7 @@ export class InvoiceItemDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly tax: number;
 
-  @IsDecimal({}, isNumberValidationOptions())
+  @IsNumber({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly total: number;
 }

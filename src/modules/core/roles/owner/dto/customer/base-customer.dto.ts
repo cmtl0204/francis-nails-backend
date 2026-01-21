@@ -18,7 +18,6 @@ export class BaseCustomerDto {
   @MaxLength(20, maxLengthValidationOptions())
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
-
   readonly taxIdentification: string;
 
   @MaxLength(20, maxLengthValidationOptions())

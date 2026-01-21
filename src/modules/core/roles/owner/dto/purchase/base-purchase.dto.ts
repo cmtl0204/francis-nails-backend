@@ -1,8 +1,9 @@
-import { IsNotEmpty, IsString, IsDecimal, IsDate } from 'class-validator';
+import { IsNotEmpty, IsString, IsDecimal, IsDate, MaxLength } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
   isNumberValidationOptions,
   isStringValidationOptions,
+  maxLengthValidationOptions,
 } from '@utils/dto-validation';
 import { Type } from 'class-transformer';
 import { BranchEntity, SupplierEntity } from '@modules/core/entities';
@@ -14,6 +15,7 @@ export class PurchaseDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly supplier: SupplierEntity;
 
+  @MaxLength(20, maxLengthValidationOptions())
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly documentNumber: string;

@@ -64,8 +64,8 @@ export class InvoiceItemController {
   }
 
   @ApiOperation({ summary: 'Get items by invoice' })
-  @Get('invoice/:invoiceId')
-  async findByInvoice(@Param('invoiceId', ParseUUIDPipe) invoiceId: string): Promise<ResponseHttpInterface> {
+  @Get('invoice/:invoiceId')  
+  async findByInvoice(@Param('invoiceId', ParseUUIDPipe) invoiceId: string): Promise<ResponseHttpInterface> {  
     const serviceResponse = await this.service.findByInvoiceId(invoiceId);
     return { data: serviceResponse, message: 'Items de la factura', title: 'Success' };
   }

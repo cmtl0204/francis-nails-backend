@@ -1,20 +1,23 @@
-import { IsNotEmpty, IsString, IsDecimal, IsDate, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsDecimal, IsDate, IsOptional, IsNumber, MaxLength } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
   isNumberValidationOptions,
   isStringValidationOptions,
+  maxLengthValidationOptions,
 } from '@utils/dto-validation';
 import { Type } from 'class-transformer';
 import { InvoiceEntity } from '@modules/core/entities';
+import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 
 export class PaymentDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly invoice: InvoiceEntity;
-
+  
+  @MaxLength(20, maxLengthValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly methodId: string;
+  readonly method: CatalogueEntity;
 
-  @IsDecimal({}, isNumberValidationOptions())
+  @IsNumber({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly amount: number;
 
@@ -23,7 +26,8 @@ export class PaymentDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly paidAt: Date;
 
+  @MaxLength(20, maxLengthValidationOptions())
   @IsString(isStringValidationOptions())
   @IsOptional()
-  readonly reference?: string;
+  readonly reference: string;
 }

@@ -3,7 +3,7 @@ import { PaymentDto } from './base-payment.dto';
 
 export class CreatePaymentDto extends PickType(PaymentDto, [
   'invoice',
-  'methodId',
+  'method',
   'amount',
   'paidAt',
   'reference',

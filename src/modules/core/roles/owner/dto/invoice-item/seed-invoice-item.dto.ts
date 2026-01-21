@@ -3,9 +3,9 @@ import { InvoiceItemDto } from './base-invoice-item.dto';
 
 export class SeedInvoiceItemDto extends PickType(InvoiceItemDto, [
   'invoice',
-  'staffId',
+  'staff',
   'modelType',
-  'modelId',
+  'model',
   'description',
   'quantity',
   'unitPrice',
