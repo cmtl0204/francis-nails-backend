@@ -15,6 +15,9 @@ export class BaseStaffProfileDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly position: CatalogueEntity;
 
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  readonly specialty: CatalogueEntity;
+
   @IsOptional()
   @MaxLength(255, maxLengthValidationOptions())
   @IsString(isStringValidationOptions())
@@ -24,10 +27,6 @@ export class BaseStaffProfileDto {
   @MaxLength(150, maxLengthValidationOptions())
   @IsString(isStringValidationOptions())
   readonly displayName: string;
-
-  @MaxLength(150, maxLengthValidationOptions())
-  @IsString(isStringValidationOptions())
-  readonly specialty: string;
 
   @MaxLength(55, maxLengthValidationOptions())
   @IsString(isStringValidationOptions())
