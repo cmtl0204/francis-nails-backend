@@ -1,10 +1,11 @@
-import { IsNotEmpty, IsString, IsDecimal, IsOptional} from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, IsOptional} from 'class-validator';
 import {
   isNotEmptyValidationOptions,
   isNumberValidationOptions,
   isStringValidationOptions,
 } from '@utils/dto-validation';
 import { BranchEntity, ProductEntity } from '@modules/core/entities';
+import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 
 export class InventoryMovementDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
@@ -13,9 +14,8 @@ export class InventoryMovementDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly product: ProductEntity;
 
-  @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly locationId: string;
+  readonly location: CatalogueEntity;
 
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
@@ -32,7 +32,7 @@ export class InventoryMovementDto {
   @IsOptional()
   readonly reason?: string;
 
-  @IsDecimal({},isNumberValidationOptions())
+  @IsNumber({},isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly quantity: number;
 }

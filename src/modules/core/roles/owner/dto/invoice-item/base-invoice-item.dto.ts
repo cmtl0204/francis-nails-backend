@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsDecimal, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsDecimal, IsOptional, IsNumber } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
   isNumberValidationOptions,
@@ -29,15 +29,15 @@ export class InvoiceItemDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly quantity: number;
 
-  @IsDecimal({}, isNumberValidationOptions())
+  @IsNumber({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly unitPrice: number;
 
-  @IsDecimal({}, isNumberValidationOptions())
+  @IsNumber({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly discount: number;
 
-  @IsDecimal({}, isNumberValidationOptions())
+  @IsNumber({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly tax: number;
 

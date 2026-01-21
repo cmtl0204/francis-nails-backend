@@ -4,7 +4,7 @@ import { InventoryMovementDto } from './base-inventory-movement.dto';
 export class UpdateInventoryMovementDto extends PickType(InventoryMovementDto, [
   'branch',
   'product',
-  'locationId',
+  'location',
   'modelType',
   'modelId',
   'type',

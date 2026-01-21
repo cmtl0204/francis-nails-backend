@@ -3,6 +3,6 @@ import { StockBalanceDto } from './base-stock-balance.dto';
 
 export class UpdateStockBalanceDto extends PickType(StockBalanceDto, [
   'product',
-  'locationId',
+  'location',
   'quantity',
 ]) {}

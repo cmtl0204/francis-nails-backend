@@ -15,11 +15,11 @@ export class SupplierDto {
 
   @IsString(isStringValidationOptions())
   @IsOptional()
-  readonly phone?: string;
+  readonly phone: string;
 
   @IsString(isStringValidationOptions())
   @IsOptional()
-  readonly email?: string;
+  readonly email: string;
 
   @IsString(isStringValidationOptions())
   @IsOptional()
@@ -27,5 +27,5 @@ export class SupplierDto {
 
   @IsString(isStringValidationOptions())
   @IsOptional()
-  readonly address?: string;
+  readonly address: string;
 }

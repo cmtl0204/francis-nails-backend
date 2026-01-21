@@ -6,6 +6,8 @@ import {
 } from '@utils/dto-validation';
 import { Type } from 'class-transformer';
 import { BranchEntity, CustomerEntity } from '@modules/core/entities';
+import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
+import { UserEntity } from '@auth/entities';
 
 
 export class InvoiceDto {
@@ -15,13 +17,11 @@ export class InvoiceDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly customer: CustomerEntity;
 
-  @IsNumber({},isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly statusId: number;
+  readonly status: CatalogueEntity;
   
-  @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly createdById: string;  
+  readonly createdBy: UserEntity;  
 
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
@@ -32,19 +32,19 @@ export class InvoiceDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly issuedAt: Date;
 
-  @IsDecimal({}, isNumberValidationOptions())
+  @IsNumber({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly subtotal: number;
 
-  @IsDecimal({}, isNumberValidationOptions())
+  @IsNumber({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly discount: number;
 
-  @IsDecimal({}, isNumberValidationOptions())
+  @IsNumber({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly tax: number;
 
-  @IsDecimal({}, isNumberValidationOptions())
+  @IsNumber({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly total: number;
 

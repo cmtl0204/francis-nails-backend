@@ -1,18 +1,20 @@
-import { IsNotEmpty, IsString, IsBoolean, IsDecimal, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsBoolean, IsDecimal, IsOptional,IsNumber } from 'class-validator';
+
 import {
   isNotEmptyValidationOptions,
   isStringValidationOptions,
   isBooleanValidationOptions,
   isNumberValidationOptions,
 } from '@utils/dto-validation';
-import { ProductEntity } from '@modules/core/entities';
+import { BranchEntity, ProductEntity } from '@modules/core/entities';
+import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 
 export class ProductDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly branch: ProductEntity;
+  readonly branch: BranchEntity;
 
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly categoryId: string;
+  readonly category: CatalogueEntity;
 
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
@@ -30,11 +32,11 @@ export class ProductDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly unit: string;
 
-  @IsDecimal({}, isNumberValidationOptions())
+  @IsNumber({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly costPrice: number;
 
-  @IsDecimal({}, isNumberValidationOptions())
+  @IsNumber({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly salePrice: number;
 

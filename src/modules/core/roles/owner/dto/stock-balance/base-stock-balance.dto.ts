@@ -4,13 +4,14 @@ import {
   isNumberValidationOptions,
 } from '@utils/dto-validation';
 import { ProductEntity } from '@modules/core/entities';
+import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 
 export class StockBalanceDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly product: ProductEntity;
 
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly locationId: string;
+  readonly location: CatalogueEntity;
 
   @IsDecimal({},isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())

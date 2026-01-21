@@ -3,7 +3,7 @@ import { ProductDto } from './base-product.dto';
 
 export class CreateProductDto extends PickType(ProductDto, [
   'branch',
-  'categoryId',
+  'category',
   'sku',
   'name',
   'description',

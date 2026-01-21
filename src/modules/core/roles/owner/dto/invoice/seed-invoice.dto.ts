@@ -4,8 +4,8 @@ import { InvoiceDto } from './base-invoice.dto';
 export class SeedInvoiceDto extends PickType(InvoiceDto, [
   'branch',
   'customer',
-  'statusId',
-  'createdById',
+  'status',
+  'createdBy',
   'invoiceNumber',
   'issuedAt',
   'subtotal',

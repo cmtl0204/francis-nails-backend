@@ -109,7 +109,7 @@ export class InventoryMovementEntity {
 
   @Column({
     name: 'model_id',
-    type: 'uuid',
+    type: 'varchar',
     nullable: true,
     comment: 'ID del modelo relacionado',
   })

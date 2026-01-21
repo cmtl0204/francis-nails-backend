@@ -30,14 +30,14 @@ export class InvoiceService {
     return this.paginateFilterService.execute({
       params,
       searchFields: ['invoiceNumber', 'notes'],
-      relations: ['branch', 'customer', 'status', 'createdBy', 'items', 'payments'],
+      relations: ['branch', 'customer', 'status', 'createdBy', 'invoiceItems', 'payment'],
     });
   }
 
   async findOne(id: string): Promise<InvoiceEntity> {
     const entity = await this.repository.findOne({
       where: { id },
-      relations: ['branch', 'customer', 'status', 'createdBy', 'items', 'payments'],
+      relations: ['branch', 'customer', 'status', 'createdBy', 'invoiceItems', 'payment'],
     });
     if (!entity) throw new NotFoundException(`Factura no encontrada (id: ${id})`);
     return entity;

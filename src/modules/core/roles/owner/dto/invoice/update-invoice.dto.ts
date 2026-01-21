@@ -4,8 +4,8 @@ import { InvoiceDto } from './base-invoice.dto';
 export class UpdateInvoiceDto extends PickType(InvoiceDto, [
   'branch',
   'customer',
-  'statusId',
-  'createdById',
+  'status',
+  'createdBy',
   'invoiceNumber',
   'issuedAt',
   'subtotal',
