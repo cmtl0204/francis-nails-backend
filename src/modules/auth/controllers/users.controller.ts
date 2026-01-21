@@ -42,45 +42,6 @@ export class UsersController {
     };
   }
 
-  @ApiOperation({ summary: 'Example' })
-  @Post('examples')
-  async exampleBody(
-    @Body() payload: any,
-    @Query('otro') otro: string,
-  ): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.service.create(payload);
-
-    return {
-      data: serviceResponse,
-      message: 'Usuario creado',
-      title: 'Creado',
-    };
-  }
-
-  @ApiOperation({ summary: 'Example' })
-  @Get(':id/examples')
-  async exampleParam(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.service.findOne(id);
-
-    return {
-      data: serviceResponse,
-      message: 'Usuario creado',
-      title: 'Creado',
-    };
-  }
-
-  @ApiOperation({ summary: 'Example' })
-  @Get('examples')
-  async exampleQuery(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.service.findOne(params.search);
-
-    return {
-      data: serviceResponse,
-      message: 'Usuario creado',
-      title: 'Creado',
-    };
-  }
-
   @ApiOperation({ summary: 'Catalogue' })
   @Get('catalogue')
   async catalogue(): Promise<ResponseHttpInterface> {

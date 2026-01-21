@@ -38,11 +38,9 @@ export class UsersSeeder {
   }
 
   async createUsers() {
-    const users: any[] = [];
-
     const roles = this.roles;
 
-    users.push({
+    const users = this.userRepository.create({
       birthdate: faker.date.birthdate(),
       cellPhone: '0987654321',
       identification: '1234567890001',
