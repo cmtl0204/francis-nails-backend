@@ -90,6 +90,17 @@ export class StaffProfileEntity {
   })
   positionId: string;
 
+  @ManyToOne(() => CatalogueEntity)
+  @JoinColumn({ name: 'specialty_id' })
+  specialty: CatalogueEntity;
+
+  @Column({
+    type: 'uuid',
+    name: 'specialty_id',
+    comment: 'Referencia al catálogo de posiciones'
+  })
+  specialtyId: string;
+
   /** Columns **/
   @Column({
     name: 'photo_url',
@@ -106,12 +117,6 @@ export class StaffProfileEntity {
   })
   displayName: string;
 
-  @Column({
-    name: 'specialty',
-    type: 'varchar',
-    comment: 'Especialidad: uñas, cejas, pestañas, etc.',
-  })
-  specialty: string;
 
   @Column({
     name: 'color_tag',
