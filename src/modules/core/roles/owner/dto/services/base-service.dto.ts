@@ -25,20 +25,20 @@ export class BaseServiceDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly category: CatalogueEntity;
 
-  @IsNotEmpty(isNotEmptyValidationOptions())
-  @IsString(isStringValidationOptions())
   @MaxLength(150, maxLengthValidationOptions())
+  @IsString(isStringValidationOptions())
+  @IsNotEmpty(isNotEmptyValidationOptions())
   readonly name: string;
 
   @IsOptional()
   @IsString(isStringValidationOptions())
   readonly description: string;
 
-  @IsNotEmpty(isNotEmptyValidationOptions())
   @IsPositive(isPositiveValidationOptions())
+  @IsNotEmpty(isNotEmptyValidationOptions())
   readonly durationMin: number;
 
-  @IsNotEmpty(isNotEmptyValidationOptions())
   @IsNumber({ maxDecimalPlaces: 2 }, isNumberValidationOptions())
+  @IsNotEmpty(isNotEmptyValidationOptions())
   readonly basePrice: number;
 }

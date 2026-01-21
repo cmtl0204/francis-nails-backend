@@ -15,12 +15,13 @@ export class BaseCustomerDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly user: UserEntity;
 
-  @IsNotEmpty(isNotEmptyValidationOptions())
-  @IsString(isStringValidationOptions())
   @MaxLength(20, maxLengthValidationOptions())
+  @IsString(isStringValidationOptions())
+  @IsNotEmpty(isNotEmptyValidationOptions())
+
   readonly taxIdentification: string;
 
-  @MaxLength(150, maxLengthValidationOptions())
+  @MaxLength(20, maxLengthValidationOptions())
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly taxName: string;

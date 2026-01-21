@@ -16,24 +16,25 @@ export class BaseStaffProfileDto {
   readonly position: CatalogueEntity;
 
   @IsOptional()
-  @IsString(isStringValidationOptions())
   @MaxLength(255, maxLengthValidationOptions())
+  @IsString(isStringValidationOptions())
+
   readonly photoUrl: string;
 
-  @IsString(isStringValidationOptions())
   @MaxLength(150, maxLengthValidationOptions())
+  @IsString(isStringValidationOptions())
   readonly displayName: string;
 
-  @IsString(isStringValidationOptions())
   @MaxLength(150, maxLengthValidationOptions())
+  @IsString(isStringValidationOptions())
   readonly specialty: string;
 
+  @MaxLength(55, maxLengthValidationOptions())
   @IsString(isStringValidationOptions())
-  @MaxLength(50, maxLengthValidationOptions())
   readonly colorTag: string;
 
-  @IsString(isStringValidationOptions())
   @MaxLength(50, maxLengthValidationOptions())
+  @IsString(isStringValidationOptions())
   readonly commissionType: string;
 
   @IsOptional()
