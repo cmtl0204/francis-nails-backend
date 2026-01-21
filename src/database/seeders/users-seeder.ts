@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { faker } from '@faker-js/faker';
-import { CatalogueTypeEnum } from '@utils/enums';
-import { RoleEntity } from '@auth/entities';
+import { AuthRepositoryEnum, CatalogueTypeEnum } from '@utils/enums';
+import { RoleEntity, UserEntity } from '@auth/entities';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 import { CataloguesService } from '@modules/common/catalogue/catalogue.service';
-import { UsersService } from '@auth/services/users.service';
 import { RolesService } from '@auth/services/roles.service';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersSeeder {
@@ -14,7 +14,8 @@ export class UsersSeeder {
 
   constructor(
     private rolesService: RolesService,
-    private usersService: UsersService,
+    @Inject(AuthRepositoryEnum.USER_REPOSITORY)
+    private userRepository: Repository<UserEntity>,
     private cataloguesService: CataloguesService,
   ) {}
 
@@ -52,11 +53,9 @@ export class UsersSeeder {
       passwordChanged: false,
       personalEmail: faker.internet.email(),
       roles: roles,
-      username: 'admin@admin.com',
+      username: '1234567890001',
     });
 
-    for (const user of users) {
-      await this.usersService.create(user);
-    }
+    await this.userRepository.save(users);
   }
 }

@@ -31,6 +31,7 @@ import ms from 'ms';
 import { SignInInterface } from '@auth/interfaces/sign-in.interface';
 import { ErrorCodeEnum, MessageAuthEnum, RoleEnum } from '@auth/enums';
 import { SECURITY_CODE_EXPIRES_IN } from '@auth/constants';
+import { SecurityQuestionEntity } from '@auth/entities/security-question.entity';
 
 @Injectable()
 export class AuthService {
@@ -43,6 +44,8 @@ export class AuthService {
     private roleRepository: Repository<RoleEntity>,
     @Inject(AuthRepositoryEnum.TRANSACTIONAL_CODE_REPOSITORY)
     private transactionalCodeRepository: Repository<TransactionalCodeEntity>,
+    @Inject(AuthRepositoryEnum.SECURITY_QUESTION_REPOSITORY)
+    private securityQuestionRepository: Repository<SecurityQuestionEntity>,
     @Inject(envConfig.KEY) private configService: ConfigType<typeof envConfig>,
     private readonly userService: UsersService,
     private jwtService: JwtService,
@@ -164,14 +167,22 @@ export class AuthService {
   async signUpExternal(payload: SignUpExternalDto): Promise<UserEntity> {
     const role = await this.roleRepository.findOneBy({ code: RoleEnum.CUSTOMER });
 
+    const securityQuestions = payload.securityQuestions.map((q) =>
+      this.securityQuestionRepository.create({
+        code: q.code,
+        question: q.question,
+        answer: q.answer,
+      }),
+    );
+
     const entity = this.repository.create({
       ...payload,
       passwordChanged: true,
       emailVerifiedAt: new Date(),
       termsAcceptedAt: new Date(),
+      roles: [role!],
+      securityQuestions,
     });
-
-    entity.roles = [role!];
 
     return await this.repository.save(entity);
   }
@@ -294,7 +305,7 @@ export class AuthService {
       to: email,
       subject: MailSubjectEnum.ACCOUNT_REGISTER,
       template: MailTemplateEnum.TRANSACTIONAL_SIGNUP_CODE,
-      data: { token },
+      data: { token, expiresIn: SECURITY_CODE_EXPIRES_IN },
     };
 
     await this.mailService.sendMail(mailData);
@@ -307,7 +318,7 @@ export class AuthService {
 
     await this.transactionalCodeRepository.save(entity);
 
-    return email;
+    return entity.username;
   }
 
   async verifyTransactionalCode(

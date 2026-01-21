@@ -2,6 +2,8 @@ import Joi from 'joi';
 
 export const JoiValidationSchema = Joi.object({
   APP_URL: Joi.string().required(),
+  APP_NAME: Joi.string().required(),
+  APP_SHORT_NAME: Joi.string().required(),
   API_KEY: Joi.string().required(),
   ENV: Joi.string().required(),
   JWT_SECRET: Joi.string().required(),

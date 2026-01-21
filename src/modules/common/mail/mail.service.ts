@@ -106,7 +106,11 @@ export class MailService implements OnModuleInit {
       subject: mailData.subject,
       template: mailData.template,
       context: {
-        system: this.configService.mail.fromName,
+        system: {
+          name: this.configService.appName,
+          shortName: this.configService.appShortName,
+          url: this.configService.appUrl,
+        },
         year: format(new Date(), 'yyyy'),
         data: mailData.data,
       },

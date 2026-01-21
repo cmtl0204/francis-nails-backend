@@ -25,7 +25,10 @@ export class UsersService {
 
     if (entityExist) throw new BadRequestException('El registro ya existe');
 
-    const entity = this.repository.create(payload);
+    const entity = this.repository.create({
+      ...payload,
+      passwordChanged: !payload.passwordChanged,
+    });
 
     return await this.repository.save(entity);
   }
@@ -39,7 +42,7 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<UserEntity> {
-      const entity = await this.repository.findOne({
+    const entity = await this.repository.findOne({
       where: { id },
       relations: {
         roles: true,
@@ -64,7 +67,7 @@ export class UsersService {
       throw new NotFoundException('Registro no encontrado');
     }
 
-    this.repository.merge(entity, payload);
+    this.repository.merge(entity, { ...payload, passwordChanged: !payload.passwordChanged });
 
     return await this.repository.save(entity);
   }

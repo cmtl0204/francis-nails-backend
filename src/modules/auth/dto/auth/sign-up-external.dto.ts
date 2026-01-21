@@ -1,5 +1,11 @@
-import { IsNotEmpty, IsString } from 'class-validator';
-import { isNotEmptyValidationOptions, isStringValidationOptions } from '@utils/dto-validation';
+import { IsArray, IsBoolean, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import {
+  isBooleanValidationOptions,
+  isNotEmptyValidationOptions,
+  isStringValidationOptions,
+} from '@utils/dto-validation';
+import { SecurityQuestionDto } from '@auth/dto/auth/security-question.dto';
+import { Type } from 'class-transformer';
 
 export class SignUpExternalDto {
   @IsString(isStringValidationOptions())
@@ -21,4 +27,14 @@ export class SignUpExternalDto {
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   password: string;
+
+  @IsBoolean(isBooleanValidationOptions())
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  termsAcceptedAt: boolean;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SecurityQuestionDto)
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  securityQuestions: SecurityQuestionDto[];
 }

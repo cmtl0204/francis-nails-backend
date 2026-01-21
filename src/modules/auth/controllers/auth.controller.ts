@@ -144,7 +144,7 @@ export class AuthController {
 
     return {
       data: serviceResponse,
-      message: `Su código fue enviado a ${JSON.stringify(serviceResponse)}`,
+      message: `Su código fue enviado a "${serviceResponse}"`,
       title: 'Código Enviado',
     };
   }
@@ -158,7 +158,7 @@ export class AuthController {
 
     return {
       data: serviceResponse,
-      message: `Su código fue enviado a ${JSON.stringify(serviceResponse)}`,
+      message: `Su código fue enviado a "${serviceResponse}"`,
       title: 'Código Enviado',
     };
   }

@@ -24,6 +24,7 @@ export class CataloguesSeeder {
 
   private async createBloodTypeCatalogues(): Promise<void> {
     const catalogues: CreateCatalogueDto[] = [];
+
     catalogues.push(
       {
         code: 'a+',

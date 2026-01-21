@@ -8,12 +8,14 @@ import {
   JoinColumn,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import * as Bcrypt from 'bcrypt';
 import { RoleEntity } from '@auth/entities';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
+import { SecurityQuestionEntity } from '@auth/entities/security-question.entity';
 
 @Entity('users', { schema: 'auth' })
 export class UserEntity {
@@ -44,6 +46,11 @@ export class UserEntity {
   /** Inverse Relationship **/
   @ManyToMany(() => RoleEntity, (role) => role.users)
   roles: RoleEntity[];
+
+  @OneToMany(() => SecurityQuestionEntity, (securityQuestion) => securityQuestion.user, {
+    cascade: true,
+  })
+  securityQuestions: SecurityQuestionEntity[];
 
   /** Foreign Keys **/
   @ManyToOne(() => CatalogueEntity, { nullable: true })
@@ -259,7 +266,7 @@ export class UserEntity {
   username: string;
 
   @Column({
-    name: ' terms_accepted_at',
+    name: 'terms_accepted_at',
     type: 'timestamp',
     nullable: true,
     comment: 'Fecha de la ultima aceptacion de terminos y condiciones',
@@ -278,7 +285,7 @@ export class UserEntity {
   @BeforeInsert()
   @BeforeUpdate()
   hashPassword() {
-    if (!this.password || this.password?.length > 30) {
+    if (!this.password) {
       return;
     }
 

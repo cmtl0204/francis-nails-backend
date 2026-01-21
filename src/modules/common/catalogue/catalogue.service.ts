@@ -23,7 +23,7 @@ export class CataloguesService {
 
   async create(payload: CreateCatalogueDto): Promise<CatalogueEntity> {
     const entityExist = await this.repository.findOne({
-      where: [{ code: payload.code }],
+      where: [{ code: payload.code, type: payload.type }],
     });
 
     if (entityExist) throw new BadRequestException('El registro ya existe');

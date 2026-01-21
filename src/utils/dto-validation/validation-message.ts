@@ -1,5 +1,14 @@
+import 'reflect-metadata';
+
 import { ValidationOptions } from 'class-validator/types/decorator/ValidationOptions';
 
+export const FIELD_LABEL_KEY = 'custom:field_label';
+
+export function FieldLabel(label: string) {
+  return function (target: any, propertyKey: string) {
+    Reflect.defineMetadata(FIELD_LABEL_KEY, label, target, propertyKey);
+  };
+}
 export function isStringValidationOptions(validationOptions?: ValidationOptions) {
   return {
     message: 'La propiedad $property debe ser una cadena',

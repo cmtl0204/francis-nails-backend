@@ -44,6 +44,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       }
 
       if (exception instanceof UnprocessableEntityException) {
+        errorResponseHttpModel.error = ErrorCodeEnum.UNPROCESSABLE_ENTITY;
         errorResponseHttpModel.message = message;
       }
 

@@ -1,52 +1,25 @@
-<!doctype html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <!--    <link href="http://localhost:3000/css/bootstrap.min.css" rel="stylesheet">-->
-    <title>Document</title>
-    <style>
-        .header {
-            background-repeat: no-repeat;
-        }
+<p>Hola,</p>
 
-        .footer {
-            background-repeat: no-repeat;
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <div class="row">
-        <div class="col-12">
-            <p>Estimado/a.</p>
+<p>
+  Hemos recibido una solicitud para verificar tu identidad.
+</p>
 
-            <p>Reciba un cordial saludo.</p>
+<p class="code-message">
+  Selecciona y copia este código para continuar
+</p>
 
-            <br>
-
-            <p>Notificamos que el código para crear su registro es:</p>
-
-            <h1>{{data.token}}</h1>
-
-            <br>
-
-            <p>
-                <b>Saludos Cordiales,</b>
-            </p>
-
-            <br>
-
-            <p>
-                <b>{{system}}</b>
-            </p>
-        </div>
-    </div>
-    <div>
-        <img class="footer" src="cid:footer" alt="" width="200px">
-    </div>
+<div class="code-container">
+  <div class="code">{{data.token}}</div>
+  <div class="expires">
+    Este código expirará en <strong>{{data.expiresIn}}</strong> minutos.
+  </div>
 </div>
-</body>
-</html>
+
+<p>
+  Si no solicitaste este código, alguien está queriendo crear una cuenta con tu correo electrónico.
+</p>
+
+<p>
+  Saludos,<br />
+  <strong>Equipo {{system.shortName}}</strong>
+</p>
