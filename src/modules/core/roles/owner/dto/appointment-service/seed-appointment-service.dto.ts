@@ -3,7 +3,7 @@ import { AppointmentServiceDto } from './base-appointment-service.dto';
 
 export class SeedAppointmentServiceDto extends PickType(AppointmentServiceDto, [
   'appointment',
-  'serviceId',
+  'service',
   'durationMin',
   'price',
 ]) {}
