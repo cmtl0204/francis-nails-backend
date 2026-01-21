@@ -12,7 +12,7 @@ export class ProductDto {
   readonly branch: ProductEntity;
 
   @IsNotEmpty(isNotEmptyValidationOptions())
-  readonly category: string;
+  readonly categoryId: string;
 
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())

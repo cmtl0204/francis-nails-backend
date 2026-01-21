@@ -14,9 +14,9 @@ export class InvoiceService {
     @Inject(CoreRepositoryEnum.INVOICE_REPOSITORY)
     private repository: Repository<InvoiceEntity>,
     @Inject(CoreRepositoryEnum.INVOICE_ITEM_REPOSITORY)
-    private readonly invoiceItemsRepository: Repository<any>, // Ajusta el tipo según tu entidad
+    private readonly invoiceItemsRepository: Repository<any>, 
     @Inject(CoreRepositoryEnum.PAYMENT_REPOSITORY)
-    private readonly paymentsRepository: Repository<any>, // Ajusta el tipo según tu entidad
+    private readonly paymentsRepository: Repository<any>, 
   ) {
     this.paginateFilterService = new PaginateFilterService(this.repository);
   }
@@ -58,19 +58,17 @@ export class InvoiceService {
   }
 
   async findItems(invoiceId: string): Promise<any[]> {
-    // Buscar items de la factura según tu tabla invoice_items
     return await this.invoiceItemsRepository.find({
       where: { invoiceId },
-      relations: ['staff', 'model'], // Ajusta las relaciones según tu entidad
+      relations: ['staff', 'model'], 
       order: { createdAt: 'ASC' },
     });
   }
 
    async findPayments(invoiceId: string): Promise<any[]> {
-  // Buscar pagos de la factura según tu tabla payments
      return await this.paymentsRepository.find({
       where: { invoiceId },
-      relations: ['method'], // Ajusta las relaciones según tu entidad
+      relations: ['method'], 
       order: { paidAt: 'ASC' },
     });
   }

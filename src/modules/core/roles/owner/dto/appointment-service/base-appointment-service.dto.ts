@@ -9,11 +9,11 @@ export class AppointmentServiceDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly service: ServiceEntity;
 
-  @IsNotEmpty(isNotEmptyValidationOptions())
   @IsNumber({}, isNumberValidationOptions())
+  @IsNotEmpty(isNotEmptyValidationOptions())
   readonly durationMin: number;
 
-  @IsNotEmpty(isNotEmptyValidationOptions())
   @IsDecimal({},isNumberValidationOptions())
+  @IsNotEmpty(isNotEmptyValidationOptions())
   readonly price: number;
 }

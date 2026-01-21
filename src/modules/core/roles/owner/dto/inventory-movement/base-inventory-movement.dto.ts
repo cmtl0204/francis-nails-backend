@@ -22,7 +22,7 @@ export class InventoryMovementDto {
   readonly modelType: string;
 
   @IsOptional()
-  readonly modelId?: string;
+  readonly modelId: string;
 
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
