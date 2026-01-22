@@ -14,6 +14,7 @@ import { StaffProfileController } from './staff-profiles.controller';
 import { StaffTimeOffController } from './staff-time-off.controller';
 import { StaffWorkingHourController } from './staff-working-hours.controller';
 import { AppointmentController } from './appointments.controller';
+import { PaymentsController } from './payments.controller';
 
 export const controllers = [
   BranchController,
@@ -32,4 +33,5 @@ export const controllers = [
   StaffTimeOffController,
   AppointmentController,
   ServiceController,
+  PaymentsController
 ];

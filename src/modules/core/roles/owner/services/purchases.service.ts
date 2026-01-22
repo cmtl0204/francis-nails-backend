@@ -28,14 +28,14 @@ export class PurchaseService {
     return this.paginateFilterService.execute({
       params,
       searchFields: ['documentNumber'],
-      relations: ['branch', 'supplier', 'items'],
+      relations: ['branch', 'supplier'],
     });
   }
 
   async findOne(id: string): Promise<PurchaseEntity> {
     const entity = await this.repository.findOne({
       where: { id },
-      relations: ['branch', 'supplier', 'items'],
+      relations: ['branch', 'supplier'],
     });
     if (!entity) throw new NotFoundException(`Compra no encontrada (id: ${id})`);
     return entity;

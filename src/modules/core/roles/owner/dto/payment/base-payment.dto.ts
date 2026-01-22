@@ -12,8 +12,7 @@ import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 export class PaymentDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly invoice: InvoiceEntity;
-  
-  @MaxLength(20, maxLengthValidationOptions())
+
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly method: CatalogueEntity;
 

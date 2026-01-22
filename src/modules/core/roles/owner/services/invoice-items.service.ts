@@ -26,14 +26,14 @@ export class InvoiceItemService {
     return this.paginateFilterService.execute({
       params,
       searchFields: ['description'],
-      relations: ['invoice', 'staff', 'model'],
+      relations: ['invoice', 'staff'],
     });
   }
 
   async findOne(id: string): Promise<InvoiceItemEntity> {
     const entity = await this.repository.findOne({
       where:  { id },
-      relations: ['invoice', 'staff', 'model'],
+      relations: ['invoice', 'staff'],
     });
     if (!entity) throw new NotFoundException(`Item de factura no encontrado (id: ${id})`);
     return entity;
@@ -55,7 +55,7 @@ export class InvoiceItemService {
   async findByInvoiceId(invoiceId: string) { 
     return await this.repository.find({
     where: { invoice: { id: invoiceId } },
-    relations: ['invoice', 'staff', 'model'],
+    relations: ['invoice', 'staff'],
   });
 }
 

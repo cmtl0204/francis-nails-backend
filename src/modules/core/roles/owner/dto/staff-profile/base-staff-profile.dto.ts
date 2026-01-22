@@ -1,4 +1,4 @@
-import { IsString, IsOptional, MaxLength, IsUUID, IsDecimal, IsNotEmpty } from 'class-validator';
+import { IsString, IsOptional, MaxLength, IsUUID, IsDecimal, IsNotEmpty, IsNumber } from 'class-validator';
 import {
   isStringValidationOptions,
   maxLengthValidationOptions,
@@ -37,6 +37,6 @@ export class BaseStaffProfileDto {
   readonly commissionType: string;
 
   @IsOptional()
-  @IsDecimal({ decimal_digits: '0,2' }, isNumberValidationOptions())
+  @IsNumber({}, isNumberValidationOptions())
   readonly commissionValue: number;
 }

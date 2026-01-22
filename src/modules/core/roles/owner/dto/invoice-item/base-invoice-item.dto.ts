@@ -13,14 +13,14 @@ export class InvoiceItemDto {
   
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly staff: StaffProfileEntity; 
+  
+  @IsNotEmpty(isNotEmptyValidationOptions())
+  readonly model: ServiceEntity;
 
   @MaxLength(20, maxLengthValidationOptions())
   @IsString(isStringValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly modelType: string;
-
-  @IsOptional()
-  readonly model: ServiceEntity; 
 
   @MaxLength(20, maxLengthValidationOptions())
   @IsString(isStringValidationOptions())

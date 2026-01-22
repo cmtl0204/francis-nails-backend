@@ -36,7 +36,7 @@ export class CataloguesService {
   }
 
   async findAll(params?: FilterCatalogueDto): Promise<ServiceResponseHttpInterface> {
-    //All
+    
     const data = await this.repository.findAndCount();
 
     return { data: data[0], pagination: { totalItems: data[1], limit: 10 } };

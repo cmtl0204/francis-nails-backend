@@ -4,8 +4,8 @@ import { InvoiceItemDto } from './base-invoice-item.dto';
 export class UpdateInvoiceItemDto extends PickType(InvoiceItemDto, [
   'invoice',
   'staff',
-  'modelType',
   'model',
+  'modelType',
   'description',
   'quantity',
   'unitPrice',

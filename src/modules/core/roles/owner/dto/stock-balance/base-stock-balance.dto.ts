@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsDecimal } from 'class-validator';
+import { IsNotEmpty, IsDecimal, IsNumber } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
   isNumberValidationOptions,
@@ -13,7 +13,7 @@ export class StockBalanceDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly location: CatalogueEntity;
 
-  @IsDecimal({},isNumberValidationOptions())
+  @IsNumber({},isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly quantity: number;
 }

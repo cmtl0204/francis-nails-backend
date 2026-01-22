@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsDecimal, IsDate, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, IsDate, MaxLength, } from 'class-validator';
 import {
   isNotEmptyValidationOptions,
   isNumberValidationOptions,
@@ -25,15 +25,15 @@ export class PurchaseDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly purchasedAt: Date;
 
-  @IsDecimal({}, isNumberValidationOptions())
+  @IsNumber({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly subtotal: number;
 
-  @IsDecimal({}, isNumberValidationOptions())
+  @IsNumber({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly tax: number;
 
-  @IsDecimal({}, isNumberValidationOptions())
+  @IsNumber({}, isNumberValidationOptions())
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly total: number;
 }
