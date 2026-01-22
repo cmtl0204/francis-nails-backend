@@ -6,13 +6,13 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { DataSource, Not, Repository } from 'typeorm';
 import * as Bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { Not, Repository } from 'typeorm';
 import { add, isBefore } from 'date-fns';
 import { RoleEntity, TransactionalCodeEntity, UserEntity } from '@auth/entities';
 import { PayloadTokenInterface, TokenInterface } from 'src/modules/auth/interfaces';
-import { AuthRepositoryEnum, MailSubjectEnum, MailTemplateEnum } from '@utils/enums';
+import { AuthRepositoryEnum, ConfigEnum, MailSubjectEnum, MailTemplateEnum } from '@utils/enums';
 import {
   PasswordChangeDto,
   SignInDto,
@@ -32,6 +32,7 @@ import { SignInInterface } from '@auth/interfaces/sign-in.interface';
 import { ErrorCodeEnum, MessageAuthEnum, RoleEnum } from '@auth/enums';
 import { SECURITY_CODE_EXPIRES_IN } from '@auth/constants';
 import { SecurityQuestionEntity } from '@auth/entities/security-question.entity';
+import { CreateSecurityQuestionDto } from '@auth/dto/security-questions/create-security-question.dto';
 
 @Injectable()
 export class AuthService {
@@ -48,6 +49,8 @@ export class AuthService {
     private securityQuestionRepository: Repository<SecurityQuestionEntity>,
     @Inject(envConfig.KEY) private configService: ConfigType<typeof envConfig>,
     private readonly userService: UsersService,
+    @Inject(ConfigEnum.PG_DATA_SOURCE)
+    private readonly dataSource: DataSource,
     private jwtService: JwtService,
     private readonly mailService: MailService,
     private readonly httpService: HttpService,
@@ -103,6 +106,7 @@ export class AuthService {
         password: true,
         suspendedAt: true,
         username: true,
+        securityQuestionAcceptedAt: true,
       },
       where: {
         username: payload.username,
@@ -180,6 +184,7 @@ export class AuthService {
       passwordChanged: true,
       emailVerifiedAt: new Date(),
       termsAcceptedAt: new Date(),
+      securityQuestionAcceptedAt: new Date(),
       roles: [role!],
       securityQuestions,
     });
@@ -429,6 +434,28 @@ export class AuthService {
     });
 
     return true;
+  }
+
+  async createSecurityQuestions(
+    userId: string,
+    payload: CreateSecurityQuestionDto,
+  ): Promise<SecurityQuestionEntity[]> {
+    return await this.dataSource.transaction(async (manager) => {
+      const questionsToDelete = await manager.find(SecurityQuestionEntity, {
+        where: { userId },
+      });
+
+      if (questionsToDelete.length > 0) await manager.softRemove(questionsToDelete);
+
+      const newQuestions = payload.securityQuestions.map((question) =>
+        manager.create(SecurityQuestionEntity, {
+          ...question,
+          userId: userId,
+        }),
+      );
+
+      return await manager.save(newQuestions);
+    });
   }
 
   private generateJwt(user: UserEntity) {

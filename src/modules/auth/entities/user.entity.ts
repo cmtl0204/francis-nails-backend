@@ -274,6 +274,14 @@ export class UserEntity {
   termsAcceptedAt: Date | null;
 
   @Column({
+    name: 'security_question_accepted_at',
+    type: 'timestamp',
+    nullable: true,
+    comment: 'Fecha de la ultima aceptacion de terminos y condiciones',
+  })
+  securityQuestionAcceptedAt: Date | null;
+
+  @Column({
     name: 'id_temp',
     type: 'bigint',
     nullable: true,

@@ -22,6 +22,7 @@ import {
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { AuthService } from '@auth/services/auth.service';
 import { AuthGuard } from '@nestjs/passport';
+import { CreateSecurityQuestionDto } from '@auth/dto/security-questions/create-security-question.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -228,6 +229,20 @@ export class AuthController {
     @Query('userId') userId: string,
   ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.authService.verifyUpdatedUser(identification, userId);
+
+    return {
+      data: serviceResponse,
+      message: `Usuario registrado`,
+      title: 'Usuario registrado',
+    };
+  }
+
+  @Post('security-questions')
+  async createSecurityQuestions(
+    @User() user: UserEntity,
+    @Body() payload: CreateSecurityQuestionDto,
+  ): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.authService.createSecurityQuestions(user.id, payload);
 
     return {
       data: serviceResponse,

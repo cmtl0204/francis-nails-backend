@@ -1,11 +1,11 @@
 import { IsArray, IsBoolean, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 import {
   isBooleanValidationOptions,
   isNotEmptyValidationOptions,
   isStringValidationOptions,
 } from '@utils/dto-validation';
-import { SecurityQuestionDto } from '@auth/dto/auth/security-question.dto';
-import { Type } from 'class-transformer';
+import { SecurityQuestionDto } from '@auth/dto/security-questions/security-question.dto';
 
 export class SignUpExternalDto {
   @IsString(isStringValidationOptions())

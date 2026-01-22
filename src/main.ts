@@ -10,7 +10,6 @@ import {
 import { join } from 'path';
 import * as process from 'process';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AllExceptionsFilter } from '@utils/exceptions';
 import { ResponseHttpInterceptor } from '@utils/interceptors';
 import { FIELD_LABEL_KEY } from '@utils/dto-validation';
 
@@ -33,9 +32,6 @@ async function bootstrap() {
           const messages: string[] = [];
 
           errors.forEach((error) => {
-            // CORRECCIÓN AQUÍ:
-            // Usamos un operador ternario para verificar si target existe.
-            // Si no existe, label será null y pasará a usar error.property más abajo.
             const label = error.target
               ? Reflect.getMetadata(
                   FIELD_LABEL_KEY,
@@ -63,7 +59,6 @@ async function bootstrap() {
 
         const messages = formatErrorMessages(errors);
 
-        // Lanzamos la excepción que tu Filtro ya está esperando
         return new UnprocessableEntityException({
           message: messages,
           error: 'Unprocessable Entity',
@@ -76,7 +71,7 @@ async function bootstrap() {
     new ResponseHttpInterceptor(),
   );
 
-  app.useGlobalFilters(new AllExceptionsFilter());
+  // app.useGlobalFilters(new AllExceptionsFilter());
 
   app.setGlobalPrefix('api/v1');
 

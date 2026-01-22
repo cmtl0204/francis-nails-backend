@@ -86,13 +86,8 @@ export class UsersService {
     return await this.repository.softRemove(payload);
   }
 
-  async catalogue(): Promise<ServiceResponseHttpInterface> {
-    const response = await this.repository.find();
-
-    return {
-      data: response[0],
-      pagination: { totalItems: response[1], limit: 10 },
-    };
+  async catalogue(): Promise<UserEntity[]> {
+    return await this.repository.find();
   }
 
   async activate(id: string): Promise<UserEntity> {
