@@ -49,6 +49,7 @@ export class UsersSeeder {
       name: 'Admin',
       password: 'admin',
       passwordChanged: false,
+      emailVerifiedAt: new Date(),
       personalEmail: faker.internet.email(),
       roles: roles,
       username: '1234567890001',

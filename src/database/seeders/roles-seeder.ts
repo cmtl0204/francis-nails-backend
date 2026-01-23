@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateRoleDto } from '@auth/dto';
 import { RoleEnum } from '@auth/enums';
 import { RolesService } from '@auth/services/roles.service';
+import { FontAwesome } from '@utils/api/font-awesome';
 
 @Injectable()
 export class RolesSeeder {
@@ -17,14 +18,17 @@ export class RolesSeeder {
       {
         code: RoleEnum.ADMIN,
         name: 'Administrador',
+        icon: FontAwesome.USER_GEAR_SOLID,
       },
       {
         code: RoleEnum.OWNER,
         name: 'Propietario',
+        icon: FontAwesome.BLACK_TIE_BRAND,
       },
       {
         code: RoleEnum.CUSTOMER,
         name: 'Cliente',
+        icon: FontAwesome.USER_SOLID,
       },
     );
 
