@@ -1,11 +1,12 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { CreateUserDto, UpdateProfileDto, UpdateUserDto } from '@auth/dto';
-import { MAX_ATTEMPTS } from '@auth/constants';
 import { UserEntity } from '@auth/entities';
 import { ServiceResponseHttpInterface } from '@utils/interfaces';
 import { AuthRepositoryEnum } from '@utils/enums';
 import { PaginateFilterService, PaginationDto } from '@utils/pagination';
+import { envConfig } from '@config';
+import { ConfigType } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
@@ -14,6 +15,7 @@ export class UsersService {
   constructor(
     @Inject(AuthRepositoryEnum.USER_REPOSITORY)
     private repository: Repository<UserEntity>,
+    @Inject(envConfig.KEY) private configService: ConfigType<typeof envConfig>,
   ) {
     this.paginateFilterService = new PaginateFilterService(this.repository);
   }
@@ -98,7 +100,7 @@ export class UsersService {
     }
 
     entity.suspendedAt = null;
-    entity.maxAttempts = MAX_ATTEMPTS;
+    entity.maxAttempts = this.configService.maxAttempts;
 
     return await this.repository.save(entity);
   }

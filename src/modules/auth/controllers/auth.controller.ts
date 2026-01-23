@@ -23,6 +23,7 @@ import { ResponseHttpInterface } from '@utils/interfaces';
 import { AuthService } from '@auth/services/auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateSecurityQuestionDto } from '@auth/dto/security-questions/create-security-question.dto';
+import { EmailResetSecurityQuestionDto } from '@auth/dto/security-questions/email-reset-security-question.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -174,8 +175,8 @@ export class AuthController {
 
     return {
       data: null,
-      message: `Por favor ingrese su nueva contraseña`,
-      title: 'Código Válido',
+      message: `Tu identidad ha sido confirmada`,
+      title: 'El código ingresado es válido',
     };
   }
 
@@ -246,8 +247,23 @@ export class AuthController {
 
     return {
       data: serviceResponse,
-      message: `Usuario registrado`,
-      title: 'Usuario registrado',
+      message: `Creadas correctamente`,
+      title: 'Preguntas de seguridad',
+    };
+  }
+
+  @PublicRoute()
+  @Patch(':userId/security-questions/verify')
+  async verifySecurityQuestionsAndResetEmail(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Body() payload: EmailResetSecurityQuestionDto,
+  ): Promise<ResponseHttpInterface> {
+    await this.authService.verifySecurityQuestionsAndResetEmail(userId, payload);
+
+    return {
+      data: null,
+      message: `Correo Actualizado correctamente`,
+      title: 'Actualizado',
     };
   }
 }

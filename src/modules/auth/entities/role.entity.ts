@@ -88,6 +88,14 @@ export class RoleEntity {
   })
   name: string;
 
+  @Column({
+    name: 'icon',
+    type: 'varchar',
+    nullable: true,
+    comment: 'Icono del rol',
+  })
+  icon: string;
+
   /** Before Actions **/
   @BeforeInsert()
   @BeforeUpdate()

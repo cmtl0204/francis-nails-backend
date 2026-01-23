@@ -30,14 +30,12 @@ import { HttpService } from '@nestjs/axios';
 import ms from 'ms';
 import { SignInInterface } from '@auth/interfaces/sign-in.interface';
 import { ErrorCodeEnum, MessageAuthEnum, RoleEnum } from '@auth/enums';
-import { SECURITY_CODE_EXPIRES_IN } from '@auth/constants';
 import { SecurityQuestionEntity } from '@auth/entities/security-question.entity';
 import { CreateSecurityQuestionDto } from '@auth/dto/security-questions/create-security-question.dto';
+import { EmailResetSecurityQuestionDto } from '@auth/dto/security-questions/email-reset-security-question.dto';
 
 @Injectable()
 export class AuthService {
-  private readonly MAX_ATTEMPTS = 3;
-
   constructor(
     @Inject(AuthRepositoryEnum.USER_REPOSITORY)
     private repository: Repository<UserEntity>,
@@ -88,9 +86,7 @@ export class AuthService {
       throw new BadRequestException('Las contraseñas no coinciden.');
     }
 
-    await this.repository.update(user.id, {
-      password: Bcrypt.hashSync(payload.passwordNew, 10),
-    });
+    await this.repository.save({ ...user, password: payload.passwordNew });
 
     return { data: true };
   }
@@ -288,7 +284,7 @@ export class AuthService {
       data: {
         token,
         user,
-        expiresIn: SECURITY_CODE_EXPIRES_IN,
+        expiresIn: this.configService.securityCodeExpiresIn,
       },
     };
 
@@ -298,7 +294,7 @@ export class AuthService {
 
     await this.transactionalCodeRepository.save(payload);
 
-    return user.email;
+    return this.maskEmail(user.email);
   }
 
   async requestTransactionalSignupCode(email: string): Promise<string> {
@@ -310,7 +306,7 @@ export class AuthService {
       to: email,
       subject: MailSubjectEnum.ACCOUNT_REGISTER,
       template: MailTemplateEnum.TRANSACTIONAL_SIGNUP_CODE,
-      data: { token, expiresIn: SECURITY_CODE_EXPIRES_IN },
+      data: { token, expiresIn: this.configService.securityCodeExpiresIn },
     };
 
     await this.mailService.sendMail(mailData);
@@ -355,7 +351,9 @@ export class AuthService {
       });
     }
 
-    const maxDate = add(transactionalCode.createdAt, { minutes: SECURITY_CODE_EXPIRES_IN });
+    const maxDate = add(transactionalCode.createdAt, {
+      minutes: this.configService.securityCodeExpiresIn,
+    });
 
     if (isBefore(maxDate, new Date())) {
       throw new BadRequestException({
@@ -383,15 +381,13 @@ export class AuthService {
       });
     }
 
-    // user.maxAttempts = this.MAX_ATTEMPTS;
-    // user.password = payload.passwordNew;
-    // user.passwordChanged = true;
-
-    await this.repository.update(user.id, {
-      maxAttempts: this.MAX_ATTEMPTS,
-      password: Bcrypt.hashSync(password, 10),
+    this.repository.merge(user, {
+      maxAttempts: this.configService.maxAttempts,
+      password,
       passwordChanged: true,
     });
+
+    await this.repository.save(user);
 
     return true;
   }
@@ -413,7 +409,18 @@ export class AuthService {
   async verifyRegisteredUser(identification: string): Promise<ServiceResponseHttpInterface> {
     const user = await this.repository.findOne({
       where: { identification },
-      select: { id: true, name: true, lastname: true, email: true },
+      select: {
+        id: true,
+        name: true,
+        lastname: true,
+        email: true,
+        securityQuestions: {
+          id: true,
+          code: true,
+          question: true,
+        },
+      },
+      relations: { securityQuestions: true },
     });
 
     if (!user) {
@@ -426,6 +433,38 @@ export class AuthService {
         email: user.email ? this.maskEmail(user.email) : '',
       },
     };
+  }
+
+  async verifySecurityQuestionsAndResetEmail(
+    userId: string,
+    payload: EmailResetSecurityQuestionDto,
+  ): Promise<boolean> {
+    const securityQuestions = await this.securityQuestionRepository.find({
+      where: { userId },
+    });
+
+    const map = new Map(securityQuestions.map((q) => [q.code, q]));
+
+    const isValid = payload.securityQuestions.every((q) => {
+      const stored = map.get(q.code);
+      return stored && Bcrypt.compareSync(q.answer.toLowerCase(), stored.answer);
+    });
+
+    if (!isValid) {
+      throw new BadRequestException({
+        error: 'Respuestas incorrectas',
+        message: 'Las respuestas no coinciden, vuelva a intentar',
+      });
+    }
+
+    const entity = await this.repository.preload({
+      id: userId,
+      email: payload.email,
+    });
+
+    await this.repository.save(entity!);
+
+    return true;
   }
 
   async signOut(id: string): Promise<boolean> {
@@ -453,6 +492,13 @@ export class AuthService {
           userId: userId,
         }),
       );
+
+      const userToUpdate = await manager.preload(UserEntity, {
+        id: userId,
+        securityQuestionAcceptedAt: new Date(),
+      });
+
+      await manager.save(userToUpdate);
 
       return await manager.save(newQuestions);
     });
@@ -491,7 +537,7 @@ export class AuthService {
 
     if (isMatch) {
       await this.repository.update(user.id, {
-        maxAttempts: this.MAX_ATTEMPTS,
+        maxAttempts: this.configService.maxAttempts,
       });
       return true;
     }

@@ -32,5 +32,7 @@ export const envConfig = registerAs('envConfig', () => {
     env: process.env.ENV,
     urlLDAP: process.env.URL_LDAP,
     urlDinardap: process.env.URL_DINARDAP,
+    maxAttempts: parseInt(process.env.MAX_ATTEMPTS!, 10),
+    securityCodeExpiresIn: parseInt(process.env.SECURITY_CODE_EXPIRES_IN!, 10),
   };
 });

@@ -16,6 +16,7 @@ import * as Bcrypt from 'bcrypt';
 import { RoleEntity } from '@auth/entities';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 import { SecurityQuestionEntity } from '@auth/entities/security-question.entity';
+import { resolveMaxAttempts } from '@auth/constants';
 
 @Entity('users', { schema: 'auth' })
 export class UserEntity {
@@ -238,7 +239,7 @@ export class UserEntity {
   @Column({
     name: 'max_attempts',
     type: 'int',
-    default: 3,
+    default: () => `${resolveMaxAttempts()}`,
     comment: 'Intentos máximos para errar la contraseña, si llega a cero el usuario se bloquea',
   })
   maxAttempts: number;
