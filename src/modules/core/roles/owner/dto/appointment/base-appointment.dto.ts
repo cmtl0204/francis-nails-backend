@@ -10,35 +10,35 @@ import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 
 export class BaseAppointmentDto {
   @ApiProperty({
-    example: { id: "uuiid" },
+    example: { id: 'uuiid' },
     description: 'Sucursal donde se agenda la cita',
   })
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly branch: BranchEntity;
 
   @ApiProperty({
-    example: { id: "uuiid" },
+    example: { id: 'uuiid' },
     description: 'Cliente de la cita',
   })
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly customer: CustomerEntity;
 
   @ApiProperty({
-    example: { id: "uuid" },
+    example: { id: 'uuid' },
     description: 'Perfil del staff asignado',
   })
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly staffProfile: StaffProfileEntity;
 
   @ApiProperty({
-    example: { id: "uuid" },
+    example: { id: 'uuid' },
     description: 'Estado de la cita',
   })
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly status: CatalogueEntity;
 
   @ApiProperty({
-    example: { id: "uuid" },
+    example: { id: 'uuid' },
     description: 'Origen de la cita',
   })
   @IsNotEmpty(isNotEmptyValidationOptions())
