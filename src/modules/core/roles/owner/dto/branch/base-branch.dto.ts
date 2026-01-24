@@ -4,7 +4,6 @@ import { isStringValidationOptions, maxLengthValidationOptions } from '@utils/dt
 export class BaseBranchDto {
   @MaxLength(150, maxLengthValidationOptions())
   @IsString(isStringValidationOptions())
-
   readonly name: string;
 
   @MaxLength(20, maxLengthValidationOptions())
@@ -21,6 +20,5 @@ export class BaseBranchDto {
 
   @MaxLength(100, maxLengthValidationOptions())
   @IsString(isStringValidationOptions())
-
   readonly city: string;
 }

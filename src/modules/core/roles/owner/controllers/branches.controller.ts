@@ -14,20 +14,19 @@ import { CreateBranchDto, UpdateBranchDto } from '../dto/branch';
 import { BranchService } from '../services/branches.service';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { PaginationDto } from '@utils/pagination';
-import { PublicRoute } from '@auth/decorators';
 
 @ApiTags('Branches')
 @Controller('core/owner/branches')
 export class BranchController {
   constructor(private readonly service: BranchService) {}
-  @PublicRoute()
+
   @ApiOperation({ summary: 'Create' })
   @Post()
   async create(@Body() payload: CreateBranchDto): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.create(payload);
     return { data: serviceResponse, message: 'Sucursal creada', title: 'Creado' };
   }
-  @PublicRoute()
+
   @ApiOperation({ summary: 'Find All' })
   @Get()
   async findAll(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
@@ -39,7 +38,7 @@ export class BranchController {
       title: 'Success',
     };
   }
-  @PublicRoute()
+
   @ApiOperation({ summary: 'Find One' })
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
@@ -69,8 +68,7 @@ export class BranchController {
   async catalogue(): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.catalogue();
     return {
-      data: serviceResponse.data,
-      pagination: serviceResponse.pagination,
+      data: serviceResponse,
       message: 'Catálogo de sucursales',
       title: 'Success',
     };
