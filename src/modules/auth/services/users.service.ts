@@ -1,11 +1,12 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { CreateUserDto, UpdateProfileDto, UpdateUserDto } from '@auth/dto';
-import { MAX_ATTEMPTS } from '@auth/constants';
 import { UserEntity } from '@auth/entities';
 import { ServiceResponseHttpInterface } from '@utils/interfaces';
 import { AuthRepositoryEnum } from '@utils/enums';
 import { PaginateFilterService, PaginationDto } from '@utils/pagination';
+import { envConfig } from '@config';
+import { ConfigType } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
@@ -14,18 +15,22 @@ export class UsersService {
   constructor(
     @Inject(AuthRepositoryEnum.USER_REPOSITORY)
     private repository: Repository<UserEntity>,
+    @Inject(envConfig.KEY) private configService: ConfigType<typeof envConfig>,
   ) {
     this.paginateFilterService = new PaginateFilterService(this.repository);
   }
 
   async create(payload: CreateUserDto): Promise<UserEntity> {
-    const userExist = await this.repository.findOne({
+    const entityExist = await this.repository.findOne({
       where: [{ identification: payload.email }, { username: payload.username }],
     });
 
-    if (userExist) throw new BadRequestException('El usuario ya existe');
+    if (entityExist) throw new BadRequestException('El registro ya existe');
 
-    const entity = this.repository.create(payload);
+    const entity = this.repository.create({
+      ...payload,
+      passwordChanged: !payload.passwordChanged,
+    });
 
     return await this.repository.save(entity);
   }
@@ -49,7 +54,7 @@ export class UsersService {
     });
 
     if (!entity) {
-      throw new NotFoundException('Usuario no encontrado (find one)');
+      throw new NotFoundException('Registro no encontrado (find one)');
     }
 
     return entity;
@@ -61,10 +66,10 @@ export class UsersService {
     });
 
     if (!entity) {
-      throw new NotFoundException('Registro no encontrado para actualizar');
+      throw new NotFoundException('Registro no encontrado');
     }
 
-    this.repository.merge(entity, payload);
+    this.repository.merge(entity, { ...payload, passwordChanged: !payload.passwordChanged });
 
     return await this.repository.save(entity);
   }
@@ -83,13 +88,8 @@ export class UsersService {
     return await this.repository.softRemove(payload);
   }
 
-  async catalogue(): Promise<ServiceResponseHttpInterface> {
-    const response = await this.repository.find();
-
-    return {
-      data: response[0],
-      pagination: { totalItems: response[1], limit: 10 },
-    };
+  async catalogue(): Promise<UserEntity[]> {
+    return await this.repository.find();
   }
 
   async activate(id: string): Promise<UserEntity> {
@@ -100,7 +100,7 @@ export class UsersService {
     }
 
     entity.suspendedAt = null;
-    entity.maxAttempts = MAX_ATTEMPTS;
+    entity.maxAttempts = this.configService.maxAttempts;
 
     return await this.repository.save(entity);
   }

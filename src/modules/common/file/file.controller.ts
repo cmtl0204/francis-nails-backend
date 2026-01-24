@@ -15,8 +15,8 @@ import {
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { FileService } from './file.service';
-import { fileFilter, getFileName } from '../../../utils/helpers';
-import { ResponseHttpInterface } from '../../../utils/interfaces';
+import { fileFilter, getFileName } from '@utils/helpers';
+import { ResponseHttpInterface } from '@utils/interfaces';
 import { join } from 'path';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FilterFileDto } from './dto';
@@ -148,7 +148,7 @@ export class FileController {
         .replace('ú', 'u');
       const dataFile = fs.lstatSync(pathFile);
       fs.rename(pathFile, newPathFile, function (err) {
-        if (err) console.log('ERROR: ' + err);
+        if (err) console.error('ERROR: ' + err);
       });
     });
 

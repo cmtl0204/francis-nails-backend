@@ -73,15 +73,7 @@ export class InvoiceService {
     });
   }
 
-  async catalogue(): Promise<ServiceResponseHttpInterface> {
-    const response = await this.repository.findAndCount({ 
-      where: { statusId: 2 },
-      take: 1000,
-      relations: ['customer'],
-    });
-    return {
-      data: response[0],
-      pagination: { totalItems: response[1], limit: 10 },
-    };
-  }
+  async catalogue(): Promise<InvoiceEntity[]> {
+      return await this.repository.find()
+    }
 }

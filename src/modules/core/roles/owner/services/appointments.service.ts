@@ -52,8 +52,6 @@ export class AppointmentService {
     return await this.repository.softRemove(entity);
   }
 
-
-
   async catalogue(): Promise<AppointmentEntity[]> {
     return await this.repository.find();
      

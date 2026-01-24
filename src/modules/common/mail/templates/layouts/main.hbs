@@ -3,10 +3,19 @@
 <head>
   <meta charset="utf-8">
   <title>{{title}}</title>
+  {{> styles}}
 </head>
 <body>
-{{> header}}
-{{{body}}}
-{{> footer}}
+<div class="email-wrapper">
+  <div class="email-container">
+    {{> header}}
+
+    <div class="email-body">
+      {{{body}}}
+    </div>
+
+    {{> footer}}
+  </div>
+</div>
 </body>
 </html>

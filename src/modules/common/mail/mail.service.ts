@@ -1,4 +1,4 @@
-import { Inject, Injectable, InternalServerErrorException, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { SentMessageInfo } from 'nodemailer';
 import { ConfigType } from '@nestjs/config';
@@ -8,6 +8,7 @@ import { join } from 'path';
 import { FolderPathsService } from '../folder-paths.service';
 import { Attachment } from 'nodemailer/lib/mailer';
 import { MailSendException } from '@utils/exceptions/MailSendException';
+import { format } from 'date-fns';
 
 @Injectable()
 export class MailService implements OnModuleInit {
@@ -29,31 +30,7 @@ export class MailService implements OnModuleInit {
   }
 
   async onModuleInit() {
-    //await this.configTemplates();
-  }
-
-  private async configTemplates() {
-    let pathTemplates = join(__dirname, 'templates');
-
-    if (this.configService.env !== 'production') {
-      pathTemplates = this.folderPathsService.mailTemplates;
-    }
-
-    const hbs = (await import('nodemailer-express-handlebars')).default;
-
-    this.transporter.use(
-      'compile',
-      hbs({
-        viewEngine: {
-          extname: '.hbs',
-          layoutsDir: `${this.folderPathsService.mailTemplates}/layouts`,
-          partialsDir: `${this.folderPathsService.mailTemplates}/partials`,
-          defaultLayout: 'main',
-        },
-        viewPath: pathTemplates,
-        extName: '.hbs',
-      }),
-    );
+    await this.configTemplates();
   }
 
   async sendMail(mailData: MailDataInterface) {
@@ -128,7 +105,15 @@ export class MailService implements OnModuleInit {
       from: `"${this.configService.mail.fromName}" <${this.configService.mail.from}>`,
       subject: mailData.subject,
       template: mailData.template,
-      context: { system: this.configService.mail.fromName, data: mailData.data },
+      context: {
+        system: {
+          name: this.configService.appName,
+          shortName: this.configService.appShortName,
+          url: this.configService.appUrl,
+        },
+        year: format(new Date(), 'yyyy'),
+        data: mailData.data,
+      },
       attachments: mailAttachments,
     };
 
@@ -149,5 +134,29 @@ export class MailService implements OnModuleInit {
       }
       throw error;
     }
+  }
+
+  private async configTemplates() {
+    let pathTemplates = join(__dirname, 'templates');
+
+    if (this.configService.env !== 'production') {
+      pathTemplates = this.folderPathsService.mailTemplates;
+    }
+
+    const hbs = (await import('nodemailer-express-handlebars')).default;
+
+    this.transporter.use(
+      'compile',
+      hbs({
+        viewEngine: {
+          extname: '.hbs',
+          layoutsDir: `${this.folderPathsService.mailTemplates}/layouts`,
+          partialsDir: `${this.folderPathsService.mailTemplates}/partials`,
+          defaultLayout: 'main',
+        },
+        viewPath: pathTemplates,
+        extName: '.hbs',
+      }),
+    );
   }
 }

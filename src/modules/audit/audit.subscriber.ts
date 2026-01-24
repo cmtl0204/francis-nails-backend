@@ -2,9 +2,9 @@ import {
   EntitySubscriberInterface,
   EventSubscriber,
   InsertEvent,
-  UpdateEvent,
   RemoveEvent,
   SoftRemoveEvent,
+  UpdateEvent,
 } from 'typeorm';
 import { AuditLog } from './audit.entity';
 import { getCurrentUser } from './audit-context';
@@ -12,95 +12,74 @@ import { isDeepStrictEqual } from 'node:util';
 
 @EventSubscriber()
 export class AuditSubscriber implements EntitySubscriberInterface {
-  //Add entities non auditable Ej. User.name
-  private readonly nonAuditableEntities = new Set<string>([]);
-
-  listenTo() {
-    return Object; // escucha a todas las entidades, o puedes poner User si quieres limitarlo
-  }
-
-  private async log<T>(
-    event: InsertEvent<T> | UpdateEvent<T> | SoftRemoveEvent<T> | RemoveEvent<T>,
-    action: string,
-    data: {
-      oldData?: Partial<T>;
-      newData?: Partial<T>;
-      entityId?: any;
-    },
-  ) {
-    if (!event.entity) return;
-
-    // Para que no entre en un bucle con AuditLog mismo
-    if (event.metadata.target === AuditLog) return;
-
-    // Para descartar Entities que no se quiere que se auditen
-    if (this.nonAuditableEntities.has(event.metadata.name)) return;
-
-    const currentUser = getCurrentUser();
-    const userId = currentUser?.id;
-
-    await event.manager.save(AuditLog, {
-      action,
-      entity: event.metadata.name,
-      auditableId: data.entityId,
-      oldData: data.oldData || null,
-      newData: data.newData || null,
-      userId,
-    });
-  }
+  private readonly nonAuditableEntities = new Set(['AuditLog', 'role_user']);
 
   async afterInsert(event: InsertEvent<any>) {
     await this.log(event, 'CREATE', {
       newData: event.entity,
-      entityId: event.entityId!,
-    });
-  }
-
-  async afterUpdate(event: UpdateEvent<any>) {
-    const { newChanges, oldChanges } = this.getChangedFields(event.databaseEntity, event.entity);
-
-    if (Object.keys(newChanges).length === 0) {
-      // No hay cambios reales, no guardamos auditoría
-      return;
-    }
-
-    await this.log(event, 'UPDATE', {
-      newData: newChanges,
-      oldData: oldChanges,
       entityId: event.entity?.id,
     });
   }
 
-  async beforeRemove(event: RemoveEvent<any>) {
+  async afterUpdate(event: UpdateEvent<any>) {
+    if (!event.databaseEntity || !event.entity) return;
+
+    const changes = this.getChangedFields(event);
+
+    if (!Object.keys(changes.newChanges).length) return;
+
+    await this.log(event, 'UPDATE', {
+      newData: changes.newChanges,
+      oldData: changes.oldChanges,
+      entityId: event.entity.id,
+    });
+  }
+
+  async afterRemove(event: RemoveEvent<any>) {
     await this.log(event, 'DELETE', {
       oldData: event.databaseEntity,
       entityId: event.entityId,
     });
   }
 
-  async afterSoftRemove(event: RemoveEvent<any>) {
+  async afterSoftRemove(event: SoftRemoveEvent<any>) {
     await this.log(event, 'SOFT_DELETE', {
       oldData: event.databaseEntity,
       entityId: event.entityId,
     });
   }
 
-  private getChangedFields(
-    oldData: any,
-    newData: any,
-  ): {
-    newChanges: Record<string, any>;
-    oldChanges: Record<string, any>;
-  } {
+  private async log(event, action, data) {
+    if (!event.metadata?.tableName) return;
+
+    if (this.nonAuditableEntities.has(event.metadata.name)) return;
+
+    const currentUser = getCurrentUser();
+
+    const repo = event.queryRunner?.connection.getRepository(AuditLog);
+
+    await repo?.save({
+      action,
+      entity: event.metadata.name,
+      auditableId: data.entityId,
+      oldData: data.oldData ?? null,
+      newData: data.newData ?? null,
+      userId: currentUser?.id ?? null,
+    });
+  }
+
+  private getChangedFields(event: UpdateEvent<any>) {
     const newChanges = {};
     const oldChanges = {};
 
-    if (!oldData || !newData) return { newChanges, oldChanges };
+    for (const column of event.metadata.columns) {
+      const key = column.propertyName;
 
-    for (const key of Object.keys(newData)) {
-      if (!isDeepStrictEqual(oldData[key], newData[key]) && key !== 'updatedAt') {
-        newChanges[key] = newData[key];
-        oldChanges[key] = oldData[key];
+      if (key === 'updatedAt') continue;
+
+      if (!isDeepStrictEqual(event.databaseEntity[key], event.entity![key])) {
+        newChanges[key] = event.entity![key];
+        oldChanges[key] = event.databaseEntity[key];
       }
     }
 

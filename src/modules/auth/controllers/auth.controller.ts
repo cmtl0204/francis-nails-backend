@@ -22,6 +22,8 @@ import {
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { AuthService } from '@auth/services/auth.service';
 import { AuthGuard } from '@nestjs/passport';
+import { CreateSecurityQuestionDto } from '@auth/dto/security-questions/create-security-question.dto';
+import { EmailResetSecurityQuestionDto } from '@auth/dto/security-questions/email-reset-security-question.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -41,8 +43,6 @@ export class AuthController {
     };
   }
 
-  @PublicRoute()
-  @UseGuards(AuthGuard('jwt'))
   @Post('sign-out')
   async signOut(@User() user: UserEntity) {
     const serviceResponse = await this.authService.signOut(user.id);
@@ -74,7 +74,7 @@ export class AuthController {
     const serviceResponse = await this.authService.signUpExternal(payload);
 
     return {
-      data: serviceResponse.data,
+      data: serviceResponse,
       message: 'Por favor inicie sesión',
       title: 'Usuario creado correctamente',
     };
@@ -137,6 +137,35 @@ export class AuthController {
   }
 
   @PublicRoute()
+  @Get('transactional-codes/:identification/password-reset')
+  async requestTransactionalPasswordResetCode(
+    @Param('identification') identification: string,
+  ): Promise<ResponseHttpInterface> {
+    const serviceResponse =
+      await this.authService.requestTransactionalPasswordResetCode(identification);
+
+    return {
+      data: serviceResponse,
+      message: `Su código fue enviado a "${serviceResponse}"`,
+      title: 'Código Enviado',
+    };
+  }
+
+  @PublicRoute()
+  @Get('transactional-codes/:email/signup')
+  async requestTransactionalSignupCode(
+    @Param('email') email: string,
+  ): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.authService.requestTransactionalSignupCode(email);
+
+    return {
+      data: serviceResponse,
+      message: `Su código fue enviado a "${serviceResponse}"`,
+      title: 'Código Enviado',
+    };
+  }
+
+  @PublicRoute()
   @Patch('transactional-codes/:token/verify')
   async verifyTransactionalCode(
     @Param('token') token: string,
@@ -146,35 +175,95 @@ export class AuthController {
 
     return {
       data: null,
-      message: `Por favor ingrese su nueva contraseña`,
-      title: 'Código Válido',
+      message: `Tu identidad ha sido confirmada`,
+      title: 'El código ingresado es válido',
     };
   }
 
   @PublicRoute()
-  @Patch('reset-passwords')
-  async resetPassword(@Body() payload: any): Promise<ResponseHttpInterface> {
-    await this.authService.resetPassword(payload);
+  @Patch('passwords/:username/reset')
+  async resetPassword(
+    @Body('password') password: string,
+    @Param('username') username: string,
+  ): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.authService.resetPassword(username, password);
 
     return {
-      data: null,
+      data: serviceResponse,
       message: `Por favor inicie sesión`,
       title: 'Contraseña Reseteada',
     };
   }
 
   @PublicRoute()
-  @Get('verify-user-exist/:identification')
-  async verifyUserExist(
+  @Get(':identification/exist')
+  async verifyExistUser(
     @Param('identification') identification: string,
-    @Query('userId') userId: string,
   ): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.authService.verifyUserExist(identification, userId);
+    const serviceResponse = await this.authService.verifyExistUser(identification);
 
     return {
       data: serviceResponse,
       message: `Existe Identificacion`,
       title: 'Existe',
+    };
+  }
+
+  @PublicRoute()
+  @Get(':identification/registered')
+  async verifyRegisteredUser(
+    @Param('identification') identification: string,
+  ): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.authService.verifyRegisteredUser(identification);
+
+    return {
+      data: serviceResponse.data,
+      message: `Usuario registrado`,
+      title: 'Usuario registrado',
+    };
+  }
+
+  @PublicRoute()
+  @Get(':identification/updated')
+  async verifyUpdatedUser(
+    @Param('identification') identification: string,
+    @Query('userId') userId: string,
+  ): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.authService.verifyUpdatedUser(identification, userId);
+
+    return {
+      data: serviceResponse,
+      message: `Usuario registrado`,
+      title: 'Usuario registrado',
+    };
+  }
+
+  @Post('security-questions')
+  async createSecurityQuestions(
+    @User() user: UserEntity,
+    @Body() payload: CreateSecurityQuestionDto,
+  ): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.authService.createSecurityQuestions(user.id, payload);
+
+    return {
+      data: serviceResponse,
+      message: `Creadas correctamente`,
+      title: 'Preguntas de seguridad',
+    };
+  }
+
+  @PublicRoute()
+  @Patch(':userId/security-questions/verify')
+  async verifySecurityQuestionsAndResetEmail(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Body() payload: EmailResetSecurityQuestionDto,
+  ): Promise<ResponseHttpInterface> {
+    await this.authService.verifySecurityQuestionsAndResetEmail(userId, payload);
+
+    return {
+      data: null,
+      message: `Correo Actualizado correctamente`,
+      title: 'Actualizado',
     };
   }
 }

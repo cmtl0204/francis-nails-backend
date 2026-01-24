@@ -3,8 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpCode,
-  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -15,15 +13,13 @@ import {
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { CataloguesService } from '@modules/common/catalogue/catalogue.service';
-import {
-  CreateCatalogueDto,
-  FilterCatalogueDto,
-  UpdateCatalogueDto,
-} from '@modules/common/catalogue/dto';
-import { CatalogueTypeEnum } from '@utils/enums';
-import { PublicRoute } from '@auth/decorators';
+import { CreateCatalogueDto, UpdateCatalogueDto } from '@modules/common/catalogue/dto';
+import { Auth, PublicRoute } from '@auth/decorators';
+import { PaginationDto } from '@utils/pagination';
+import { RoleEnum } from '@auth/enums';
 
 @ApiTags('Catalogues')
+@Auth(RoleEnum.ADMIN)
 @Controller('common/catalogues')
 export class CatalogueController {
   constructor(private catalogueService: CataloguesService) {}
@@ -31,7 +27,6 @@ export class CatalogueController {
   @PublicRoute()
   @ApiOperation({ summary: 'Find Cache' })
   @Get('cache')
-  @HttpCode(HttpStatus.OK)
   async findCache(): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.catalogueService.findCache();
 
@@ -44,90 +39,74 @@ export class CatalogueController {
 
   @ApiOperation({ summary: 'Load Cache' })
   @Patch('cache')
-  @HttpCode(HttpStatus.OK)
   async loadCache(): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.catalogueService.loadCache();
+
     return {
       data: serviceResponse,
-      message: `Load Cache de Catalogos`,
-      title: `Load Cache`,
+      message: `Cache Cargada`,
+      title: `Cargada`,
     };
   }
 
+  @ApiOperation({ summary: 'Create' })
   @Post()
-  @HttpCode(HttpStatus.CREATED)
   async create(@Body() payload: CreateCatalogueDto): Promise<ResponseHttpInterface> {
-    const data = await this.catalogueService.create(payload);
+    const serviceResponse = await this.catalogueService.create(payload);
 
     return {
-      data,
+      data: serviceResponse,
       message: 'created',
       title: '',
     };
   }
 
-  @ApiOperation({ summary: 'List all catalogues' })
-  @Get('catalogue')
-  @HttpCode(HttpStatus.OK)
-  async catalogue(@Query('type') type: CatalogueTypeEnum): Promise<ResponseHttpInterface> {
-    const responseService = await this.catalogueService.catalogue(type);
-
-    return {
-      data: responseService,
-      message: `catalogue`,
-      title: `Catalogue`,
-    } as ResponseHttpInterface;
-  }
-
-  @ApiOperation({ summary: 'List of catalogues' })
-  // @Roles(RoleEnum.ADMIN)
+  @ApiOperation({ summary: 'Find All' })
   @Get()
-  @HttpCode(HttpStatus.OK)
-  async findAll(@Query() params: FilterCatalogueDto): Promise<ResponseHttpInterface> {
-    const response = await this.catalogueService.findAll(params);
+  async findAll(@Query() params: PaginationDto): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.catalogueService.findAll(params);
+
     return {
-      data: response.data,
-      pagination: response.pagination,
+      data: serviceResponse.data,
+      pagination: serviceResponse.pagination,
       message: `index`,
       title: '',
     };
   }
 
   @Get(':id')
-  @HttpCode(HttpStatus.OK)
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
-    const data = await this.catalogueService.findOne(id);
+    const serviceResponse = await this.catalogueService.findOne(id);
+
     return {
-      data,
+      data: serviceResponse,
       message: `show ${id}`,
       title: `Success`,
     };
   }
 
   @Put(':id')
-  @HttpCode(HttpStatus.CREATED)
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() payload: UpdateCatalogueDto,
   ): Promise<ResponseHttpInterface> {
-    const data = await this.catalogueService.update(id, payload);
+    const serviceResponse = await this.catalogueService.update(id, payload);
 
     return {
-      data: data,
-      message: `Catalogue updated ${id}`,
-      title: `Updated`,
+      data: serviceResponse,
+      message: `Registro Actualizado`,
+      title: `Actualizado`,
     };
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.CREATED)
-  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
-    const data = await this.catalogueService.remove(id);
+  async delete(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.catalogueService.delete(id);
 
     return {
-      data,
-      message: `Catalogue deleted ${id}`,
-      title: `Deleted`,
+      data: serviceResponse,
+      message: `Registro Eliminado`,
+      title: `Eliminado`,
     };
   }
 }

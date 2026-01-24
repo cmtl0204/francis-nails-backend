@@ -20,10 +20,12 @@ export class CataloguesSeeder {
     await this.createGenderCatalogues();
     await this.createMaritalStatusCatalogues();
     await this.createNationalityCatalogues();
+    await this.createSecurityQuestionCatalogues();
   }
 
   private async createBloodTypeCatalogues(): Promise<void> {
     const catalogues: CreateCatalogueDto[] = [];
+
     catalogues.push(
       {
         code: 'a+',
@@ -702,6 +704,97 @@ export class CataloguesSeeder {
         sort: 51,
         state: CatalogueStateEnum.enabled,
         type: CatalogueTypeEnum.users_nationality,
+      },
+    );
+
+    for (const catalogue of catalogues) {
+      await this.catalogueService.create(catalogue);
+    }
+  }
+
+  private async createSecurityQuestionCatalogues() {
+    const catalogues: CreateCatalogueDto[] = [];
+
+    catalogues.push(
+      {
+        code: '1',
+        description: '',
+        name: '¿Cuál es el primer nombre de tu padre?',
+        sort: 1,
+        state: CatalogueStateEnum.enabled,
+        type: CatalogueTypeEnum.users_security_question,
+      },
+      {
+        code: '2',
+        description: '',
+        name: '¿Cómo se llamaba tu mascota favorita?',
+        sort: 2,
+        state: CatalogueStateEnum.enabled,
+        type: CatalogueTypeEnum.users_security_question,
+      },
+      {
+        code: '3',
+        description: '',
+        name: '¿Cuál es el segundo nombre de tu padre?',
+        sort: 3,
+        state: CatalogueStateEnum.enabled,
+        type: CatalogueTypeEnum.users_security_question,
+      },
+      {
+        code: '4',
+        description: '',
+        name: '¿Cuál fue el nombre de tu mejor amigo o amiga de la infancia?',
+        sort: 4,
+        state: CatalogueStateEnum.enabled,
+        type: CatalogueTypeEnum.users_security_question,
+      },
+      {
+        code: '5',
+        description: '',
+        name: '¿Cuál era el nombre de tu escuela primaria?',
+        sort: 5,
+        state: CatalogueStateEnum.enabled,
+        type: CatalogueTypeEnum.users_security_question,
+      },
+      {
+        code: '6',
+        description: '',
+        name: '¿Cuál es el nombre de tu primo o prima favorita?',
+        sort: 6,
+        state: CatalogueStateEnum.enabled,
+        type: CatalogueTypeEnum.users_security_question,
+      },
+      {
+        code: '7',
+        description: '',
+        name: '¿Cuál es el primer nombre de tu madre?',
+        sort: 7,
+        state: CatalogueStateEnum.enabled,
+        type: CatalogueTypeEnum.users_security_question,
+      },
+      {
+        code: '8',
+        description: '',
+        name: '¿Cuál es el nombre de tu profesor favorito del colegio?',
+        sort: 8,
+        state: CatalogueStateEnum.enabled,
+        type: CatalogueTypeEnum.users_security_question,
+      },
+      {
+        code: '9',
+        description: '',
+        name: '¿Cuál es tu número favorito?',
+        sort: 9,
+        state: CatalogueStateEnum.enabled,
+        type: CatalogueTypeEnum.users_security_question,
+      },
+      {
+        code: '10',
+        description: '',
+        name: '¿Cuál es el segundo nombre de tu madre?',
+        sort: 10,
+        state: CatalogueStateEnum.enabled,
+        type: CatalogueTypeEnum.users_security_question,
       },
     );
 

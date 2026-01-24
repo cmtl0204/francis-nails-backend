@@ -6,13 +6,13 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { DataSource, Not, Repository } from 'typeorm';
 import * as Bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { Not, Repository } from 'typeorm';
 import { add, isBefore } from 'date-fns';
-import { TransactionalCodeEntity, UserEntity } from '@auth/entities';
-import { PayloadTokenInterface, RefreshTokenInterface } from 'src/modules/auth/interfaces';
-import { AuthRepositoryEnum, MailSubjectEnum, MailTemplateEnum } from '@utils/enums';
+import { RoleEntity, TransactionalCodeEntity, UserEntity } from '@auth/entities';
+import { PayloadTokenInterface, TokenInterface } from 'src/modules/auth/interfaces';
+import { AuthRepositoryEnum, ConfigEnum, MailSubjectEnum, MailTemplateEnum } from '@utils/enums';
 import {
   PasswordChangeDto,
   SignInDto,
@@ -29,19 +29,26 @@ import { lastValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import ms from 'ms';
 import { SignInInterface } from '@auth/interfaces/sign-in.interface';
-import { ErrorCodeEnum } from '@auth/enums';
+import { ErrorCodeEnum, MessageAuthEnum, RoleEnum } from '@auth/enums';
+import { SecurityQuestionEntity } from '@auth/entities/security-question.entity';
+import { CreateSecurityQuestionDto } from '@auth/dto/security-questions/create-security-question.dto';
+import { EmailResetSecurityQuestionDto } from '@auth/dto/security-questions/email-reset-security-question.dto';
 
 @Injectable()
 export class AuthService {
-  private readonly MAX_ATTEMPTS = 3;
-
   constructor(
     @Inject(AuthRepositoryEnum.USER_REPOSITORY)
     private repository: Repository<UserEntity>,
+    @Inject(AuthRepositoryEnum.ROLE_REPOSITORY)
+    private roleRepository: Repository<RoleEntity>,
     @Inject(AuthRepositoryEnum.TRANSACTIONAL_CODE_REPOSITORY)
     private transactionalCodeRepository: Repository<TransactionalCodeEntity>,
+    @Inject(AuthRepositoryEnum.SECURITY_QUESTION_REPOSITORY)
+    private securityQuestionRepository: Repository<SecurityQuestionEntity>,
     @Inject(envConfig.KEY) private configService: ConfigType<typeof envConfig>,
     private readonly userService: UsersService,
+    @Inject(ConfigEnum.PG_DATA_SOURCE)
+    private readonly dataSource: DataSource,
     private jwtService: JwtService,
     private readonly mailService: MailService,
     private readonly httpService: HttpService,
@@ -79,9 +86,7 @@ export class AuthService {
       throw new BadRequestException('Las contraseñas no coinciden.');
     }
 
-    await this.repository.update(user.id, {
-      password: Bcrypt.hashSync(payload.passwordNew, 10),
-    });
+    await this.repository.save({ ...user, password: payload.passwordNew });
 
     return { data: true };
   }
@@ -97,6 +102,7 @@ export class AuthService {
         password: true,
         suspendedAt: true,
         username: true,
+        securityQuestionAcceptedAt: true,
       },
       where: {
         username: payload.username,
@@ -158,19 +164,28 @@ export class AuthService {
     return response.data.data;
   }
 
-  async signUpExternal(payload: SignUpExternalDto): Promise<ServiceResponseHttpInterface> {
-    const user = this.repository.create();
+  async signUpExternal(payload: SignUpExternalDto): Promise<UserEntity> {
+    const role = await this.roleRepository.findOneBy({ code: RoleEnum.CUSTOMER });
 
-    user.identification = payload.identification;
-    user.email = payload.email;
-    user.username = payload.email;
-    user.name = payload.name;
-    user.password = payload.password;
-    user.passwordChanged = true;
+    const securityQuestions = payload.securityQuestions.map((q) =>
+      this.securityQuestionRepository.create({
+        code: q.code,
+        question: q.question,
+        answer: q.answer,
+      }),
+    );
 
-    const userCreated = await this.repository.save(user);
+    const entity = this.repository.create({
+      ...payload,
+      passwordChanged: true,
+      emailVerifiedAt: new Date(),
+      termsAcceptedAt: new Date(),
+      securityQuestionAcceptedAt: new Date(),
+      roles: [role!],
+      securityQuestions,
+    });
 
-    return { data: userCreated };
+    return await this.repository.save(entity);
   }
 
   async findUserInformation(id: string): Promise<ServiceResponseHttpInterface> {
@@ -200,7 +215,7 @@ export class AuthService {
     return { data: userUpdated };
   }
 
-  async refreshToken(user: UserEntity): Promise<RefreshTokenInterface> {
+  async refreshToken(user: UserEntity): Promise<TokenInterface> {
     const tokens = this.generateJwt(user);
 
     await this.saveRefreshToken(user.id, tokens.refreshToken);
@@ -221,16 +236,17 @@ export class AuthService {
 
     if (!user) {
       throw new NotFoundException({
-        error: ErrorCodeEnum.NOT_FOUND,
+        error: MessageAuthEnum.NOT_FOUND,
         message: 'Usuario no encontrado, intente de nuevo',
       });
     }
+
     const randomNumber = Math.random();
     const token = randomNumber.toString().substring(2, 8);
 
     const mailData: MailDataInterface = {
       to: user.email || user.personalEmail,
-      subject: MailSubjectEnum.RESET_PASSWORD,
+      subject: MailSubjectEnum.TRANSACTIONAL_CODE,
       template: MailTemplateEnum.TRANSACTIONAL_CODE,
       data: {
         token,
@@ -245,21 +261,65 @@ export class AuthService {
     await this.transactionalCodeRepository.save(payload);
 
     const value = user.email || user.personalEmail;
-    const chars = 3; // Cantidad de caracters visibles
 
-    const email = value.replace(
-      /[a-z0-9\-_.]+@/gi,
-      (c) =>
-        c.substr(0, chars) +
-        c
-          .split('')
-          .slice(chars, -1)
-          .map((v) => '*')
-          .join('') +
-        '@',
-    );
+    const email = this.maskEmail(value);
 
     return { data: email };
+  }
+
+  async requestTransactionalPasswordResetCode(identification: string): Promise<string> {
+    const user = await this.repository.findOneBy({ identification });
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    const randomNumber = Math.random();
+    const token = randomNumber.toString().substring(2, 8);
+
+    const mailData: MailDataInterface = {
+      to: user.email,
+      subject: MailSubjectEnum.PASSWORD_RESET,
+      template: MailTemplateEnum.TRANSACTIONAL_PASSWORD_RESET_CODE,
+      data: {
+        token,
+        user,
+        expiresIn: this.configService.securityCodeExpiresIn,
+      },
+    };
+
+    await this.mailService.sendMail(mailData);
+
+    const payload = { username: user.identification, token, type: 'password_reset' };
+
+    await this.transactionalCodeRepository.save(payload);
+
+    return this.maskEmail(user.email);
+  }
+
+  async requestTransactionalSignupCode(email: string): Promise<string> {
+    const randomNumber = Math.random();
+
+    const token = randomNumber.toString().substring(2, 8);
+
+    const mailData: MailDataInterface = {
+      to: email,
+      subject: MailSubjectEnum.ACCOUNT_REGISTER,
+      template: MailTemplateEnum.TRANSACTIONAL_SIGNUP_CODE,
+      data: { token, expiresIn: this.configService.securityCodeExpiresIn },
+    };
+
+    await this.mailService.sendMail(mailData);
+
+    const entity = this.transactionalCodeRepository.create({
+      username: email,
+      token,
+      type: 'signup',
+    });
+
+    await this.transactionalCodeRepository.save(entity);
+
+    return entity.username;
   }
 
   async verifyTransactionalCode(
@@ -273,30 +333,32 @@ export class AuthService {
     if (!transactionalCode) {
       throw new BadRequestException({
         message: 'Código Transaccional no válido',
-        error: ErrorCodeEnum.NOT_FOUND,
+        error: MessageAuthEnum.TRANSACTIONAL_CODE_INVALID,
       });
     }
 
-    if (transactionalCode.username !== username) {
+    if (transactionalCode.username.toLowerCase() !== username.toLowerCase()) {
       throw new BadRequestException({
         message: 'El usuario no corresponde al código transaccional generado',
-        error: ErrorCodeEnum.TRANSACTIONAL_CODE_NOT_MATCH,
+        error: MessageAuthEnum.TRANSACTIONAL_CODE_NOT_MATCH,
       });
     }
 
     if (transactionalCode.isUsed) {
       throw new BadRequestException({
         message: 'El código ya fue usado',
-        error: ErrorCodeEnum.TRANSACTIONAL_CODE_USED,
+        error: MessageAuthEnum.TRANSACTIONAL_CODE_USED,
       });
     }
 
-    const maxDate = add(transactionalCode.createdAt, { minutes: 10 });
+    const maxDate = add(transactionalCode.createdAt, {
+      minutes: this.configService.securityCodeExpiresIn,
+    });
 
     if (isBefore(maxDate, new Date())) {
       throw new BadRequestException({
         message: 'El código ha expirado',
-        error: ErrorCodeEnum.TRANSACTIONAL_CODE_EXPIRED,
+        error: MessageAuthEnum.TRANSACTIONAL_CODE_EXPIRED,
       });
     }
 
@@ -307,39 +369,102 @@ export class AuthService {
     return { data: true };
   }
 
-  async resetPassword(payload: any): Promise<ServiceResponseHttpInterface> {
+  async resetPassword(username: string, password: string): Promise<boolean> {
     const user = await this.repository.findOne({
-      where: { username: payload.username },
+      where: { username },
     });
 
     if (!user) {
       throw new NotFoundException({
         message: 'Usuario no encontrado para resetear contraseña, intente de nuevo',
-        error: ErrorCodeEnum.NOT_FOUND,
+        error: MessageAuthEnum.NOT_FOUND,
       });
     }
 
-    // user.maxAttempts = this.MAX_ATTEMPTS;
-    // user.password = payload.passwordNew;
-    // user.passwordChanged = true;
-
-    await this.repository.update(user.id, {
-      maxAttempts: this.MAX_ATTEMPTS,
-      password: Bcrypt.hashSync(payload.passwordNew, 10),
+    this.repository.merge(user, {
+      maxAttempts: this.configService.maxAttempts,
+      password,
       passwordChanged: true,
     });
 
-    return { data: true };
+    await this.repository.save(user);
+
+    return true;
   }
 
-  async verifyUserExist(identification: string, userId: string): Promise<UserEntity | null> {
-    const where: any = { identification };
+  async verifyExistUser(identification: string): Promise<UserEntity | null> {
+    return await this.repository.findOne({
+      where: { identification },
+      select: { id: true },
+    });
+  }
 
-    if (userId) {
-      where.id = Not(userId);
+  async verifyUpdatedUser(identification: string, userId: string): Promise<UserEntity | null> {
+    return await this.repository.findOne({
+      where: { identification, id: Not(userId) },
+      select: { id: true },
+    });
+  }
+
+  async verifyRegisteredUser(identification: string): Promise<ServiceResponseHttpInterface> {
+    const user = await this.repository.findOne({
+      where: { identification },
+      select: {
+        id: true,
+        name: true,
+        lastname: true,
+        email: true,
+        securityQuestions: {
+          id: true,
+          code: true,
+          question: true,
+        },
+      },
+      relations: { securityQuestions: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Registro no encontrado');
     }
 
-    return this.repository.findOne({ where });
+    return {
+      data: {
+        ...user,
+        email: user.email ? this.maskEmail(user.email) : '',
+      },
+    };
+  }
+
+  async verifySecurityQuestionsAndResetEmail(
+    userId: string,
+    payload: EmailResetSecurityQuestionDto,
+  ): Promise<boolean> {
+    const securityQuestions = await this.securityQuestionRepository.find({
+      where: { userId },
+    });
+
+    const map = new Map(securityQuestions.map((q) => [q.code, q]));
+
+    const isValid = payload.securityQuestions.every((q) => {
+      const stored = map.get(q.code);
+      return stored && Bcrypt.compareSync(q.answer.toLowerCase(), stored.answer);
+    });
+
+    if (!isValid) {
+      throw new BadRequestException({
+        error: 'Respuestas incorrectas',
+        message: 'Las respuestas no coinciden, vuelva a intentar',
+      });
+    }
+
+    const entity = await this.repository.preload({
+      id: userId,
+      email: payload.email,
+    });
+
+    await this.repository.save(entity!);
+
+    return true;
   }
 
   async signOut(id: string): Promise<boolean> {
@@ -348,6 +473,35 @@ export class AuthService {
     });
 
     return true;
+  }
+
+  async createSecurityQuestions(
+    userId: string,
+    payload: CreateSecurityQuestionDto,
+  ): Promise<SecurityQuestionEntity[]> {
+    return await this.dataSource.transaction(async (manager) => {
+      const questionsToDelete = await manager.find(SecurityQuestionEntity, {
+        where: { userId },
+      });
+
+      if (questionsToDelete.length > 0) await manager.softRemove(questionsToDelete);
+
+      const newQuestions = payload.securityQuestions.map((question) =>
+        manager.create(SecurityQuestionEntity, {
+          ...question,
+          userId: userId,
+        }),
+      );
+
+      const userToUpdate = await manager.preload(UserEntity, {
+        id: userId,
+        securityQuestionAcceptedAt: new Date(),
+      });
+
+      await manager.save(userToUpdate);
+
+      return await manager.save(newQuestions);
+    });
   }
 
   private generateJwt(user: UserEntity) {
@@ -383,8 +537,7 @@ export class AuthService {
 
     if (isMatch) {
       await this.repository.update(user.id, {
-        maxAttempts: this.MAX_ATTEMPTS,
-        suspendedAt: null,
+        maxAttempts: this.configService.maxAttempts,
       });
       return true;
     }
@@ -397,9 +550,23 @@ export class AuthService {
 
     await this.repository.update(user.id, {
       maxAttempts: remainingAttempts,
-      suspendedAt: remainingAttempts === 0 ? new Date() : user.suspendedAt,
     });
 
     return false;
+  }
+
+  private maskEmail(email: string): string {
+    if (!email || !email.includes('@')) return email;
+
+    const [user, domain] = email.split('@');
+
+    if (user.length <= 3) {
+      return `${user[0]}**@${domain}`;
+    }
+
+    const visible = user.slice(0, 3);
+    const hidden = '*'.repeat(user.length - 3);
+
+    return `${visible}${hidden}@${domain}`;
   }
 }

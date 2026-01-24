@@ -59,14 +59,7 @@ export class PurchaseItemService {
     });
   }
 
-  async catalogue(): Promise<ServiceResponseHttpInterface> {
-    const response = await this.repository.findAndCount({ 
-      take: 1000,
-      relations: ['product'],
-    });
-    return {
-      data: response[0],
-      pagination: { totalItems: response[1], limit: 10 },
-    };
+  async catalogue(): Promise<PurchaseItemEntity[]> {
+    return await this.repository.find()
   }
 }

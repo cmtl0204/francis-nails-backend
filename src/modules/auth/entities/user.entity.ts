@@ -15,6 +15,8 @@ import {
 import * as Bcrypt from 'bcrypt';
 import { RoleEntity } from '@auth/entities';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
+import { SecurityQuestionEntity } from '@auth/entities/security-question.entity';
+import { resolveMaxAttempts } from '@auth/constants';
 import { CustomerEntity, StaffProfileEntity } from '@modules/core/entities';
 
 @Entity('users', { schema: 'auth' })
@@ -47,11 +49,16 @@ export class UserEntity {
   @ManyToMany(() => RoleEntity, (role) => role.users)
   roles: RoleEntity[];
 
-   @OneToMany(() => CustomerEntity, (customer) => customer.user)
+  @OneToMany(() => CustomerEntity, (customer) => customer.user)
   customers: CustomerEntity[];
 
   @OneToMany(() => StaffProfileEntity, (staffProfile) => staffProfile.user)
   staffProfiles: StaffProfileEntity[];
+
+  @OneToMany(() => SecurityQuestionEntity, (securityQuestion) => securityQuestion.user, {
+    cascade: true,
+  })
+  securityQuestions: SecurityQuestionEntity[];
 
   /** Foreign Keys **/
   @ManyToOne(() => CatalogueEntity, { nullable: true })
@@ -137,7 +144,7 @@ export class UserEntity {
     type: 'varchar',
     nullable: true,
   })
-  refreshToken: string|null;
+  refreshToken: string | null;
 
   @Column({
     name: 'activated_at',
@@ -239,7 +246,7 @@ export class UserEntity {
   @Column({
     name: 'max_attempts',
     type: 'int',
-    default: 3,
+    default: () => `${resolveMaxAttempts()}`,
     comment: 'Intentos máximos para errar la contraseña, si llega a cero el usuario se bloquea',
   })
   maxAttempts: number;
@@ -267,6 +274,22 @@ export class UserEntity {
   username: string;
 
   @Column({
+    name: 'terms_accepted_at',
+    type: 'timestamp',
+    nullable: true,
+    comment: 'Fecha de la ultima aceptacion de terminos y condiciones',
+  })
+  termsAcceptedAt: Date | null;
+
+  @Column({
+    name: 'security_question_accepted_at',
+    type: 'timestamp',
+    nullable: true,
+    comment: 'Fecha de la ultima aceptacion de terminos y condiciones',
+  })
+  securityQuestionAcceptedAt: Date | null;
+
+  @Column({
     name: 'id_temp',
     type: 'bigint',
     nullable: true,
@@ -278,7 +301,7 @@ export class UserEntity {
   @BeforeInsert()
   @BeforeUpdate()
   hashPassword() {
-    if (!this.password || this.password?.length > 30) {
+    if (!this.password) {
       return;
     }
 
