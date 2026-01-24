@@ -1,4 +1,9 @@
 export const IS_PUBLIC_ROUTE_KEY = 'isPublic';
 export const ROLES_KEY = 'roles';
-export const IS_REFRESH_TOKEN = 'isRefreshToken';
-export const MAX_ATTEMPTS = 3;
+// export const MAX_ATTEMPTS = Number(process.env.MAX_ATTEMPTS);
+// export const SECURITY_CODE_EXPIRES_IN = Number(process.env.SECURITY_CODE_EXPIRES_IN);
+
+export function resolveMaxAttempts(): number {
+  const v = Number(process.env.MAX_ATTEMPTS);
+  return Number.isInteger(v) ? v : 5;
+}

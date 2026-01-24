@@ -3,11 +3,15 @@ export enum MailEnum {
 }
 
 export enum MailSubjectEnum {
-  RESET_PASSWORD = 'Solicitud de Restablecimiento de Contraseña',
+  PASSWORD_RESET = 'Solicitud de Restablecimiento de Contraseña',
+  ACCOUNT_REGISTER = 'Solicitud de Registro de Cuenta',
+  TRANSACTIONAL_CODE = 'Solicitud de Código de Verificación',
 }
 
 export enum MailTemplateEnum {
-  TESTING = 'testing/testing',
-  TRANSACTIONAL_CODE = 'auth/transactional-code',
+  TESTING = 'features/testing/testing',
+  TRANSACTIONAL_CODE = 'features/auth/transactional-code',
+  TRANSACTIONAL_PASSWORD_RESET_CODE = 'features/auth/transactional-password-reset-code',
+  TRANSACTIONAL_SIGNUP_CODE = 'features/auth/transactional-signup-code',
   INTERNAL_REGISTRATION_CERTIFICATE = 'internal/registration-certificate',
 }

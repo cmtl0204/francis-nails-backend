@@ -1,12 +1,18 @@
 import { IsNotEmpty, IsString } from 'class-validator';
-import { isNotEmptyValidationOptions, isStringValidationOptions } from '@utils/dto-validation';
+import {
+  FieldLabel,
+  isNotEmptyValidationOptions,
+  isStringValidationOptions,
+} from '@utils/dto-validation';
 
 export class SignInDto {
-  @IsString(isStringValidationOptions())
+  @FieldLabel('Nombre de usuario')
   @IsNotEmpty(isNotEmptyValidationOptions())
+  @IsString(isStringValidationOptions())
   username: string;
 
+  @FieldLabel('Contraseña')
+  @IsNotEmpty(isNotEmptyValidationOptions())
   @IsString(isStringValidationOptions())
-  @IsNotEmpty()
   password: string;
 }

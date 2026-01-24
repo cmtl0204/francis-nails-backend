@@ -27,7 +27,3 @@ export * from './menus/create-menu.dto';
 export * from './menus/update-menu.dto';
 export * from './menus/filter-menu.dto';
 export * from './menus/read-menu.dto';
-
-// Audits
-export * from './audits/audit.dto';
-export * from './audits/create-audit.dto';

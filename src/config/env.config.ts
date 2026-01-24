@@ -27,8 +27,12 @@ export const envConfig = registerAs('envConfig', () => {
     jwtRefreshExpires: process.env.JWT_REFRESH_EXPIRES as StringValue,
     port: parseInt(process.env.PORT!, 10),
     appUrl: process.env.APP_URL,
+    appName: process.env.APP_NAME,
+    appShortName: process.env.APP_SHORT_NAME,
     env: process.env.ENV,
     urlLDAP: process.env.URL_LDAP,
     urlDinardap: process.env.URL_DINARDAP,
+    maxAttempts: parseInt(process.env.MAX_ATTEMPTS!, 10),
+    securityCodeExpiresIn: parseInt(process.env.SECURITY_CODE_EXPIRES_IN!, 10),
   };
 });

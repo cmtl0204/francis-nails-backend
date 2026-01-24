@@ -9,28 +9,21 @@ export class AuditMiddleware implements NestMiddleware {
   constructor(private readonly jwtService: JwtService) {}
 
   use(req: Request, res: Response, next: NextFunction) {
-    if (req.headers.authorization) {
-      const token = req.headers.authorization.split(' ');
-
-      if (token.length !== 2 || token[0] !== 'Bearer') {
-        throw new Error('Formato de token inválido');
-      }
-
-      try {
-        const jwtDecode: PayloadTokenInterface = this.jwtService.decode(token[1]);
-
-        auditNamespace.run(() => {
-          setCurrentUser({ id: jwtDecode.sub });
-          next();
-        });
-      } catch (error) {
-        console.error(error);
-        next();
-      }
-
-      return;
+    if (!req.headers.authorization) {
+      return next();
     }
 
-    next();
+    const [, token] = req.headers.authorization.split(' ');
+
+    try {
+      const payload = this.jwtService.decode(token) as PayloadTokenInterface;
+
+      auditNamespace.run(() => {
+        setCurrentUser({ id: payload.sub });
+        next();
+      });
+    } catch {
+      next();
+    }
   }
 }

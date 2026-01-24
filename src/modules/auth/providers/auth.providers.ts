@@ -7,6 +7,7 @@ import {
   UserEntity,
 } from '@auth/entities';
 import { ConfigEnum, AuthRepositoryEnum } from '@utils/enums';
+import { SecurityQuestionEntity } from '@auth/entities/security-question.entity';
 
 export const authProviders = [
   {
@@ -32,6 +33,11 @@ export const authProviders = [
   {
     provide: AuthRepositoryEnum.TRANSACTIONAL_CODE_REPOSITORY,
     useFactory: (dataSource: DataSource) => dataSource.getRepository(TransactionalCodeEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+  {
+    provide: AuthRepositoryEnum.SECURITY_QUESTION_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(SecurityQuestionEntity),
     inject: [ConfigEnum.PG_DATA_SOURCE],
   },
 ];

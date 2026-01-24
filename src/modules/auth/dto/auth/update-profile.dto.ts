@@ -21,6 +21,7 @@ export class UpdateProfileDto extends PickType(UserDto, [
   'phone',
   'username',
   'nationality',
+  'allergies',
 ]) {
   @IsOptional()
   @IsString()

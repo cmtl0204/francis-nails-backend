@@ -2,6 +2,8 @@ import Joi from 'joi';
 
 export const JoiValidationSchema = Joi.object({
   APP_URL: Joi.string().required(),
+  APP_NAME: Joi.string().required(),
+  APP_SHORT_NAME: Joi.string().required(),
   API_KEY: Joi.string().required(),
   ENV: Joi.string().required(),
   JWT_SECRET: Joi.string().required(),
@@ -19,4 +21,6 @@ export const JoiValidationSchema = Joi.object({
   MAIL_PASSWORD: Joi.string().required(),
   MAIL_FROM_ADDRESS: Joi.string().required(),
   MAIL_SECURE: Joi.boolean().required(),
+  MAX_ATTEMPTS: Joi.number().required(),
+  SECURITY_CODE_EXPIRES_IN: Joi.number().required(),
 });

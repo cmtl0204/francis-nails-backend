@@ -6,6 +6,7 @@ export enum CatalogueTypeEnum {
   users_marital_status = 'users_marital_status',
   users_nationality = 'users_nationality',
   users_sex = 'users_sex',
+  users_security_question = 'users_security_question',
 }
 
 export enum CatalogueStateEnum {
