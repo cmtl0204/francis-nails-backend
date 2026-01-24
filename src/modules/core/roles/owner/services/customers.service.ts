@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
+import { Injectable, NotFoundException,  Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { CreateCustomerDto, UpdateCustomerDto } from '../dto/customer';
+import { BaseCustomerDto, CreateCustomerDto, UpdateCustomerDto } from '../dto/customer';
 import { CustomerEntity } from '@modules/core/entities';
 import { ServiceResponseHttpInterface } from '@utils/interfaces';
 import { CoreRepositoryEnum } from '@utils/enums';
@@ -31,6 +31,22 @@ export class CustomerService {
       relations: ['user', 'referral'],
     });
   }
+
+
+  //
+  async findByTaxIdentification(taxIdentification: string): Promise<CustomerEntity> {
+    const entity = await this.repository.findOne({
+      where: { taxIdentification },
+      relations: ['user', 'referral'],
+    });
+
+    if (!entity) {
+      throw new NotFoundException(`Cliente no encontrado (taxIdentification: ${taxIdentification})`);
+    }
+
+    return entity;
+  }
+  //
 
   async findOne(id: string): Promise<CustomerEntity> {
     const entity = await this.repository.findOne({

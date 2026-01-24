@@ -41,11 +41,18 @@ export class BaseCustomerDto {
   @IsNotEmpty(isNotEmptyValidationOptions())
   readonly taxName: string;
 
+
   @ApiPropertyOptional({
     example: 'Alergia a la penicilina',
     description: 'Alergias conocidas del cliente',
   })
   @IsString(isStringValidationOptions())
   @IsOptional()
-  readonly allergies?: string;
+  readonly allergies: string;
+
+  constructor(customer: CustomerEntity) {
+  this.taxIdentification = customer.taxIdentification;
+  this.taxName = customer.taxName;
+  
+}
 }

@@ -8,9 +8,10 @@ import {
   Patch,
   Post,
   Query,
+  NotFoundException ,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { CreateCustomerDto, UpdateCustomerDto } from '../dto/customer';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { BaseCustomerDto, CreateCustomerDto, UpdateCustomerDto } from '../dto/customer';
 import { CustomerService } from '../services/customers.service';
 import { PaginationDto } from '@utils/pagination';
 import { ResponseHttpInterface } from '@utils/interfaces';
@@ -38,6 +39,28 @@ export class CustomerController {
       title: 'Success',
     };
   }
+
+
+
+  //
+  @ApiOperation({ summary: 'Find customer by tax identification' })
+  @Get('find-by-tax-identification/:taxIdentification')
+  @ApiResponse({ status: 200, description: 'Cliente encontrado', type: BaseCustomerDto })
+  @ApiResponse({ status: 404, description: 'Cliente no encontrado' })
+  async findByTaxIdentification(@Param('taxIdentification') taxIdentification: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.findByTaxIdentification(taxIdentification);
+    
+    if (!serviceResponse) {
+      throw new NotFoundException('Cliente no encontrado');
+    }
+    
+    return {
+      data: serviceResponse,
+      message: 'Cliente encontrado',
+      title: 'Success',
+    };
+  }
+   //
 
   @ApiOperation({ summary: 'Find One' })
   @Get(':id')
