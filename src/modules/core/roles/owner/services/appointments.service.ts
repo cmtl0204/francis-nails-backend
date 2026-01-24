@@ -52,11 +52,7 @@ export class AppointmentService {
     return await this.repository.softRemove(entity);
   }
 
-  async catalogue(): Promise<ServiceResponseHttpInterface> {
-    const response = await this.repository.findAndCount({ take: 1000 });
-    return {
-      data: response[0],
-      pagination: { totalItems: response[1], limit: 10 },
-    };
+  async catalogue(): Promise<AppointmentEntity[]> {
+    return await this.repository.find();
   }
 }

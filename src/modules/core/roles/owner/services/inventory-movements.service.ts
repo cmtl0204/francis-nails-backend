@@ -60,14 +60,8 @@ export class InventoryMovementService {
     });
   }
 
-  async catalogue(): Promise<ServiceResponseHttpInterface> {
-    const response = await this.repository.findAndCount({ 
-      take: 1000,
-      relations: ['product', 'location'],
-    });
-    return {
-      data: response[0],
-      pagination: { totalItems: response[1], limit: 10 },
-    };
+  async catalogue(): Promise<InventoryMovementEntity[]> {
+    return await this.repository.find()
+      
   }
 }

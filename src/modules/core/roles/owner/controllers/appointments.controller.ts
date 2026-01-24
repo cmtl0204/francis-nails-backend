@@ -68,8 +68,7 @@ export class AppointmentController {
   async catalogue(): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.catalogue();
     return {
-      data: serviceResponse.data,
-      pagination: serviceResponse.pagination,
+      data: serviceResponse,
       message: 'Catalogue',
       title: 'Catalogue',
     };

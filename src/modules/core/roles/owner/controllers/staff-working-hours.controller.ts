@@ -68,8 +68,7 @@ export class StaffWorkingHourController {
   async catalogue(): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.catalogue();
     return {
-      data: serviceResponse.data,
-      pagination: serviceResponse.pagination,
+      data: serviceResponse,
       message: 'Catálogo de horarios',
       title: 'Success',
     };
