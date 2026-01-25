@@ -14,6 +14,7 @@ import { AppointmentService } from '../services/appointments.service';
 import { CreateAppointmentDto, UpdateAppointmentDto } from '../dto/appointment';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { PaginationDto } from '@utils/pagination';
+import { AppointmentFilterDto } from '../dto/appointment/AppointmentFilterDto';
 
 @ApiTags('Appointments')
 @Controller('core/owner/appointments')
@@ -26,6 +27,27 @@ export class AppointmentController {
     const serviceResponse = await this.service.create(payload);
     return { data: serviceResponse, message: 'Cita creada', title: 'Creado' };
   }
+
+
+
+    //
+@ApiOperation({ summary: 'Find with filters' })
+@Get('filters')
+async findWithFilters(
+  @Query() params: AppointmentFilterDto,
+): Promise<ResponseHttpInterface> {
+  const serviceResponse = await this.service.findWithFilters(params);
+
+  return {
+    data: serviceResponse.data,
+    pagination: serviceResponse.pagination,
+    message: 'Citas filtradas',
+    title: 'Success',
+  };
+}
+//
+
+
 
   @ApiOperation({ summary: 'Find All' })
   @Get()
@@ -45,6 +67,7 @@ export class AppointmentController {
     const serviceResponse = await this.service.findOne(id);
     return { data: serviceResponse, message: `Cita encontrada ${id}`, title: 'Success' };
   }
+
 
   @ApiOperation({ summary: 'Update' })
   @Patch(':id')

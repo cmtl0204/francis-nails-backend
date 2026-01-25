@@ -44,7 +44,7 @@ export class CustomerController {
 
   //
   @ApiOperation({ summary: 'Find customer by tax identification' })
-  @Get('find-by-tax-identification/:taxIdentification')
+  @Get('identification/:exist')
   @ApiResponse({ status: 200, description: 'Cliente encontrado', type: BaseCustomerDto })
   @ApiResponse({ status: 404, description: 'Cliente no encontrado' })
   async findByTaxIdentification(@Param('taxIdentification') taxIdentification: string): Promise<ResponseHttpInterface> {
