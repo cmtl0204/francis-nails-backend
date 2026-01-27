@@ -21,6 +21,7 @@ import { JoiValidationSchema } from './config/joi.validation';
       envFilePath: '.env',
       isGlobal: true,
       load: [envConfig],
+      expandVariables: true,
       validationSchema: JoiValidationSchema,
     }),
     ThrottlerModule.forRoot({
