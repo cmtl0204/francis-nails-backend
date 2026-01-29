@@ -13,38 +13,33 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ResponseHttpInterceptor } from '@utils/interceptors';
 import { FIELD_LABEL_KEY } from '@utils/dto-validation';
 import { AllExceptionsFilter } from '@utils/exceptions';
-import { Client } from 'pg'; // Cliente nativo
+import { Client } from 'pg';
 
 async function createDatabaseIfNotExists() {
-  const dbName = process.env.DB_NAME; // Tu base de datos objetivo
+  const dbName = process.env.DB_NAME;
 
-  // 1. Nos conectamos a la base de datos por defecto 'postgres'
   const client = new Client({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    host: process.env.DB_HOST, // La IP de Windows que configuraste
+    host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT!) || 5432,
-    database: 'postgres', // IMPORTANTE: Conectarse a 'postgres'
+    database: 'postgres',
   });
 
   await client.connect();
 
   try {
-    // 2. Verificamos si la base de datos ya existe
     const res = await client.query(`SELECT 1 FROM pg_database WHERE datname = $1`, [dbName]);
 
     if (res.rowCount === 0) {
-      // 3. Si no existe, la creamos
-      console.log(`⚠️  La base de datos '${dbName}' no existe. Creándola...`);
       await client.query(`CREATE DATABASE "${dbName}"`);
-      console.log(`✅ Base de datos '${dbName}' creada exitosamente.`);
     } else {
       console.log(`ℹ️  La base de datos '${dbName}' ya existe.`);
     }
   } catch (error) {
-    console.error('❌ Error al verificar/crear la base de datos:', error);
+    console.error('Error al verificar/crear la base de datos:', error);
   } finally {
-    await client.end(); // Cerramos esta conexión temporal
+    await client.end();
   }
 }
 
@@ -70,11 +65,11 @@ async function bootstrap() {
 
           errors.forEach((error) => {
             const label = error.target
-              ? Reflect.getMetadata(
+              ? (Reflect.getMetadata(
                   FIELD_LABEL_KEY,
                   error.target.constructor.prototype,
                   error.property,
-                )
+                ) as string)
               : null;
 
             const propertyName = label || error.property;
@@ -108,7 +103,7 @@ async function bootstrap() {
     new ResponseHttpInterceptor(),
   );
 
-  app.useGlobalFilters(new AllExceptionsFilter());
+  // app.useGlobalFilters(new AllExceptionsFilter());
 
   app.setGlobalPrefix('api/v1');
 

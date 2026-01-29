@@ -81,57 +81,27 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Change Password' })
-  @Put(':id/change-password')
+  @Patch('passwords')
   async changePassword(
-    @Param('id', ParseUUIDPipe) id: string,
+    @User() user: UserEntity,
     @Body() payload: PasswordChangeDto,
   ): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.authService.changePassword(id, payload);
+    const serviceResponse = await this.authService.changePassword(user.id, payload);
 
     return {
-      data: serviceResponse.data,
+      data: serviceResponse,
       message: 'La contraseña fue cambiada',
       title: 'Contraseña Actualizada',
     };
   }
 
-  @ApiOperation({ summary: 'Find User Information' })
-  @Get('user-information')
-  async findUserInformation(@User() user: UserEntity): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.authService.findUserInformation(user.id);
-
-    return {
-      data: serviceResponse.data,
-      message: 'La información del usuario fue actualizada',
-      title: 'Atualizado',
-    };
-  }
-
-  @ApiOperation({ summary: 'Update User Information' })
-  @Put('user-information')
-  async updateUserInformation(
-    @User('id', ParseUUIDPipe) id: string,
-    @Body() payload: UpdateUserInformationDto,
-  ): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.authService.updateUserInformation(id, payload);
+  @Post('transactional-codes')
+  async requestTransactionalCode(@User() user: UserEntity): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.authService.requestTransactionalCode(user.id);
 
     return {
       data: serviceResponse,
-      message: 'La inforación del usuario fue actualizada',
-      title: 'Actualuizado',
-    };
-  }
-
-  @PublicRoute()
-  @Get('transactional-codes/:username/request')
-  async requestTransactionalCode(
-    @Param('username') username: string,
-  ): Promise<ResponseHttpInterface> {
-    const serviceResponse = await this.authService.requestTransactionalCode(username);
-
-    return {
-      data: serviceResponse.data,
-      message: `Su código fue enviado a ${JSON.stringify(serviceResponse.data)}`,
+      message: `Su código fue enviado a ${serviceResponse}`,
       title: 'Código Enviado',
     };
   }
@@ -169,9 +139,9 @@ export class AuthController {
   @Patch('transactional-codes/:token/verify')
   async verifyTransactionalCode(
     @Param('token') token: string,
-    @Body('username') username: string,
+    @Body('requester') requester: string,
   ): Promise<ResponseHttpInterface> {
-    await this.authService.verifyTransactionalCode(token, username);
+    await this.authService.verifyTransactionalCode(token, requester);
 
     return {
       data: null,

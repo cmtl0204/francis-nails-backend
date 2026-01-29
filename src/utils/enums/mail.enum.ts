@@ -3,9 +3,9 @@ export enum MailEnum {
 }
 
 export enum MailSubjectEnum {
-  PASSWORD_RESET = 'Solicitud de Restablecimiento de Contraseña',
-  ACCOUNT_REGISTER = 'Solicitud de Registro de Cuenta',
-  TRANSACTIONAL_CODE = 'Solicitud de Código de Verificación',
+  PASSWORD_RESET = 'Solicitud para restablecer contraseña',
+  ACCOUNT_REGISTER = 'Solicitud de creación de cuenta',
+  TRANSACTIONAL_CODE = 'Tu código de verificación',
 }
 
 export enum MailTemplateEnum {

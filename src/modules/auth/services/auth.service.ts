@@ -54,41 +54,18 @@ export class AuthService {
     private readonly httpService: HttpService,
   ) {}
 
-  async changePassword(
-    id: string,
-    payload: PasswordChangeDto,
-  ): Promise<ServiceResponseHttpInterface> {
-    const user = await this.repository.findOne({
-      select: {
-        id: true,
-        identification: true,
-        lastname: true,
-        name: true,
-        maxAttempts: true,
-        password: true,
-        suspendedAt: true,
-        username: true,
-      },
-      where: { id },
-    });
+  async changePassword(id: string, payload: PasswordChangeDto): Promise<boolean> {
+    const user = await this.repository.findOneBy({ id });
 
     if (!user) {
       throw new NotFoundException('Usuario no encontrado para cambio de contraseña');
     }
 
-    const isMatchPassword = await this.checkPassword(payload.passwordOld, user, false);
+    user.password = payload.password;
 
-    if (!isMatchPassword) {
-      throw new BadRequestException('La contraseña anterior no coincide.');
-    }
+    await this.repository.save(user);
 
-    if (payload.passwordConfirmation !== payload.passwordNew) {
-      throw new BadRequestException('Las contraseñas no coinciden.');
-    }
-
-    await this.repository.save({ ...user, password: payload.passwordNew });
-
-    return { data: true };
+    return true;
   }
 
   async signIn(payload: SignInDto): Promise<SignInInterface> {
@@ -188,33 +165,6 @@ export class AuthService {
     return await this.repository.save(entity);
   }
 
-  async findUserInformation(id: string): Promise<ServiceResponseHttpInterface> {
-    const user = await this.repository.findOneBy({ id });
-
-    if (!user) {
-      throw new NotFoundException('Información de usuario no existe');
-    }
-
-    return { data: user };
-  }
-
-  async updateUserInformation(
-    id: string,
-    payload: UpdateUserInformationDto,
-  ): Promise<ServiceResponseHttpInterface> {
-    const user = await this.userService.findOne(id);
-
-    if (!user) {
-      throw new NotFoundException('Usuario no encontrado para actualizar información');
-    }
-
-    this.repository.merge(user, payload);
-
-    const userUpdated = await this.repository.save(user);
-
-    return { data: userUpdated };
-  }
-
   async refreshToken(user: UserEntity): Promise<TokenInterface> {
     const tokens = this.generateJwt(user);
 
@@ -229,9 +179,9 @@ export class AuthService {
     });
   }
 
-  async requestTransactionalCode(username: string): Promise<ServiceResponseHttpInterface> {
+  async requestTransactionalCode(id: string): Promise<string> {
     const user = await this.repository.findOne({
-      where: { username },
+      where: { id },
     });
 
     if (!user) {
@@ -256,15 +206,13 @@ export class AuthService {
 
     await this.mailService.sendMail(mailData);
 
-    const payload = { username: user.username, token, type: 'password_reset' };
+    const payload = { requester: user.username, token, type: 'auth' };
 
     await this.transactionalCodeRepository.save(payload);
 
     const value = user.email || user.personalEmail;
 
-    const email = this.maskEmail(value);
-
-    return { data: email };
+    return this.maskEmail(value);
   }
 
   async requestTransactionalPasswordResetCode(identification: string): Promise<string> {
@@ -283,14 +231,13 @@ export class AuthService {
       template: MailTemplateEnum.TRANSACTIONAL_PASSWORD_RESET_CODE,
       data: {
         token,
-        user,
-        expiresIn: this.configService.securityCodeExpiresIn,
+        user
       },
     };
 
     await this.mailService.sendMail(mailData);
 
-    const payload = { username: user.identification, token, type: 'password_reset' };
+    const payload = { requester: user.identification, token, type: 'password_reset' };
 
     await this.transactionalCodeRepository.save(payload);
 
@@ -306,26 +253,26 @@ export class AuthService {
       to: email,
       subject: MailSubjectEnum.ACCOUNT_REGISTER,
       template: MailTemplateEnum.TRANSACTIONAL_SIGNUP_CODE,
-      data: { token, expiresIn: this.configService.securityCodeExpiresIn },
+      data: { token },
     };
 
     await this.mailService.sendMail(mailData);
 
     const entity = this.transactionalCodeRepository.create({
-      username: email,
+      requester: email,
       token,
       type: 'signup',
     });
 
     await this.transactionalCodeRepository.save(entity);
 
-    return entity.username;
+    return entity.requester;
   }
 
   async verifyTransactionalCode(
     token: string,
-    username: string,
-  ): Promise<ServiceResponseHttpInterface> {
+    requester: string,
+  ): Promise<boolean> {
     const transactionalCode = await this.transactionalCodeRepository.findOne({
       where: { token },
     });
@@ -337,7 +284,7 @@ export class AuthService {
       });
     }
 
-    if (transactionalCode.username.toLowerCase() !== username.toLowerCase()) {
+    if (transactionalCode.requester.toLowerCase() !== requester.toLowerCase()) {
       throw new BadRequestException({
         message: 'El usuario no corresponde al código transaccional generado',
         error: MessageAuthEnum.TRANSACTIONAL_CODE_NOT_MATCH,
@@ -366,7 +313,7 @@ export class AuthService {
 
     await this.transactionalCodeRepository.save(transactionalCode);
 
-    return { data: true };
+    return true;
   }
 
   async resetPassword(username: string, password: string): Promise<boolean> {

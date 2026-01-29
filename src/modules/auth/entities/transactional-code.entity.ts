@@ -29,11 +29,11 @@ export class TransactionalCodeEntity {
 
   /** Columns **/
   @Column({
-    name: 'username',
+    name: 'requester',
     type: 'varchar',
-    comment: 'Nombre de usuario',
+    comment: 'Identificador de quien solicita, puede ser identificacion o correo generalmente',
   })
-  username: string;
+  requester: string;
 
   @Column({
     name: 'token',
@@ -59,13 +59,13 @@ export class TransactionalCodeEntity {
 
   @BeforeInsert()
   @BeforeUpdate()
-  setUsername() {
-    if (!this.username) {
+  setRequester() {
+    if (!this.requester) {
       return;
     }
 
-    if (this.username.includes('@')) {
-      this.username = this.username.toLowerCase().trim();
+    if (this.requester.includes('@')) {
+      this.requester = this.requester.toLowerCase().trim();
     }
   }
 }

@@ -98,12 +98,12 @@ export class MailService implements OnModuleInit {
     };
 
     mailAttachments.push(header);
-    mailAttachments.push(footer);
+    // mailAttachments.push(footer);
 
     const sendMailOptions = {
       to: mailData.to,
       from: `"${this.configService.mail.fromName}" <${this.configService.mail.from}>`,
-      subject: mailData.subject,
+      subject: `${mailData.subject} - ${this.configService.appName}`,
       template: mailData.template,
       context: {
         system: {
@@ -111,6 +111,7 @@ export class MailService implements OnModuleInit {
           shortName: this.configService.appShortName,
           url: this.configService.appUrl,
         },
+        expiresIn: this.configService.securityCodeExpiresIn,
         year: format(new Date(), 'yyyy'),
         data: mailData.data,
       },
