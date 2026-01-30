@@ -5,6 +5,7 @@ import {
   PermissionEntity,
   RoleEntity,
   UserEntity,
+  EmailVerificationsEntity,
 } from '@auth/entities';
 import { ConfigEnum, AuthRepositoryEnum } from '@utils/enums';
 import { SecurityQuestionEntity } from '@auth/entities/security-question.entity';
@@ -38,6 +39,11 @@ export const authProviders = [
   {
     provide: AuthRepositoryEnum.SECURITY_QUESTION_REPOSITORY,
     useFactory: (dataSource: DataSource) => dataSource.getRepository(SecurityQuestionEntity),
+    inject: [ConfigEnum.PG_DATA_SOURCE],
+  },
+  {
+    provide: AuthRepositoryEnum.EMAIL_VERIFICATION_REPOSITORY,
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(EmailVerificationsEntity),
     inject: [ConfigEnum.PG_DATA_SOURCE],
   },
 ];

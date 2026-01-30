@@ -10,8 +10,8 @@ import {
 
 @Entity('transactional_codes', { schema: 'auth' })
 export class TransactionalCodeEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @CreateDateColumn({
     name: 'created_at',

@@ -1,12 +1,20 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { CreateUserDto, UpdateProfileDto, UpdateUserDto } from '@auth/dto';
-import { UserEntity } from '@auth/entities';
+import {
+  CreateUserDto,
+  UpdateAdditionalInformationDto,
+  UpdateProfileDto,
+  UpdateUserDto,
+} from '@auth/dto';
+import { EmailVerificationsEntity, UserEntity } from '@auth/entities';
 import { ServiceResponseHttpInterface } from '@utils/interfaces';
-import { AuthRepositoryEnum } from '@utils/enums';
+import { AuthRepositoryEnum, MailSubjectEnum, MailTemplateEnum } from '@utils/enums';
 import { PaginateFilterService, PaginationDto } from '@utils/pagination';
 import { envConfig } from '@config';
 import { ConfigType } from '@nestjs/config';
+import { MailDataInterface } from '@modules/common/mail/interfaces/mail-data.interface';
+import { MailService } from '@modules/common/mail/mail.service';
+import { createHash, randomUUID } from 'node:crypto';
 
 @Injectable()
 export class UsersService {
@@ -15,7 +23,10 @@ export class UsersService {
   constructor(
     @Inject(AuthRepositoryEnum.USER_REPOSITORY)
     private repository: Repository<UserEntity>,
+    @Inject(AuthRepositoryEnum.EMAIL_VERIFICATION_REPOSITORY)
+    private emailVerificationRepository: Repository<EmailVerificationsEntity>,
     @Inject(envConfig.KEY) private configService: ConfigType<typeof envConfig>,
+    private readonly mailService: MailService,
   ) {
     this.paginateFilterService = new PaginateFilterService(this.repository);
   }
@@ -32,7 +43,30 @@ export class UsersService {
       passwordChanged: !payload.passwordChanged,
     });
 
-    return await this.repository.save(entity);
+    const userCreated = await this.repository.save(entity);
+
+    const { token, hashedToken, expiresAt } = this.generateEmailVerificationToken();
+
+    await this.emailVerificationRepository.save({
+      userId: userCreated.id,
+      token: hashedToken,
+      expiresAt,
+    });
+
+    const mailData: MailDataInterface = {
+      to: userCreated.email || userCreated.personalEmail,
+      subject: MailSubjectEnum.INTERNAL_ACCOUNT_CREATED,
+      template: MailTemplateEnum.INTERNAL_ACCOUNT_CREATED,
+      data: {
+        user: userCreated,
+        token,
+        expiresAt,
+      },
+    };
+
+    await this.mailService.sendMail(mailData);
+
+    return userCreated;
   }
 
   async findAll(params: PaginationDto): Promise<ServiceResponseHttpInterface> {
@@ -167,6 +201,21 @@ export class UsersService {
     return await this.repository.save(entity);
   }
 
+  async updateAdditionalInformation(
+    id: string,
+    payload: UpdateAdditionalInformationDto,
+  ): Promise<UserEntity> {
+    const entity = await this.repository.findOneBy({ id });
+
+    if (!entity) {
+      throw new NotFoundException('Usuario no encontrado para actualizar el perfil');
+    }
+
+    this.repository.merge(entity, payload);
+
+    return await this.repository.save(entity);
+  }
+
   async uploadAvatar(file: Express.Multer.File, id: string): Promise<UserEntity> {
     const entity = await this.repository.findOne({
       select: {
@@ -183,5 +232,21 @@ export class UsersService {
     entity.avatar = `avatars/${file.filename}`;
 
     return await this.repository.save(entity);
+  }
+
+  private generateEmailVerificationToken() {
+    const token = randomUUID();
+
+    const hashedToken = createHash('sha256').update(token).digest('hex');
+
+    const expiresAt = new Date();
+
+    expiresAt.setHours(expiresAt.getHours() + 24);
+
+    return {
+      token,
+      hashedToken,
+      expiresAt,
+    };
   }
 }

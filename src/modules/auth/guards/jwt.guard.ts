@@ -25,8 +25,8 @@ export class JwtGuard extends AuthGuard('jwt') {
   ): TUser {
     if (info?.name === 'TokenExpiredError') {
       throw new UnauthorizedException({
-        error: ErrorCodeEnum.TOKEN_EXPIRED,
-        message: ErrorCodeEnum.TOKEN_EXPIRED,
+        error: ErrorCodeEnum.EXPIRED_TOKEN,
+        message: ErrorCodeEnum.EXPIRED_TOKEN,
       });
     }
 

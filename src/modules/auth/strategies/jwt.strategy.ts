@@ -27,7 +27,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       .leftJoin('user.roles', 'roles')
       .addSelect('roles.code')
       .where('user.id = :id', { id: payload.sub })
-      .select(['user.id', 'user.suspendedAt', 'user.maxAttempts', 'roles.code'])
+      .select([
+        'user.id',
+        'user.suspendedAt',
+        'user.maxAttempts',
+        'user.emailVerifiedAt',
+        'roles.code',
+      ])
       .getOne();
 
     if (!user) throw new UnauthorizedException('El Usuario no existe.');

@@ -3,10 +3,6 @@ export * from './users/user.dto';
 export * from './menus/base-menu.dto';
 
 // Auth
-export * from './auth/update-profile.dto';
-export * from './auth/update-user-information.dto';
-export * from './auth/read-profile.dto';
-export * from './auth/read-user-information.dto';
 export * from './auth/sign-in.dto';
 export * from './auth/password-change.dto';
 export * from './auth/sign-up-external.dto';
@@ -15,6 +11,8 @@ export * from './auth/sign-up-external.dto';
 export * from './users/create-user.dto';
 export * from './users/update-user.dto';
 export * from './users/seed-user.dto';
+export * from './users/update-profile.dto';
+export * from './users/update-additional-information.dto';
 
 // Roles
 export * from './roles/create-role.dto';

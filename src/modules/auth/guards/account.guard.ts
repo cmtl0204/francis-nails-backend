@@ -4,7 +4,6 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { Repository } from 'typeorm';
@@ -48,6 +47,13 @@ export class AccountGuard implements CanActivate {
         error: ErrorCodeEnum.ACCOUNT_LOCKED,
         message: "'Ha excedido el número máximo de intentos permitidos'",
       });
+
+    if (!user.emailVerifiedAt) {
+      throw new ForbiddenException({
+        error: ErrorCodeEnum.ACCOUNT_UNVERIFIED_EMAIL,
+        message: 'Aún no has verificado tu correo electrónico',
+      });
+    }
 
     return true;
   }

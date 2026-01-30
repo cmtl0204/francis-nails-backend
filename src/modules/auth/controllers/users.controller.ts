@@ -12,7 +12,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto, UpdateProfileDto, UpdateUserDto } from '@auth/dto';
+import {
+  CreateUserDto,
+  UpdateAdditionalInformationDto,
+  UpdateProfileDto,
+  UpdateUserDto,
+} from '@auth/dto';
 import { UserEntity } from '@auth/entities';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { UsersService } from '../services/users.service';
@@ -188,6 +193,22 @@ export class UsersController {
     @Body() payload: UpdateProfileDto,
   ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.service.updateProfile(id, payload);
+
+    return {
+      data: serviceResponse,
+      message: 'El perfil fue actualizado correctamente',
+      title: 'Perfil Actualizado',
+    };
+  }
+
+  @ApiOperation({ summary: 'Update Additional Information' })
+  @Auth()
+  @Patch(':id/additional-information')
+  async updateAdditionalInformation(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() payload: UpdateAdditionalInformationDto,
+  ): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.service.updateAdditionalInformation(id, payload);
 
     return {
       data: serviceResponse,

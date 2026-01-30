@@ -10,21 +10,20 @@ import { DataSource, Not, Repository } from 'typeorm';
 import * as Bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { add, isBefore } from 'date-fns';
-import { RoleEntity, TransactionalCodeEntity, UserEntity } from '@auth/entities';
+import {
+  EmailVerificationsEntity,
+  RoleEntity,
+  TransactionalCodeEntity,
+  UserEntity,
+} from '@auth/entities';
 import { PayloadTokenInterface, TokenInterface } from 'src/modules/auth/interfaces';
 import { AuthRepositoryEnum, ConfigEnum, MailSubjectEnum, MailTemplateEnum } from '@utils/enums';
-import {
-  PasswordChangeDto,
-  SignInDto,
-  SignUpExternalDto,
-  UpdateUserInformationDto,
-} from '@auth/dto';
+import { PasswordChangeDto, SignInDto, SignUpExternalDto } from '@auth/dto';
 import { ServiceResponseHttpInterface } from '@utils/interfaces';
 import { MailService } from '@modules/common/mail/mail.service';
 import { envConfig } from '@config';
 import { ConfigType } from '@nestjs/config';
 import { MailDataInterface } from '@modules/common/mail/interfaces/mail-data.interface';
-import { UsersService } from './users.service';
 import { lastValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import ms from 'ms';
@@ -33,6 +32,7 @@ import { ErrorCodeEnum, MessageAuthEnum, RoleEnum } from '@auth/enums';
 import { SecurityQuestionEntity } from '@auth/entities/security-question.entity';
 import { CreateSecurityQuestionDto } from '@auth/dto/security-questions/create-security-question.dto';
 import { EmailResetSecurityQuestionDto } from '@auth/dto/security-questions/email-reset-security-question.dto';
+import { createHash, randomUUID } from 'node:crypto';
 
 @Injectable()
 export class AuthService {
@@ -45,8 +45,9 @@ export class AuthService {
     private transactionalCodeRepository: Repository<TransactionalCodeEntity>,
     @Inject(AuthRepositoryEnum.SECURITY_QUESTION_REPOSITORY)
     private securityQuestionRepository: Repository<SecurityQuestionEntity>,
+    @Inject(AuthRepositoryEnum.EMAIL_VERIFICATION_REPOSITORY)
+    private emailVerificationRepository: Repository<EmailVerificationsEntity>,
     @Inject(envConfig.KEY) private configService: ConfigType<typeof envConfig>,
-    private readonly userService: UsersService,
     @Inject(ConfigEnum.PG_DATA_SOURCE)
     private readonly dataSource: DataSource,
     private jwtService: JwtService,
@@ -78,6 +79,7 @@ export class AuthService {
         maxAttempts: true,
         password: true,
         suspendedAt: true,
+        emailVerifiedAt: true,
         username: true,
         securityQuestionAcceptedAt: true,
       },
@@ -108,6 +110,12 @@ export class AuthService {
         message: 'Ha excedido el número máximo de intentos permitidos',
       });
     }
+
+    if (!user?.emailVerifiedAt)
+      throw new ForbiddenException({
+        error: ErrorCodeEnum.ACCOUNT_UNVERIFIED_EMAIL,
+        message: 'Aún no has verificado tu correo electrónico',
+      });
 
     if (!(await this.checkPassword(payload.password, user))) {
       throw new UnauthorizedException({
@@ -231,7 +239,7 @@ export class AuthService {
       template: MailTemplateEnum.TRANSACTIONAL_PASSWORD_RESET_CODE,
       data: {
         token,
-        user
+        user,
       },
     };
 
@@ -269,10 +277,7 @@ export class AuthService {
     return entity.requester;
   }
 
-  async verifyTransactionalCode(
-    token: string,
-    requester: string,
-  ): Promise<boolean> {
+  async verifyTransactionalCode(token: string, requester: string): Promise<boolean> {
     const transactionalCode = await this.transactionalCodeRepository.findOne({
       where: { token },
     });
@@ -414,6 +419,79 @@ export class AuthService {
     return true;
   }
 
+  async verifyEmail(token: string): Promise<boolean> {
+    return await this.dataSource.transaction(async (manager) => {
+      const hashedToken = createHash('sha256').update(token).digest('hex');
+
+      const emailVerification = await manager.findOne(EmailVerificationsEntity, {
+        where: { token: hashedToken },
+        relations: { user: true },
+      });
+
+      if (!emailVerification) {
+        throw new BadRequestException({
+          error: ErrorCodeEnum.INVALID_TOKEN,
+          message: 'Token no válido',
+        });
+      }
+
+      if (emailVerification.usedAt) {
+        throw new BadRequestException({
+          error: ErrorCodeEnum.USED_TOKEN,
+          message: 'Token ya fue usado',
+        });
+      }
+
+      if (emailVerification.expiresAt < new Date()) {
+        throw new BadRequestException({
+          error: ErrorCodeEnum.EXPIRED_TOKEN,
+          message: 'Token expirado',
+        });
+      }
+
+      emailVerification.user.emailVerifiedAt = new Date();
+      emailVerification.usedAt = new Date();
+
+      await this.repository.save(emailVerification.user);
+      await this.emailVerificationRepository.save(emailVerification);
+
+      return true;
+    });
+  }
+
+  async requestVerifyEmail(username: string): Promise<boolean> {
+    return await this.dataSource.transaction(async (manager) => {
+      const entityExist = await manager.findOne(UserEntity, {
+        where: [{ identification: username }, { username: username }],
+      });
+
+      if (!entityExist) return false;
+
+      const { token, hashedToken, expiresAt } = this.generateEmailVerificationToken();
+
+      await this.emailVerificationRepository.save({
+        userId: entityExist.id,
+        token: hashedToken,
+        expiresAt,
+      });
+
+      const mailData: MailDataInterface = {
+        to: entityExist.email || entityExist.personalEmail,
+        subject: MailSubjectEnum.EMAIL_VERIFICATION_RESEND,
+        template: MailTemplateEnum.EMAIL_VERIFICATION_RESEND,
+        data: {
+          user: entityExist,
+          token,
+          expiresAt,
+        },
+      };
+
+      await this.mailService.sendMail(mailData);
+
+      return true;
+    });
+  }
+
   async signOut(id: string): Promise<boolean> {
     await this.repository.update(id, {
       refreshToken: null,
@@ -467,14 +545,6 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  private async findByUsername(username: string): Promise<UserEntity> {
-    return (await this.repository.findOne({
-      where: {
-        username,
-      },
-    })) as UserEntity;
-  }
-
   private async checkPassword(
     passwordCompare: string,
     user: UserEntity,
@@ -515,5 +585,21 @@ export class AuthService {
     const hidden = '*'.repeat(user.length - 3);
 
     return `${visible}${hidden}@${domain}`;
+  }
+
+  private generateEmailVerificationToken() {
+    const token = randomUUID();
+
+    const hashedToken = createHash('sha256').update(token).digest('hex');
+
+    const expiresAt = new Date();
+
+    expiresAt.setHours(expiresAt.getHours() + 24);
+
+    return {
+      token,
+      hashedToken,
+      expiresAt,
+    };
   }
 }

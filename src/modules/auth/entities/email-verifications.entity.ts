@@ -1,20 +1,18 @@
 import {
-  BeforeInsert,
-  BeforeUpdate,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { UserEntity } from '@auth/entities';
-import * as Bcrypt from 'bcrypt';
 
-@Entity('security_questions', { schema: 'auth' })
-export class SecurityQuestionEntity {
+@Entity('email_verifications', { schema: 'auth' })
+export class EmailVerificationsEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -39,57 +37,31 @@ export class SecurityQuestionEntity {
   })
   deletedAt: Date;
 
-  @Column({
-    name: 'is_visible',
-    type: 'boolean',
-    default: true,
-    comment: 'true=visible, false=no visible',
-  })
-  enabled: boolean;
-
   /** Inverse Relationship **/
 
   /** Foreign Keys **/
-  @ManyToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity, (entity) => entity.emailVerifications, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
   @Column({
     type: 'uuid',
     name: 'user_id',
-    comment: 'user',
+    comment: '',
   })
   userId: string;
 
   /** Columns **/
-  @Column({
-    name: 'code',
-    type: 'varchar',
-    comment: '',
-  })
-  code: string;
+  @Index({ unique: true })
+  @Column({ type: 'varchar', length: 64 })
+  token: string;
 
-  @Column({
-    name: 'question',
-    type: 'varchar',
-    comment: '',
-  })
-  question: string;
+  @Column({ type: 'timestamp' })
+  expiresAt: Date;
 
-  @Column({
-    name: 'answer',
-    type: 'varchar',
-    comment: '',
-  })
-  answer: string;
+  @Column({ type: 'timestamp', nullable: true })
+  usedAt: Date | null;
 
   /** Before Actions **/
-  @BeforeInsert()
-  @BeforeUpdate()
-  setAnswer() {
-    if (!this.answer) {
-      return;
-    }
-
-    this.answer = Bcrypt.hashSync(this.answer.toLowerCase().trim(), 10);
-  }
 }

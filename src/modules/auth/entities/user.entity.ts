@@ -17,6 +17,7 @@ import { RoleEntity } from '@auth/entities';
 import { CatalogueEntity } from '@modules/common/catalogue/catalogue.entity';
 import { SecurityQuestionEntity } from '@auth/entities/security-question.entity';
 import { resolveMaxAttempts } from '@auth/constants';
+import { EmailVerificationsEntity } from '@auth/entities/email-verifications.entity';
 
 @Entity('users', { schema: 'auth' })
 export class UserEntity {
@@ -52,6 +53,9 @@ export class UserEntity {
     cascade: true,
   })
   securityQuestions: SecurityQuestionEntity[];
+
+  @OneToMany(() => EmailVerificationsEntity, (entity) => entity.user)
+  emailVerifications: EmailVerificationsEntity[];
 
   /** Foreign Keys **/
   @ManyToOne(() => CatalogueEntity, { nullable: true })

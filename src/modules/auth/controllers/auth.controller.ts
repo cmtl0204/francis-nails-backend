@@ -6,19 +6,13 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
-  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PublicRoute, User } from '@auth/decorators';
 import { UserEntity } from '@auth/entities';
-import {
-  PasswordChangeDto,
-  SignInDto,
-  SignUpExternalDto,
-  UpdateUserInformationDto,
-} from '@auth/dto';
+import { PasswordChangeDto, SignInDto, SignUpExternalDto } from '@auth/dto';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { AuthService } from '@auth/services/auth.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -228,12 +222,39 @@ export class AuthController {
     @Param('userId', ParseUUIDPipe) userId: string,
     @Body() payload: EmailResetSecurityQuestionDto,
   ): Promise<ResponseHttpInterface> {
-    await this.authService.verifySecurityQuestionsAndResetEmail(userId, payload);
+    const serviceResponse = await this.authService.verifySecurityQuestionsAndResetEmail(
+      userId,
+      payload,
+    );
 
     return {
-      data: null,
+      data: serviceResponse,
       message: `Correo Actualizado correctamente`,
       title: 'Actualizado',
+    };
+  }
+
+  @PublicRoute()
+  @Post('verify-email')
+  async verifyEmail(@Body('token') token: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.authService.verifyEmail(token);
+
+    return {
+      data: serviceResponse,
+      message: `Correo Verificado`,
+      title: 'Verificado',
+    };
+  }
+
+  @PublicRoute()
+  @Post('request-verify-email')
+  async requestVerifyEmail(@Body('username') username: string): Promise<ResponseHttpInterface> {
+    const serviceResponse = await this.authService.requestVerifyEmail(username);
+
+    return {
+      data: serviceResponse,
+      message: `Revise su correo asociado`,
+      title: 'Solicitud Recibida',
     };
   }
 }
