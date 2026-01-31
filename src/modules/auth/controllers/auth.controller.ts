@@ -12,7 +12,7 @@ import {
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PublicRoute, User } from '@auth/decorators';
 import { UserEntity } from '@auth/entities';
-import { PasswordChangeDto, SignInDto, SignUpExternalDto } from '@auth/dto';
+import { PasswordChangedDto, SignInDto, SignUpExternalDto } from '@auth/dto';
 import { ResponseHttpInterface } from '@utils/interfaces';
 import { AuthService } from '@auth/services/auth.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -78,7 +78,7 @@ export class AuthController {
   @Patch('passwords')
   async changePassword(
     @User() user: UserEntity,
-    @Body() payload: PasswordChangeDto,
+    @Body() payload: PasswordChangedDto,
   ): Promise<ResponseHttpInterface> {
     const serviceResponse = await this.authService.changePassword(user.id, payload);
 

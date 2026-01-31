@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -28,6 +29,7 @@ export class TransactionalCodeEntity {
   updatedAt: Date;
 
   /** Columns **/
+  @Index()
   @Column({
     name: 'requester',
     type: 'varchar',

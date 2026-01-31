@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToMany,
   ManyToOne,
@@ -192,6 +193,7 @@ export class UserEntity {
   })
   emailVerifiedAt: Date;
 
+  @Index({ unique: true })
   @Column({
     name: 'identification',
     type: 'varchar',

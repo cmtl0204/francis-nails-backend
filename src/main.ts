@@ -34,7 +34,7 @@ async function createDatabaseIfNotExists() {
     if (res.rowCount === 0) {
       await client.query(`CREATE DATABASE "${dbName}"`);
     } else {
-      console.log(`ℹ️  La base de datos '${dbName}' ya existe.`);
+      console.log(`ℹ️  La base de datos '${dbName}' ya existe`);
     }
   } catch (error) {
     console.error('Error al verificar/crear la base de datos:', error);

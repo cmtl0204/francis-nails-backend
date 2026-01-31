@@ -9,7 +9,7 @@ import {
 import { DataSource, Not, Repository } from 'typeorm';
 import * as Bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { add, isBefore } from 'date-fns';
+import { add, addMinutes, differenceInSeconds, isBefore } from 'date-fns';
 import {
   EmailVerificationsEntity,
   RoleEntity,
@@ -18,7 +18,7 @@ import {
 } from '@auth/entities';
 import { PayloadTokenInterface, TokenInterface } from 'src/modules/auth/interfaces';
 import { AuthRepositoryEnum, ConfigEnum, MailSubjectEnum, MailTemplateEnum } from '@utils/enums';
-import { PasswordChangeDto, SignInDto, SignUpExternalDto } from '@auth/dto';
+import { PasswordChangedDto, SignInDto, SignUpExternalDto } from '@auth/dto';
 import { ServiceResponseHttpInterface } from '@utils/interfaces';
 import { MailService } from '@modules/common/mail/mail.service';
 import { envConfig } from '@config';
@@ -55,14 +55,32 @@ export class AuthService {
     private readonly httpService: HttpService,
   ) {}
 
-  async changePassword(id: string, payload: PasswordChangeDto): Promise<boolean> {
-    const user = await this.repository.findOneBy({ id });
+  async changePassword(id: string, payload: PasswordChangedDto): Promise<boolean> {
+    const user = await this.repository.findOne({
+      where: { id },
+      select: { id: true, password: true, passwordChanged: true },
+    });
 
     if (!user) {
       throw new NotFoundException('Usuario no encontrado para cambio de contraseña');
     }
 
+    if (await this.checkPassword(payload.password, user, false)) {
+      throw new BadRequestException({
+        error: 'La nueva contraseña no puede ser igual a la actual',
+        message: `Por seguridad, debes elegir una contraseña distinta a la que usas actualmente`,
+      });
+    }
+
+    if (payload.password !== payload.passwordConfirm) {
+      throw new BadRequestException({
+        error: 'Las contraseñas no coinciden',
+        message: 'Por favor, asegúrate de escribir la misma contraseña en ambos campos',
+      });
+    }
+
     user.password = payload.password;
+    user.passwordChanged = true;
 
     await this.repository.save(user);
 
@@ -199,6 +217,24 @@ export class AuthService {
       });
     }
 
+    const transactionalCode = await this.transactionalCodeRepository.findOne({
+      where: { requester: user.username },
+      order: { createdAt: 'DESC' },
+    });
+
+    if (transactionalCode) {
+      const cooldownTime = addMinutes(transactionalCode.createdAt, 0.5);
+
+      if (isBefore(new Date(), cooldownTime)) {
+        const remainingSeconds = differenceInSeconds(cooldownTime, new Date());
+
+        throw new BadRequestException({
+          error: 'Límite de intentos',
+          message: `Ya has generado un código recientemente. Por favor espera ${remainingSeconds} segundos antes de solicitar uno nuevo.`,
+        });
+      }
+    }
+
     const randomNumber = Math.random();
     const token = randomNumber.toString().substring(2, 8);
 
@@ -230,6 +266,24 @@ export class AuthService {
       throw new NotFoundException();
     }
 
+    const transactionalCode = await this.transactionalCodeRepository.findOne({
+      where: { requester: user.username },
+      order: { createdAt: 'DESC' },
+    });
+
+    if (transactionalCode) {
+      const cooldownTime = addMinutes(transactionalCode.createdAt, 1);
+
+      if (isBefore(new Date(), cooldownTime)) {
+        const remainingSeconds = differenceInSeconds(cooldownTime, new Date());
+
+        throw new BadRequestException({
+          error: 'Límite de intentos',
+          message: `Ya has generado un código recientemente. Por favor espera ${remainingSeconds} segundos antes de solicitar uno nuevo.`,
+        });
+      }
+    }
+
     const randomNumber = Math.random();
     const token = randomNumber.toString().substring(2, 8);
 
@@ -253,6 +307,24 @@ export class AuthService {
   }
 
   async requestTransactionalSignupCode(email: string): Promise<string> {
+    const transactionalCode = await this.transactionalCodeRepository.findOne({
+      where: { requester: email },
+      order: { createdAt: 'DESC' },
+    });
+
+    if (transactionalCode) {
+      const cooldownTime = addMinutes(transactionalCode.createdAt, 1);
+
+      if (isBefore(new Date(), cooldownTime)) {
+        const remainingSeconds = differenceInSeconds(cooldownTime, new Date());
+
+        throw new BadRequestException({
+          error: 'Límite de intentos',
+          message: `Ya has generado un código recientemente. Por favor espera ${remainingSeconds} segundos antes de solicitar uno nuevo.`,
+        });
+      }
+    }
+
     const randomNumber = Math.random();
 
     const token = randomNumber.toString().substring(2, 8);

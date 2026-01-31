@@ -4,7 +4,7 @@ export * from './menus/base-menu.dto';
 
 // Auth
 export * from './auth/sign-in.dto';
-export * from './auth/password-change.dto';
+export * from './auth/password-changed.dto';
 export * from './auth/sign-up-external.dto';
 
 // Users
