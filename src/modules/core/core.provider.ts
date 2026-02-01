@@ -20,8 +20,6 @@ import {
 } from '@modules/core/entities';
 
 export const coreProviders = [
-  //Editar desde aqui
-
   {
     provide: CoreRepositoryEnum.BRANCH_REPOSITORY,
     useFactory: (dataSource: DataSource) => dataSource.getRepository(BranchEntity),

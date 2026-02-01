@@ -100,6 +100,7 @@ export class AuthService {
         emailVerifiedAt: true,
         username: true,
         securityQuestionAcceptedAt: true,
+        passwordChanged: true,
       },
       where: {
         username: payload.username,
@@ -229,7 +230,8 @@ export class AuthService {
         const remainingSeconds = differenceInSeconds(cooldownTime, new Date());
 
         throw new BadRequestException({
-          error: 'Límite de intentos',
+          data: { remainingSeconds },
+          error: ErrorCodeEnum.REMAINING_TOKEN,
           message: `Ya has generado un código recientemente. Por favor espera ${remainingSeconds} segundos antes de solicitar uno nuevo.`,
         });
       }
@@ -278,7 +280,8 @@ export class AuthService {
         const remainingSeconds = differenceInSeconds(cooldownTime, new Date());
 
         throw new BadRequestException({
-          error: 'Límite de intentos',
+          data: { remainingSeconds },
+          error: ErrorCodeEnum.REMAINING_TOKEN,
           message: `Ya has generado un código recientemente. Por favor espera ${remainingSeconds} segundos antes de solicitar uno nuevo.`,
         });
       }
@@ -319,7 +322,8 @@ export class AuthService {
         const remainingSeconds = differenceInSeconds(cooldownTime, new Date());
 
         throw new BadRequestException({
-          error: 'Límite de intentos',
+          data: { remainingSeconds },
+          error: ErrorCodeEnum.REMAINING_TOKEN,
           message: `Ya has generado un código recientemente. Por favor espera ${remainingSeconds} segundos antes de solicitar uno nuevo.`,
         });
       }
@@ -504,6 +508,13 @@ export class AuthService {
         throw new BadRequestException({
           error: ErrorCodeEnum.INVALID_TOKEN,
           message: 'Token no válido',
+        });
+      }
+
+      if (emailVerification.user.emailVerifiedAt) {
+        throw new BadRequestException({
+          error: ErrorCodeEnum.ACCOUNT_VERIFIED_EMAIL,
+          message: 'Tu cuenta ya fue verificada. Puedes iniciar sesión o continuar con el proceso.',
         });
       }
 

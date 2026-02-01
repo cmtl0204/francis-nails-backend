@@ -5,8 +5,8 @@ export interface ResponseHttpInterface<T = object | boolean | number | string | 
   pagination?: T;
 }
 
-export interface ErrorResponseHttpModel<T = any> {
-  data?: T;
+export interface ErrorResponseHttpModel {
+  data?: any;
   error: string;
   message: string | string[];
 }
