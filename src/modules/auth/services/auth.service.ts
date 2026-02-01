@@ -224,15 +224,16 @@ export class AuthService {
     });
 
     if (transactionalCode) {
-      const cooldownTime = addMinutes(transactionalCode.createdAt, 0.5);
+      const now = new Date(); // UTC
+      const cooldownTime = new Date(transactionalCode.createdAt.getTime() + 30 * 1000);
 
-      if (isBefore(new Date(), cooldownTime)) {
-        const remainingSeconds = differenceInSeconds(cooldownTime, new Date());
+      if (now < cooldownTime) {
+        const remainingSeconds = Math.ceil((cooldownTime.getTime() - now.getTime()) / 1000);
 
         throw new BadRequestException({
           data: { remainingSeconds },
           error: ErrorCodeEnum.REMAINING_TOKEN,
-          message: `Ya has generado un código recientemente. Por favor espera ${remainingSeconds} segundos antes de solicitar uno nuevo.`,
+          message: `Ya has generado un código recientemente. Por favor espera ${remainingSeconds} segundos.`,
         });
       }
     }
